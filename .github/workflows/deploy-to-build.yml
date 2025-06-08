@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/deploy-to-build.yml
 name: Deploy to Build Branch
 on:
   push:
@@ -24,4 +23,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist/boardbuilder
           publish_branch: build
-EOF
