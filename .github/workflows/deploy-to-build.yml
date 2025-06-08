@@ -1,9 +1,14 @@
-name: Deploy Prod to aws-prod
+# Create the .github/workflows directory
+mkdir -p .github/workflows
+
+# Create the workflow file
+cat << 'EOF' > .github/workflows/deploy-to-build.yml
+name: Deploy to Build Branch
 
 on:
   push:
     branches:
-      - prod  # Triggers the action on pushes to the prod branch.
+      - master  # Triggers the action on pushes to the master branch.
 
 jobs:
   build:
@@ -24,9 +29,10 @@ jobs:
     - name: Build the Angular app
       run: npm run build -- --prod --output-path=dist/boardbuilder
 
-    - name: Deploy Prod to aws-prod
+    - name: Deploy to Build Branch
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist/boardbuilder  # The directory where the Angular build is output
-        publish_branch: aws-prod  # Use aws-prod for production deployment
+        publish_branch: build  # Publish to the build branch
+EOF
