@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build for Production
-        if: github.repository == 'global-symbols/boardbuilder-internal'
+        if: github.repository == 'global-symbols/boardbuilder'
         run: npm run build -- --configuration=production --output-path=dist/boardbuilder
       - name: Deploy Stage to Build Branch
         if: github.repository == 'global-symbols/boardbuilder'
