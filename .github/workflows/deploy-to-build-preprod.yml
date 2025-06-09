@@ -1,4 +1,4 @@
-name: Deploy to Build Branch
+name: Deploy Pre-prod to Build Branch
 on:
   push:
     branches:
@@ -15,9 +15,11 @@ jobs:
           node-version: '16'
       - name: Install dependencies
         run: npm install
-      - name: Build the Angular app
-        run: npm run build -- --prod --output-path=dist/boardbuilder
-      - name: Deploy to Build Branch
+      - name: Build for Pre-prod
+        if: github.repository == 'global-symbols/boardbuilder-internal'
+        run: npm run build -- --configuration=preprod --output-path=dist/boardbuilder
+      - name: Deploy Pre-prod to Build Branch
+        if: github.repository == 'global-symbols/boardbuilder-internal'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
