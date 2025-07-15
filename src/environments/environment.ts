@@ -12,6 +12,7 @@ export const environment = {
   boardBuilderApiBase: 'http://localhost:3000/api/boardbuilder/v1',
 
   globalSymbolsOauthClientId: 'TmfOdD5gPManAv3UafHGLFDcfcrEkXTjLGT2OPmCFyI',
+
   astericsGridBase: 'http://localhost:9095'
 };
 

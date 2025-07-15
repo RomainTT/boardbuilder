@@ -6,5 +6,7 @@ export const environment = {
   globalSymbolsApiBase: 'https://gs-test.co.uk/api/v1',
   boardBuilderApiBase: 'https://gs-test.co.uk/api/boardbuilder/v1',
 
-  globalSymbolsOauthClientId: 'RKBryis4wFurzoH14-J9gMiHbXHRll6YHTZXrYVJc_A'
+  globalSymbolsOauthClientId: 'RKBryis4wFurzoH14-J9gMiHbXHRll6YHTZXrYVJc_A',
+
+  astericsGridBase: 'https://grid.asterics.eu'
 };
