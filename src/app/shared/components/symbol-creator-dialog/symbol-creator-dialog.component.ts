@@ -5,6 +5,7 @@ import {SymbolCreatorComponent} from '@shared/components/symbol-creator/symbol-c
 
 export interface SymbolCreatorDialogData {
   media?: Media;
+  blob?: Blob;
 }
 
 @Component({
@@ -15,16 +16,35 @@ export interface SymbolCreatorDialogData {
 export class SymbolCreatorDialogComponent {
 
   media: Media;
+  blob: Blob;
 
   @ViewChild(SymbolCreatorComponent) public symbolCreator: SymbolCreatorComponent;
 
+  // constructor(
+  //   @Inject(MAT_DIALOG_DATA) public data: SymbolCreatorDialogData,
+  //   public dialogRef: MatDialogRef<SymbolCreatorDialogComponent>) {
+  //   if (data.media) { this.media = data.media; }
+  //   if (data.file) { this.file = data.file; }
+  // }
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: SymbolCreatorDialogData,
-    public dialogRef: MatDialogRef<SymbolCreatorDialogComponent>) {
-    if (data.media) { this.media = data.media; }
+    public dialogRef: MatDialogRef<SymbolCreatorDialogComponent>
+  ) {
+    if (data.media) {
+      this.media = data.media;
+    }
+    if (data.blob) {
+      this.blob = data.blob;
+    }
   }
 
-  saveAndClose() {
-    this.symbolCreator.save().subscribe(media => this.dialogRef.close(media), error => null);
+ngAfterViewInit(): void {
+    // Call addImageFromBlob after the view is initialized
+    if (this.blob && this.symbolCreator) {
+      this.symbolCreator.addImageFromBlob(this.blob);
+    }
   }
+
+  
 }

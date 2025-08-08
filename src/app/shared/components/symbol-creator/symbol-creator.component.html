@@ -150,6 +150,13 @@
         <canvas #canvasElement id="canvas" width="400" height="400"></canvas>
       </mat-card>
     </div>
+      <button mat-raised-button color="primary" class="mr-1 mt-1" (click)="saveAndClose()" id="save-close" appStopPropagation
+              aria-label="Save and Close" matTooltip="Save and Close"
+              i18n-aria-label="save and close|Save and Close" i18n-matTooltip="save and close|Save and Close"
+              gaCategory="SymbolCreator" gaEvent="click" gaLabel="SaveAndClose">
+        Save
+      </button>
+
   </div>
 
   <!-- Properties -->

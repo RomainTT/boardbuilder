@@ -173,4 +173,31 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
   saveCell(next?): void {
     this.cellService.update(this.cell).subscribe(next);
   }
+
+// onMediaCreated(media: any) {
+//     if (this.mediaLibrary) {
+//       this.mediaLibrary.loadMedia(media); // Update MediaLibrary
+//     }
+//     if (this.boardEditor) {
+//       this.boardEditor.loadMedia(media); // Update board cell
+//     }
+//   }
+
+
+// onMediaCreated(media: any) {
+//     console.log('onMediaCreated called with media:', media); // Debug log
+//     if (this.mediaLibrary) {
+//       console.log('Loading media in MediaLibrary');
+//       this.mediaLibrary.loadMedia(media);
+//     } else {
+//       console.log('mediaLibrary is null');
+//     }
+//     if (this.boardEditor) {
+//       console.log('Loading media in BoardEditor');
+//       this.boardEditor.loadMedia(media);
+//     } else {
+//       console.log('boardEditor is null');
+//     }
+//   }
+
 }

@@ -30,10 +30,16 @@ import {BoardEditorFormComponent} from './components/board-editor-form/board-edi
 import {StopPropagationDirective} from './directives/stop-propagation.directive';
 import {BoardPreviewSvgComponent} from './components/board-preview-svg/board-preview-svg.component';
 import {SymbolCreatorDialogComponent} from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
+import {SymbolCreatorAIDialogComponent} from '@shared/components/symbol-creator-ai-dialog/symbol-creator-ai-dialog.component';
 import {NgxGoogleAnalyticsModule} from 'ngx-google-analytics';
 import { AdaptableImageComponent } from './components/adaptable-image/adaptable-image.component';
 import { ColourPickerComponent } from './components/colour-picker/colour-picker.component';
 import {MatBadgeModule} from '@angular/material/badge';
+import { SymbolCreatorAiComponent } from './components/symbol-creator-ai/symbol-creator-ai.component';
+import { PromptModeComponent } from './components/symbol-creator-ai/prompt-mode/prompt-mode.component';
+import { ImageModeComponent } from './components/symbol-creator-ai/image-mode/image-mode.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
 
 
 @NgModule({
@@ -44,7 +50,6 @@ import {MatBadgeModule} from '@angular/material/badge';
     MediaLibraryComponent,
     CopyBoardSetDialogComponent,
     SearchPanelComponent,
-    SearchPanelComponent,
     SymbolCreatorComponent,
     AddSymbolDialogComponent,
     BypassSanitiserPipe,
@@ -52,8 +57,12 @@ import {MatBadgeModule} from '@angular/material/badge';
     StopPropagationDirective,
     BoardPreviewSvgComponent,
     SymbolCreatorDialogComponent,
+    SymbolCreatorAIDialogComponent,
     AdaptableImageComponent,
-    ColourPickerComponent
+    ColourPickerComponent,
+    SymbolCreatorAiComponent,
+    PromptModeComponent,
+    ImageModeComponent
   ],
     exports: [
         ConfirmDialogComponent,
@@ -89,7 +98,9 @@ import {MatBadgeModule} from '@angular/material/badge';
         MatTooltipModule,
         MatTabsModule,
         NgxGoogleAnalyticsModule,
-        MatBadgeModule
+        MatBadgeModule,
+        MatSlideToggleModule,
+        HotkeyModule
     ]
 })
 export class SharedModule { }

@@ -6,6 +6,9 @@ import {SymbolSearchResult} from '@data/models/symbol-search-result';
 import {SymbolService} from '@data/services/symbol.service';
 import {Symbolset} from '@data/models/symbolset';
 import {Language} from '@data/models/language';
+import {DialogService} from '@app/services/dialog.service';
+import { Media } from '@data/models/media.model'; // Add this
+import { MediaUpdateService } from '@data/services/media-update.service'; // Add this
 
 @Component({
   selector: 'app-search-panel',
@@ -36,10 +39,14 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
 
   @Input() initialQuery: string;
   @Output() readonly selectionChange = new EventEmitter<SymbolSearchResult>();
+  @Output() readonly mediaCreated = new EventEmitter<Media>(); // Add this to notify parent
+
 
   constructor(
     private globalSymbolsService: GlobalSymbolsService,
     private symbolService: SymbolService,
+    private dialogService: DialogService,
+    private mediaUpdateService: MediaUpdateService,
     @Inject(LOCALE_ID) public locale: string
   ) {
 
@@ -136,6 +143,30 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   selectImage(result: SymbolSearchResult) {
     this.selectionChange.emit(result);
   }
+
+  
+openSymbolCreator() {
+    const currentDialogRef = this.dialogService.openSymbolCreator();
+    currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
+      if (mediaItem) {
+        this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
+        console.log('Symbol Creator dialog closed', mediaItem);
+      }
+    });
+  }
+
+  openSymbolCreatorAI() {
+    const currentDialogRef = this.dialogService.openSymbolCreatorAI();
+    
+    currentDialogRef.componentInstance.parentDialogRef = currentDialogRef; // Pass the dialog reference to PromptModeComponent
+    currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
+      if (mediaItem) {
+        this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
+        console.log('SCAI dialog closed', mediaItem);
+      }
+    });
+  }
+  
 }
 
 interface FlatGsParam<T> {

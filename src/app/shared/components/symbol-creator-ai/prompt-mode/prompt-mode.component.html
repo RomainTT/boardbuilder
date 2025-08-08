@@ -1,0 +1,93 @@
+<div *ngIf="showPrompt" class="floating-prompt">
+  <h3 style="font-weight: 400;margin-bottom: 3px;">{{ fullPrompt || 'No prompt generated yet' }}</h3>
+  <button mat-icon-button style="width: 100%; text-align: right;" *ngIf="fullPrompt" (click)="copyPrompt()" aria-label="Copy prompt" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>
+
+<div class="images-container" *ngIf="isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
+  <div class="images-row" *ngIf="showImages">
+   <div class="image-placeholder" [ngClass]="{ 'selected': i === selectedImageIndex, 'refreshing': isRefreshing }" *ngFor="let img of generatedImages; let i = index; trackBy: trackByIndex"
+         (click)="selectImage(i)" [@fadeIn]
+         [style.background-image]="'url(' + img + ')'"
+         [style.background-size]="'cover'"
+         [style.background-position]="'center'">
+    </div>
+          <mat-progress-spinner *ngIf="isLoading" mode="indeterminate" diameter="100" class="loading-overlay"></mat-progress-spinner>  <!-- NEW: Loading spinner -->
+  </div>
+</div>
+
+<!-- Enlarged selected image section -->
+<div *ngIf="selectedImageIndex !== null" class="selected-image mb-3" [@expandSelected]>
+  <div class="image-and-details">
+    <div class="enlarged-placeholder"
+         [style.background-image]="'url(' + selectedImageUrl + ')'"
+         [style.background-size]="'cover'"
+         [style.background-position]="'center'">
+    </div>
+
+    <div class="rating-detailed" *ngIf="showDetailedRatings"> <!-- New detailed rating section -->
+      <div [@fadeInDetailed]>
+      <div class="rating-group text-center w-100 mb-1">
+        <label class="w-100">Prompt Accuracy</label>
+        <div class="rating mb-1" [@fadeIn]>
+          <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setPromptAccuracy(star)"
+                    [class.filled]="star <= promptAccuracy">{{ star <= promptAccuracy ? 'star' : 'star_border' }}</mat-icon>
+        </div>
+      </div>
+      <div class="rating-group text-center w-100">
+        <label class="w-100">Style Accuracy</label>
+        <div class="rating" [@fadeIn]>
+          <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setStyleAccuracy(star)"
+                    [class.filled]="star <= styleAccuracy">{{ star <= styleAccuracy ? 'star' : 'star_border' }}</mat-icon>
+        </div>
+      </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="mb-1">
+    <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+  </div>
+  <div class="options">
+    <button mat-icon-button color="primary" aria-label="Save Symbol to Device" matTooltip="Save to Device" (click)="downloadPng()">
+      <mat-icon>save_alt</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" aria-label="Send to Designer" matTooltip="Send to Designer" (click)="importToDesigner()">
+      <mat-icon>construction</mat-icon>
+    </button>
+  </div>
+  
+  <div class="rating">
+    <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" [ngClass]="{ 'filled': star <= rating }">
+      {{ star <= rating ? 'star' : 'star_border' }}
+    </mat-icon>
+  </div>
+  <button mat-icon-button class="mt-1" (click)="closeSelected()">Close</button>
+</div>
+
+<mat-form-field style="width:100%" appearance="fill">
+  <textarea matInput placeholder="Describe your symbol" [(ngModel)]="prompt"></textarea>
+</mat-form-field>
+
+<div class="controls-row">
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Style</mat-label>
+    <mat-select [(ngModel)]="selectedStyle" name="style">
+    <mat-option *ngFor="let style of availableStyles" [value]="style">
+      {{ style }}
+    </mat-option>
+  </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Culture</mat-label>
+    <input matInput [(ngModel)]="additionalText">
+  </mat-form-field>
+
+  <mat-slide-toggle [(ngModel)]="backgroundEnabled" class="control-item">White Background</mat-slide-toggle>
+
+  <!-- <mat-slide-toggle class="control-item">Person???</mat-slide-toggle> -->
+</div>
+
+<button mat-raised-button color="primary" (click)="onSubmit()" class="mt-1" [disabled]="prompt.length < 1">Generate Images</button>  <!-- NEW: Added [disabled] binding -->

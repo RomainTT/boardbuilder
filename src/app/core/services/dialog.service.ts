@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef, MatDialogConfig} from '@angular/material/dialog';
 import {Media} from '@data/models/media.model';
 import {SymbolCreatorDialogComponent} from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
+import {SymbolCreatorAIDialogComponent} from '@shared/components/symbol-creator-ai-dialog/symbol-creator-ai-dialog.component';
 import {
   AddSymbolDialogComponent,
   AddSymbolDialogData,
@@ -41,8 +42,20 @@ export class DialogService {
     return this.currentDialog;
   }
 
-  openSymbolCreator(media?: Media): MatDialogRef<SymbolCreatorDialogComponent> {
+  openSymbolCreator(config?: MatDialogConfig): MatDialogRef<SymbolCreatorDialogComponent> {
+    const defaultConfig: MatDialogConfig = {
+      width: '800px',
+      data: {} // Default empty data object
+    };
     this.currentDialog = this.dialog.open(SymbolCreatorDialogComponent, {
+      ...defaultConfig,
+      ...config // Merge provided config with defaults
+    });
+    return this.currentDialog;
+  }
+
+  openSymbolCreatorAI(media?: Media): MatDialogRef<SymbolCreatorAIDialogComponent> {
+    this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
       width: '800px',
       data: {media}
     });

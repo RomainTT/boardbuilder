@@ -12,6 +12,8 @@ export const environment = {
   boardBuilderApiBase: 'http://localhost:3000/api/boardbuilder/v1',
 
   globalSymbolsOauthClientId: 'Msd0ocExMmwsloYOox-CQrg-e767OR_akzUEYoNstgc',
+  
+  scaAiApiBase: 'http://localhost:3001'  // New: For Mockoon
 };
 
 /*

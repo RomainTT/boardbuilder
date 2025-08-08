@@ -145,14 +145,22 @@
               ]
             },
             "development": {
-              "sourceMap": true
+              "sourceMap": true,
+              "optimization": false,
+              "buildOptimizer": false,
+              "vendorChunk": true,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "outputHashing": "none"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {},
+          "options": {
+            "browserTarget": "boardbuilder:build"
+          },
           "configurations": {
             "production": {
               "browserTarget": "boardbuilder:build:production"

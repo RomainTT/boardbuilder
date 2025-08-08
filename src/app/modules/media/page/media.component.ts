@@ -55,7 +55,7 @@ export class MediaComponent implements OnInit {
   }
 
   openSymbolCreator(media?: Media) {
-    this.dialogService.openSymbolCreator(media).afterClosed().subscribe(mediaItem => {
+    this.dialogService.openSymbolCreator({ data: { media } }).afterClosed().subscribe(mediaItem => {
       // Reload the Media list
       if (mediaItem) { this.loadMedia(); }
     });

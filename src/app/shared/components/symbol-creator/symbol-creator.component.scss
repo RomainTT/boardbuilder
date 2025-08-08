@@ -8,8 +8,6 @@ mat-card {
 
 $editor-width: 200px;
 
-
-
 color-github {
   width: $editor-width !important;
 }
@@ -25,4 +23,9 @@ color-github {
   //width: ($editor-width/10) !important;
   //height: calc(100% / 10) !important;
   //width: calc(100% / 10) !important;
+}
+
+#save-close {
+    align-self: flex-end;
+    margin: 26px 26px 0 0 !important;
 }
