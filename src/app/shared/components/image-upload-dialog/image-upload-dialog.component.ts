@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { BaseSymbolCreatorComponent } from '../symbol-creator-ai/base-symbol-creator.component';
 
 export interface ImageUploadDialogData {
   title?: string;
@@ -18,19 +19,13 @@ export interface ImageUploadResult {
   height: number;
 }
 
-// Style configuration interface copied from image mode
-interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
 
 @Component({
   selector: 'app-image-upload-dialog',
   templateUrl: './image-upload-dialog.component.html',
   styleUrls: ['./image-upload-dialog.component.scss']
 })
-export class ImageUploadDialogComponent implements OnInit {
+export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent implements OnInit {
   isDragOver = false;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -44,40 +39,12 @@ export class ImageUploadDialogComponent implements OnInit {
   maxWidth = 2000;
   maxHeight = 2000;
 
-  @Output() saveRequested = new EventEmitter<string>();
-
-  // Style control properties (copied from ImageModeComponent)
-  selectedStyle: string = 'Mulberry';
-  additionalText: string = ''; // Culture field (copied from prompt-mode)
-  public availableStyles: string[] = [];
-  private styleConfigs: Record<string, StyleConfig> = {
-    'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-    'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-    'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  };
-
-  backgroundEnabled: boolean = true;
-  outlinesEnabled: boolean = true;
-  private outlineWidth: number = 7;
-  private saturation: string = 'bold';
-
-  // Gallery states (copied from ImageModeComponent)
+  // Component-specific properties (keeping only what's unique)
   uploadedImageData: ImageUploadResult | null = null;
-  generatedImages: string[] = [];
-  selectedImageIndex: number | null = null;
-  isGenerated: boolean = false;
-  showImages: boolean = false;
-  isRefreshing: boolean = false;
 
-  // Rating states (copied from ImageModeComponent)
-  rating: number = 0;
-  promptAccuracy: number = 0;
-  styleAccuracy: number = 0;
-  showDetailedRatings: boolean = false;
-
-  constructor() {}
+  constructor() {
+    super(); // Required call to parent constructor
+  }
 
   ngOnInit() {
     // Update accepted extensions based on accepted types
@@ -92,9 +59,8 @@ export class ImageUploadDialogComponent implements OnInit {
       }
     }).filter(ext => ext);
 
-    // Initialize style controls
-    this.availableStyles = Object.keys(this.styleConfigs);
-    this.updateFromConfig();
+    // Initialize styles using base class method
+    this.initializeStyles();
   }
 
   onDragOver(event: DragEvent) {
@@ -262,26 +228,10 @@ export class ImageUploadDialogComponent implements OnInit {
     // Image is now ready for generation when user clicks Generate button
   }
 
-  // Style management methods (copied from ImageModeComponent)
+  // Override base class method to add image regeneration logic
   onStyleChange(newStyle: string) {
-    this.selectedStyle = newStyle;
-    this.updateFromConfig();
+    super.onStyleChange(newStyle); // Call base class logic
     // Could auto-regenerate here if desired
-  }
-
-  private updateFromConfig() {
-    const config = this.styleConfigs[this.selectedStyle];
-    if (config) {
-      this.backgroundEnabled = config.background;
-      this.outlinesEnabled = true;
-      this.outlineWidth = config.outlineWidth;
-      this.saturation = config.saturation;
-    } else {
-      this.backgroundEnabled = true;
-      this.outlinesEnabled = true;
-      this.outlineWidth = 2;
-      this.saturation = 'bold';
-    }
   }
 
   // Image generation method (copied from ImageModeComponent)
@@ -324,52 +274,8 @@ export class ImageUploadDialogComponent implements OnInit {
     });
   }
 
-  // Gallery event handlers (copied from ImageModeComponent)
-  selectImage(index: number) {
-    this.selectedImageIndex = index;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
 
-  closeSelected() {
-    this.selectedImageIndex = null;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
-
-  // Rating event handlers (copied from ImageModeComponent)
-  setRating(value: number) {
-    this.rating = value;
-    console.log(`[ImageUploadDialogComponent] Overall rated ${value} stars for image index: ${this.selectedImageIndex}`);
-    if (value > 0) {
-      this.showDetailedRatings = true;
-    }
-  }
-
-  setPromptAccuracy(value: number) {
-    this.promptAccuracy = value;
-    console.log(`[ImageUploadDialogComponent] Prompt Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
-  }
-
-  setStyleAccuracy(value: number) {
-    this.styleAccuracy = value;
-    console.log(`[ImageUploadDialogComponent] Style Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
-  }
-
-  // Action handlers (copied from ImageModeComponent)
-  onSave() {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      console.log(`[ImageUploadDialogComponent] Save requested for generated image: ${this.generatedImages[this.selectedImageIndex]}`);
-      this.saveRequested.emit(this.generatedImages[this.selectedImageIndex]);
-    } else {
-      console.warn('[ImageUploadDialogComponent] No image selected for save');
-    }
-  }
-
+  // Component-specific action methods
   downloadPng() {
     if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
       console.warn('[ImageUploadDialogComponent] No image selected for download');
@@ -386,14 +292,6 @@ export class ImageUploadDialogComponent implements OnInit {
     }
     console.log(`[ImageUploadDialogComponent] Import to designer requested for: ${this.generatedImages[this.selectedImageIndex]}`);
     // TODO: Implement actual import to designer functionality
-  }
-
-  // Getters (copied from ImageModeComponent)
-  get selectedImageUrl(): string {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      return this.generatedImages[this.selectedImageIndex];
-    }
-    return '';
   }
 
   get originalImageUrl(): string {
