@@ -27,9 +27,12 @@ export class AiImageGalleryComponent {
   @Input() showImages: boolean = false;
   @Input() isLoading: boolean = false;
   @Input() isRefreshing: boolean = false;
+  @Input() apiError: string | null = null;
+  @Input() showApiError: boolean = false;
 
   @Output() imageSelected = new EventEmitter<number>();
   @Output() expandDone = new EventEmitter<AnimationEvent>();
+  @Output() retryRequested = new EventEmitter<void>();
 
   selectImage(index: number) {
     this.imageSelected.emit(index);
@@ -37,6 +40,10 @@ export class AiImageGalleryComponent {
 
   onExpandDone(event: AnimationEvent) {
     this.expandDone.emit(event);
+  }
+
+  onRetry() {
+    this.retryRequested.emit();
   }
 
   trackByIndex(index: number, item: any): number {

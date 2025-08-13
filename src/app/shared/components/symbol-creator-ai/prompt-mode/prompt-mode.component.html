@@ -12,8 +12,11 @@
   [showImages]="showImages"
   [isLoading]="isLoading"
   [isRefreshing]="isRefreshing"
+  [apiError]="apiError"
+  [showApiError]="showApiError"
   (imageSelected)="selectImage($event)"
-  (expandDone)="onExpandDone($event)">
+  (expandDone)="onExpandDone($event)"
+  (retryRequested)="onSubmit()">
 </app-ai-image-gallery>
 
 <!-- Enlarged selected image section -->
@@ -36,7 +39,7 @@
     </app-ai-rating-system>
 
   </div>
-  
+
   <app-ai-image-actions
     [selectedImageUrl]="selectedImageUrl"
     (saveRequested)="onSave()"

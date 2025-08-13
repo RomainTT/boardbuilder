@@ -1,13 +1,13 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { trigger, transition, style, animate, AnimationEvent } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '@env';
 import { HotkeysService, Hotkey } from '@conflito/angular2-hotkeys';
-import { ImageBase64Service } from '@data/services/image-base64.service';
 import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 import { MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { BaseSymbolCreatorComponent } from '../base-symbol-creator.component';
+import { AiSymbolService } from '@data/services/ai-symbol.service';
+import { AiGenerationParams, PromptBuilderOptions } from '@data/models/ai-symbol.interfaces';
 
 @Component({
   selector: 'app-prompt-mode',
@@ -63,10 +63,11 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
   constructor(
     private http: HttpClient,
     private hotkeysService: HotkeysService,
-    private imageBase64Service: ImageBase64Service,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private aiSymbolServicePrivate: AiSymbolService
   ) {
     super(); // Required call to parent constructor
+    this.aiSymbolService = this.aiSymbolServicePrivate; // Set service in base class
     
     this.promptHotkey = new Hotkey('ctrl+p', (event: KeyboardEvent): boolean => {
       this.showPrompt = !this.showPrompt;
@@ -84,10 +85,14 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
   }
 
   onSubmit() {
+    console.log('[PromptModeComponent] onSubmit called, using AiSymbolService for generation');
     const isRefresh = !this.isFirstGeneration;
     const minTime = isRefresh ? this.minSpinnerTime : 0;
     const startTime = Date.now();
 
+    // Clear any previous errors
+    this.clearApiError();
+    
     this.isLoading = true;
     this.isRefreshing = true;
     this.selectedImageIndex = null;
@@ -100,19 +105,26 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
 
     this.generatedImages = Array(4).fill('');
 
-    this.fullPrompt = `${this.prompt} in ${this.selectedStyle} style` +
-      (this.additionalText ? `, culture: ${this.additionalText}` : '') +
-      `, ${this.backgroundEnabled ? 'with' : 'without'} a background` +
-      `${this.outlinesEnabled ? `, using a ${this.outlineWidth}px outline` : ''}` +
-      `, color saturation: ${this.saturation}`;
+    // Build prompt using service
+    const promptOptions: PromptBuilderOptions = {
+      basePrompt: this.prompt,
+      style: this.selectedStyle,
+      culture: this.additionalText,
+      backgroundEnabled: this.backgroundEnabled,
+      outlinesEnabled: this.outlinesEnabled,
+      outlineWidth: this.outlineWidth,
+      saturation: this.saturation
+    };
+    
+    this.fullPrompt = this.aiSymbolServicePrivate.buildPrompt(promptOptions);
 
-    const payload = {
+    const params: AiGenerationParams = {
       prompt: this.fullPrompt,
       num_images: 4,
       steps: 4
     };
 
-    this.http.post<{ images: string[] }>(`${environment.scaAiApiBase}/api/symbols/generate`, payload)
+    this.aiSymbolServicePrivate.generateImages(params)
       .subscribe(response => {
         this.generatedImages = response.images;
         this.isGenerated = true;
@@ -133,25 +145,16 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
           this.isRefreshing = false;
         }
       }, error => {
-        console.error('API error:', error);
-        this.generatedImages = Array(4).fill('');
-        this.isGenerated = true;
-        if (!this.isFirstGeneration) {
-          this.showImages = true;
-        }
-        this.isFirstGeneration = false;
-
         const elapsed = Date.now() - startTime;
         const remaining = minTime - elapsed;
         if (remaining > 0) {
           setTimeout(() => {
-            this.isLoading = false;
-            this.isRefreshing = false;
+            this.handleApiError(error);
           }, remaining);
         } else {
-          this.isLoading = false;
-          this.isRefreshing = false;
+          this.handleApiError(error);
         }
+        this.isFirstGeneration = false;
       });
   }
 
@@ -162,37 +165,8 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
   }
 
   downloadPng() {
-    if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
-      console.warn('No image selected for download');
-      return;
-    }
-
-    const imageUrl = this.generatedImages[this.selectedImageIndex];
-
-    this.http.get(imageUrl, { responseType: 'blob' }).subscribe(blob => {
-      if (!blob) {
-        console.error('Failed to fetch image blob');
-        return;
-      }
-
-      const filename = this.generateFilename();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }, error => {
-      console.error('Error downloading PNG:', error);
-    });
-  }
-
-  private generateFilename(): string {
-    const timestamp = new Date().toISOString().replace(/[:\-T\.Z]/g, '').slice(0, 14);
-    const sanitizedPrompt = this.fullPrompt.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
-    return `${sanitizedPrompt}_${this.selectedStyle.toLowerCase()}_${timestamp}.png`.toLowerCase();
+    console.log('[PromptModeComponent] downloadPng called, using service via base class');
+    this.performDownload(this.fullPrompt);
   }
 
   importToDesigner() {
@@ -202,7 +176,9 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
     }
 
     const imageUrl = this.generatedImages[this.selectedImageIndex];
-    this.http.get(imageUrl, { responseType: 'blob' }).subscribe(
+    const filename = this.aiSymbolService.generateFilename(this.fullPrompt, this.selectedStyle);
+    
+    this.aiSymbolServicePrivate.downloadImage(imageUrl, filename).subscribe(
       (blob) => {
         if (!blob) {
           console.error('Failed to fetch image blob for editing');

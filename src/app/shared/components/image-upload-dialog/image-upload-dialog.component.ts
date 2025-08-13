@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { of, Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { BaseSymbolCreatorComponent } from '../symbol-creator-ai/base-symbol-creator.component';
+import { AiSymbolService } from '@data/services/ai-symbol.service';
+import { AiImageToImageParams } from '@data/models/ai-symbol.interfaces';
 
 export interface ImageUploadDialogData {
   title?: string;
@@ -42,8 +42,9 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
   // Component-specific properties (keeping only what's unique)
   uploadedImageData: ImageUploadResult | null = null;
 
-  constructor() {
+  constructor(private aiSymbolServicePrivate: AiSymbolService) {
     super(); // Required call to parent constructor
+    this.aiSymbolService = this.aiSymbolServicePrivate;
   }
 
   ngOnInit() {
@@ -234,16 +235,19 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
     // Could auto-regenerate here if desired
   }
 
-  // Image generation method (copied from ImageModeComponent)
+  // Generate image variations using AiSymbolService
   generateImageVariations() {
     if (!this.uploadedImageData) {
       console.warn('[ImageUploadDialogComponent] No uploaded image data available');
       return;
     }
 
-    console.log(`[ImageUploadDialogComponent] POST ${this.uploadedImageData.base64.substring(0, 50)}... to /api/symbols/image-to-image`);
-    console.log(`[ImageUploadDialogComponent] Style: ${this.selectedStyle}, Culture: ${this.additionalText}, Background: ${this.backgroundEnabled}, Outlines: ${this.outlinesEnabled}`);
+    console.log('[ImageUploadDialogComponent] Starting image-to-image generation using AiSymbolService');
     console.log(`[ImageUploadDialogComponent] Original image size: ${this.uploadedImageData.width}x${this.uploadedImageData.height}`);
+    console.log(`[ImageUploadDialogComponent] Style: ${this.selectedStyle}, Culture: ${this.additionalText}`);
+
+    // Clear any previous errors
+    this.clearApiError();
 
     this.isLoading = true;
     this.isRefreshing = true;
@@ -254,35 +258,43 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
     this.showDetailedRatings = false;
     this.showImages = false;
 
-    // Simulate API response with hardcoded images
-    const mockApiResponse = {
-      images: [
-        'https://picsum.photos/400/400?random=1',
-        'https://picsum.photos/400/400?random=2',
-        'https://picsum.photos/400/400?random=3',
-        'https://picsum.photos/400/400?random=4'
-      ]
+    this.generatedImages = Array(4).fill('');
+
+    // Build parameters for image-to-image generation
+    const params: AiImageToImageParams = {
+      image: this.uploadedImageData.base64,
+      style: this.selectedStyle,
+      culture: this.additionalText || undefined,
+      backgroundEnabled: this.backgroundEnabled,
+      outlinesEnabled: this.outlinesEnabled,
+      outlineWidth: this.outlineWidth,
+      saturation: this.saturation,
+      num_images: 4,
+      steps: 4
     };
 
-    // Simulate API delay
-    of(mockApiResponse).pipe(delay(1500)).subscribe(response => {
-      console.log('[ImageUploadDialogComponent] Received stubbed API response:', response);
-      this.generatedImages = response.images;
-      this.isGenerated = true;
-      this.isLoading = false;
-      this.isRefreshing = false;
-    });
+    // Call the service to generate image variations
+    this.aiSymbolServicePrivate.generateImageVariations(params)
+      .subscribe({
+        next: (response) => {
+          console.log('[ImageUploadDialogComponent] Received API response:', response);
+          this.generatedImages = response.images;
+          this.isGenerated = true;
+          this.isLoading = false;
+          this.isRefreshing = false;
+        },
+        error: (error) => {
+          console.error('[ImageUploadDialogComponent] API error:', error);
+          this.handleApiError(error);
+        }
+      });
   }
 
 
   // Component-specific action methods
   downloadPng() {
-    if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
-      console.warn('[ImageUploadDialogComponent] No image selected for download');
-      return;
-    }
-    console.log(`[ImageUploadDialogComponent] Download requested for: ${this.generatedImages[this.selectedImageIndex]}`);
-    // TODO: Implement actual download functionality
+    console.log('[ImageUploadDialogComponent] downloadPng called, using service via base class');
+    this.performDownload('image_upload_variation');
   }
 
   importToDesigner() {

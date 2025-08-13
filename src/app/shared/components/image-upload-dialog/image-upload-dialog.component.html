@@ -9,8 +9,11 @@
       [showImages]="showImages"
       [isLoading]="isLoading"
       [isRefreshing]="isRefreshing"
+      [apiError]="apiError"
+      [showApiError]="showApiError"
       (imageSelected)="selectImage($event)"
-      (expandDone)="showImages = true">
+      (expandDone)="showImages = true"
+      (retryRequested)="generateImageVariations()">
     </app-ai-image-gallery>
 
     <!-- Rating and Actions for selected image -->

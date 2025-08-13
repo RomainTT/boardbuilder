@@ -43,8 +43,11 @@
   [showImages]="showImages"
   [isLoading]="isLoading"
   [isRefreshing]="isRefreshing"
+  [apiError]="apiError"
+  [showApiError]="showApiError"
   (imageSelected)="selectImage($event)"
-  (expandDone)="onExpandDone($event)">
+  (expandDone)="onExpandDone($event)"
+  (retryRequested)="generateImageVariations()">
 </app-ai-image-gallery>
 
 <!-- Selected generated image section -->

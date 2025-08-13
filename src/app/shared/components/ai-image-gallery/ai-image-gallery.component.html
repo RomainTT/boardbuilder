@@ -1,5 +1,18 @@
 <div class="images-container" *ngIf="isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
-  <div class="images-row" *ngIf="showImages">
+  <!-- Error state -->
+  <div class="error-state" *ngIf="showApiError && apiError">
+    <div class="error-content">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p class="error-message">{{ apiError }}</p>
+      <button mat-raised-button color="primary" (click)="onRetry()" class="retry-button">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+  </div>
+  
+  <!-- Images display -->
+  <div class="images-row" *ngIf="showImages && !showApiError">
    <div class="image-placeholder" [ngClass]="{ 'selected': i === selectedImageIndex, 'refreshing': isRefreshing }" *ngFor="let img of generatedImages; let i = index; trackBy: trackByIndex"
          (click)="selectImage(i)" [@fadeIn]
          [style.background-image]="'url(' + img + ')'"
