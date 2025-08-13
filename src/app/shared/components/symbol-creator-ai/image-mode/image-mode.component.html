@@ -1,4 +1,77 @@
-<h3>Generated Image</h3>
-<img [src]="imageUrl" alt="AI Symbol">
-<button (click)="onSave()">Save</button>
-<!-- Add image editing/upload tools if needed for direct "Image" input -->
+<!-- Original uploaded image display -->
+<div *ngIf="originalImageUrl" class="original-image-section">
+  <h3>Original Image</h3>
+  <div class="original-image-container">
+    <img [src]="originalImageUrl" alt="Original uploaded image" class="original-image">
+    <div class="image-info">
+      <p><strong>{{ uploadedImageData?.file.name }}</strong></p>
+      <p>{{ uploadedImageData?.width }}x{{ uploadedImageData?.height }}px</p>
+    </div>
+  </div>
+</div>
+
+<!-- Style controls -->
+<div class="controls-row">
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Style</mat-label>
+    <mat-select [(ngModel)]="selectedStyle" (ngModelChange)="onStyleChange($event)" name="style">
+      <mat-option *ngFor="let style of availableStyles" [value]="style">
+        {{ style }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Culture</mat-label>
+    <input matInput [(ngModel)]="additionalText">
+  </mat-form-field>
+
+  <mat-slide-toggle [(ngModel)]="backgroundEnabled" class="control-item" (change)="generateImageVariations()">
+    White Background
+  </mat-slide-toggle>
+</div>
+
+<button mat-raised-button color="primary" (click)="generateImageVariations()" class="mt-1" [disabled]="!uploadedImageData">
+  Generate Variations
+</button>
+
+<!-- AI generated variations gallery -->
+<app-ai-image-gallery
+  [generatedImages]="generatedImages"
+  [selectedImageIndex]="selectedImageIndex"
+  [isGenerated]="isGenerated"
+  [showImages]="showImages"
+  [isLoading]="isLoading"
+  [isRefreshing]="isRefreshing"
+  (imageSelected)="selectImage($event)"
+  (expandDone)="onExpandDone($event)">
+</app-ai-image-gallery>
+
+<!-- Selected generated image section -->
+<div *ngIf="selectedImageIndex !== null" class="selected-image mb-3" [@expandSelected]>
+  <div class="image-and-details">
+    <div class="enlarged-placeholder"
+         [style.background-image]="'url(' + selectedImageUrl + ')'"
+         [style.background-size]="'cover'"
+         [style.background-position]="'center'">
+    </div>
+
+    <app-ai-rating-system
+      [rating]="rating"
+      [promptAccuracy]="promptAccuracy"
+      [styleAccuracy]="styleAccuracy"
+      [showDetailedRatings]="showDetailedRatings"
+      (ratingChanged)="setRating($event)"
+      (promptAccuracyChanged)="setPromptAccuracy($event)"
+      (styleAccuracyChanged)="setStyleAccuracy($event)">
+    </app-ai-rating-system>
+  </div>
+  
+  <app-ai-image-actions
+    [selectedImageUrl]="selectedImageUrl"
+    (saveRequested)="onSave()"
+    (downloadRequested)="downloadPng()"
+    (importToDesignerRequested)="importToDesigner()"
+    (closeRequested)="closeSelected()">
+  </app-ai-image-actions>
+</div>

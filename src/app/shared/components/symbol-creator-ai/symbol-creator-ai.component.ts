@@ -4,9 +4,11 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { Media } from '@data/models/media.model';
 import { MediaService } from '@data/services/media.service';
 import { HttpClient } from '@angular/common/http';
-import { MatDialogRef } from '@angular/material/dialog';
-import { ImageBase64Service } from '@data/services/image-base64.service'; // Add this import
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ImageBase64Service } from '@data/services/image-base64.service';
 import { SymbolCreatorAIDialogComponent } from '../symbol-creator-ai-dialog/symbol-creator-ai-dialog.component';
+import { ImageUploadDialogComponent, ImageUploadDialogData, ImageUploadResult } from '../image-upload-dialog/image-upload-dialog.component';
 import { environment } from '@env';
 
 enum Mode {
@@ -27,12 +29,15 @@ export class SymbolCreatorAiComponent implements OnInit {
 
   promptText: string = '';
   generatedImageUrl: string = '';
+  uploadedImageData: ImageUploadResult | null = null;
   lastError: string | null = null; // For error handling like SymbolCreatorComponent
 
   constructor(
     private mediaService: MediaService,
     private http: HttpClient,
     private imageBase64Service: ImageBase64Service,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>
   ) { }
 
@@ -44,9 +49,9 @@ export class SymbolCreatorAiComponent implements OnInit {
   }
 
   goToImageModeFromIntro() {
-    this.promptText = '';
-    this.generateImage();
+    // Switch directly to image mode - the unified component handles upload + controls + gallery
     this.currentMode = Mode.Image;
+    this.uploadedImageData = null; // Start with no uploaded image, component will handle upload
   }
 
   goToImageModeFromPrompt(prompt: string) {
@@ -58,6 +63,17 @@ export class SymbolCreatorAiComponent implements OnInit {
   goBackToDefault() {
     this.currentMode = null;
     this.lastError = null;
+    this.uploadedImageData = null;
+  }
+
+  private showError(message: string) {
+    this.lastError = message;
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['error-snackbar']
+    });
   }
 
   private generateImage() {
@@ -93,7 +109,18 @@ export class SymbolCreatorAiComponent implements OnInit {
     });
   }
 
-    save(): Observable<Media> {
+  save(): Observable<Media> {
+    // Handle uploaded file directly
+    if (this.uploadedImageData) {
+      return this.mediaService.add(this.uploadedImageData.file, null).pipe(
+        catchError(err => {
+          this.lastError = err.message || 'Error saving uploaded image';
+          return of(null);
+        })
+      );
+    }
+
+    // Handle generated image URL
     if (!this.generatedImageUrl) {
       this.lastError = 'No image selected';
       return of(null);

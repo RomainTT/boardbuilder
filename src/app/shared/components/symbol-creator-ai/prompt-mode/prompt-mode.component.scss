@@ -1,18 +1,5 @@
 @import "~app/shared/variables";
 
-.image-placeholder.refreshing {  // NEW: Class for fade during refresh
-  transition: opacity 600ms ease-in;  // Matches fadeIn duration
-  opacity: 0;  // Fade to 0 when refreshing
-}
-
-.loading-overlay {  // NEW: Position spinner over the images
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;  // Above images
-}
-
 .floating-prompt {
   position: fixed;  // Fixed to viewport for floating/sticky
   top: 10px;
@@ -41,35 +28,6 @@
   min-width: 120px;
 }
 
-.images-container {
-  margin-bottom: 20px;
-  will-change: height, overflow;
-}
-
-.images-row {
-  display: flex;
-  gap: 10px;
-}
-
-.image-placeholder {
-  padding: 10px;
-  flex: 1 1 0;
-  height: 150px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  transition: opacity 600ms ease-in;  // NEW: Enable opacity transition always
-}
-
-.image-placeholder.selected {
-  color: transparent;
-  border-color: #006aba;
-  box-shadow: 0 0 8px 4px #006aba;
-  outline-offset: -4px;
-  outline-width: 4px;
-  outline-style: solid;
-}
 
 .selected-image {
   margin-top: 20px;
@@ -103,82 +61,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.rating-detailed {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  position: absolute; // NEW: Absolute positioning to remove from flow
-  right: 0; // NEW: Pin to the right
-  top: 50%; // NEW: Vertically center
-  transform: translateY(-50%); // NEW: Adjust for true vertical centering
-}
-
-.rating-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.rating-group label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #333;
-}
-
-.options {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin-bottom: 15px;
-}
-
-.rating {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.rating mat-icon.filled {
-  color: gold;
-}
-
-.image-placeholder {
-  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  transition: box-shadow 0.2s ease-in;
-
-  &:hover {
-    transition-duration: 0.05s;
-    box-shadow: 0 0 8px 3px rgba($light-blue, 0.8);
-    cursor: pointer;
-  }
-
-  &.selected,
-  &.selected:focus {
-    transition-duration: 0.2s;
-    box-shadow: 0 0 8px 4px $blue;
-  }
-
-  &:focus {
-    transition-duration: 0.2s;
-    box-shadow: 0 0 5px 3px $light-blue;
-    outline-style: solid;
-    outline-color: transparent;
-  }
-}
 
 /* Responsive: Stack image and ratings vertically on small screens */
 @media (max-width: 600px) {
   .image-and-details {
     flex-direction: column;
     align-items: center;
-  }
-
-  .rating-detailed {
-    position: static; // NEW: Reset to static for stacking on mobile
-    transform: none; // NEW: Remove transform on mobile
-    margin-top: 20px; // Optional: Add space if needed
   }
 
   .enlarged-placeholder {

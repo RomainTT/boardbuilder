@@ -1,9 +1,45 @@
-<div cdkDrag
-     cdkDragRootElement=".cdk-overlay-pane"
-     cdkDragBoundary="body">
-  <h1 mat-dialog-title>{{ title }}</h1>
+<div class="unified-image-mode">
+  <div class="section-header">
+    <h2>{{ title }}</h2>
+  </div>
   
-  <div mat-dialog-content>
+  <!-- Gallery section (appears after generation) - moved to top -->
+  <div *ngIf="isGenerated" class="gallery-section">
+    <app-ai-image-gallery
+      [generatedImages]="generatedImages"
+      [selectedImageIndex]="selectedImageIndex" 
+      [isGenerated]="isGenerated"
+      [showImages]="showImages"
+      [isLoading]="isLoading"
+      [isRefreshing]="isRefreshing"
+      (imageSelected)="selectImage($event)"
+      (expandDone)="showImages = true">
+    </app-ai-image-gallery>
+    
+    <!-- Rating and Actions for selected image -->
+    <div *ngIf="selectedImageIndex !== null">
+      <app-ai-rating-system
+        [rating]="rating"
+        [promptAccuracy]="promptAccuracy"
+        [styleAccuracy]="styleAccuracy"
+        [showDetailedRatings]="showDetailedRatings"
+        (ratingChanged)="setRating($event)"
+        (promptAccuracyChanged)="setPromptAccuracy($event)"
+        (styleAccuracyChanged)="setStyleAccuracy($event)">
+      </app-ai-rating-system>
+      
+      <app-ai-image-actions
+        [selectedImageUrl]="selectedImageUrl"
+        [canSave]="true"
+        (saveRequested)="onSave()"
+        (downloadRequested)="downloadPng()"
+        (importToDesignerRequested)="importToDesigner()"
+        (closeRequested)="closeSelected()">
+      </app-ai-image-actions>
+    </div>
+  </div>
+  
+  <div class="upload-content">
     <div class="upload-container">
       <!-- Drag and drop area -->
       <div 
@@ -63,17 +99,41 @@
     </div>
   </div>
   
-  <div mat-dialog-actions>
-    <button mat-stroked-button (click)="onCancel()" color="primary">
-      Cancel
-    </button>
-    <span class="spacer"></span>
+  <!-- Style controls section (always visible and enabled) -->
+  <div class="style-controls-section">
+    <div class="controls-row">
+      <mat-form-field appearance="outline" class="control-item">
+        <mat-label>Style</mat-label>
+        <mat-select 
+          [(ngModel)]="selectedStyle" 
+          (ngModelChange)="onStyleChange($event)"
+          name="style">
+          <mat-option *ngFor="let style of availableStyles" [value]="style">
+            {{ style }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="control-item">
+        <mat-label>Culture</mat-label>
+        <input matInput [(ngModel)]="additionalText">
+      </mat-form-field>
+
+      <mat-slide-toggle 
+        [(ngModel)]="backgroundEnabled" 
+        class="control-item">
+        White Background
+      </mat-slide-toggle>
+    </div>
+    
     <button 
       mat-raised-button 
-      [disabled]="!canUpload"
-      (click)="onUpload()" 
-      color="primary">
-      Upload Image
+      color="primary"
+      [disabled]="!uploadedImageData || isLoading" 
+      (click)="generateImageVariations()"
+      class="mt-1">
+      <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+      {{ isLoading ? 'Generating...' : 'Generate Variations' }}
     </button>
   </div>
 </div>

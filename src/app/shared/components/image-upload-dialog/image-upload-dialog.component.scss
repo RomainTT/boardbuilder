@@ -148,6 +148,20 @@
   flex: 1 1 auto;
 }
 
+// Style controls styling (copied from prompt-mode)
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.control-item {
+  flex: 1;
+  min-width: 120px;
+}
+
 // Dialog actions styling
 mat-dialog-actions {
   margin-top: 16px;

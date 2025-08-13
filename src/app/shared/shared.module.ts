@@ -14,7 +14,7 @@ import {CopyBoardSetDialogComponent} from './components/copy-board-set-dialog/co
 import {SearchPanelComponent} from './components/search-panel/search-panel.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatCardModule} from '@angular/material/card';
 import {MediaLibraryComponent} from '@shared/components/media-library/media-library.component';
@@ -40,6 +40,13 @@ import { PromptModeComponent } from './components/symbol-creator-ai/prompt-mode/
 import { ImageModeComponent } from './components/symbol-creator-ai/image-mode/image-mode.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule as MatProgressSpinnerModuleImport } from '@angular/material/progress-spinner';
+import { ImageUploadDialogComponent } from './components/image-upload-dialog/image-upload-dialog.component';
+import { AiImageGalleryComponent } from './components/ai-image-gallery/ai-image-gallery.component';
+import { AiRatingSystemComponent } from './components/ai-rating-system/ai-rating-system.component';
+import { AiImageActionsComponent } from './components/ai-image-actions/ai-image-actions.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -62,7 +69,11 @@ import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
     ColourPickerComponent,
     SymbolCreatorAiComponent,
     PromptModeComponent,
-    ImageModeComponent
+    ImageModeComponent,
+    ImageUploadDialogComponent,
+    AiImageGalleryComponent,
+    AiRatingSystemComponent,
+    AiImageActionsComponent
   ],
     exports: [
         ConfirmDialogComponent,
@@ -90,6 +101,7 @@ import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
+        ReactiveFormsModule,
         MatInputModule,
         MatCardModule,
         MatSliderModule,
@@ -100,7 +112,9 @@ import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
         NgxGoogleAnalyticsModule,
         MatBadgeModule,
         MatSlideToggleModule,
-        HotkeyModule
+        HotkeyModule,
+        MatSnackBarModule,
+        MatCheckboxModule
     ]
 })
 export class SharedModule { }
