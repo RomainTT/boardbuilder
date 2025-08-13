@@ -1,0 +1,24 @@
+<div class="rating-detailed" *ngIf="showDetailedRatings">
+  <div [@fadeInDetailed]>
+    <div class="rating-group text-center w-100 mb-1">
+      <label class="w-100">Prompt Accuracy</label>
+      <div class="rating mb-1" [@fadeIn]>
+        <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setPromptAccuracy(star)"
+                  [class.filled]="star <= promptAccuracy">{{ star <= promptAccuracy ? 'star' : 'star_border' }}</mat-icon>
+      </div>
+    </div>
+    <div class="rating-group text-center w-100">
+      <label class="w-100">Style Accuracy</label>
+      <div class="rating" [@fadeIn]>
+        <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setStyleAccuracy(star)"
+                  [class.filled]="star <= styleAccuracy">{{ star <= styleAccuracy ? 'star' : 'star_border' }}</mat-icon>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rating">
+  <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" [ngClass]="{ 'filled': star <= rating }">
+    {{ star <= rating ? 'star' : 'star_border' }}
+  </mat-icon>
+</div>
