@@ -119,4 +119,13 @@ export abstract class BaseSymbolCreatorComponent {
     }
     return '';
   }
+
+  // Common action methods (identical in both child components)
+  onSave() {
+    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
+      this.saveRequested.emit(this.generatedImages[this.selectedImageIndex]);
+    } else {
+      console.warn('No image selected for save');
+    }
+  }
 }

@@ -161,15 +161,6 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
     }
   }
 
-
-  onSave() {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      this.saveRequested.emit(this.generatedImages[this.selectedImageIndex]);
-    } else {
-      console.warn('No image selected for save');
-    }
-  }
-
   downloadPng() {
     if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
       console.warn('No image selected for download');

@@ -80,15 +80,6 @@ export class ImageModeComponent extends BaseSymbolCreatorComponent implements On
   }
 
   // Action handlers
-  onSave() {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      console.log(`[ImageModeComponent] Save requested for generated image: ${this.generatedImages[this.selectedImageIndex]}`);
-      this.saveRequested.emit(this.generatedImages[this.selectedImageIndex]);
-    } else {
-      console.warn('[ImageModeComponent] No image selected for save');
-    }
-  }
-
   downloadPng() {
     if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
       console.warn('[ImageModeComponent] No image selected for download');
