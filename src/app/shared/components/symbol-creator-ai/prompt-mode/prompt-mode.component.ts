@@ -45,19 +45,7 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
   @Input() parentDialogRef?: MatDialogRef<any>;
 
   prompt: string = '';
-
-  // Gallery states (keep for now - will move in Phase 2)
-  isGenerated: boolean = false;
-  showImages: boolean = false;
-  generatedImages: string[] = [];
   generationId: number = 0;
-
-  // Rating states (keep for now - will move in Phase 2)  
-  selectedImageIndex: number | null = null;
-  rating: number = 0;
-  promptAccuracy: number = 0;
-  styleAccuracy: number = 0;
-  showDetailedRatings: boolean = false;
 
   // Prompt-specific properties
   fullPrompt: string = '';
@@ -65,18 +53,8 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
   private promptHotkey: Hotkey | null = null;
   private minSpinnerTime = 600;
 
-  // Loading states (keep for now - will move in Phase 2)
-  isLoading: boolean = false;
-  isRefreshing: boolean = false;
+  // Prompt-specific loading states
   isFirstGeneration: boolean = true;
-
-
-  get selectedImageUrl(): string {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      return this.generatedImages[this.selectedImageIndex];
-    }
-    return '';
-  }
 
   trackByIndex(index: number, item: any): number {
     return index;
@@ -183,21 +161,6 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
     }
   }
 
-  selectImage(index: number) {
-    this.selectedImageIndex = index;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
-
-  closeSelected() {
-    this.selectedImageIndex = null;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
 
   onSave() {
     if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
@@ -277,23 +240,6 @@ export class PromptModeComponent extends BaseSymbolCreatorComponent implements O
     );
   }
 
-  setRating(value: number) {
-    this.rating = value;
-    console.log('Overall rated ' + value + ' stars for image index: ' + this.selectedImageIndex);
-    if (value > 0) {
-      this.showDetailedRatings = true;
-    }
-  }
-
-  setPromptAccuracy(value: number) {
-    this.promptAccuracy = value;
-    console.log('Prompt Accuracy rated ' + value + ' stars for image index: ' + this.selectedImageIndex);
-  }
-
-  setStyleAccuracy(value: number) {
-    this.styleAccuracy = value;
-    console.log('Style Accuracy rated ' + value + ' stars for image index: ' + this.selectedImageIndex);
-  }
 
   copyPrompt() {
     if (this.fullPrompt) {

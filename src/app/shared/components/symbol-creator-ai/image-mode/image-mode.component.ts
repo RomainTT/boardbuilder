@@ -21,21 +21,6 @@ import { BaseSymbolCreatorComponent } from '../base-symbol-creator.component';
 export class ImageModeComponent extends BaseSymbolCreatorComponent implements OnInit {
 
   @Input() uploadedImageData: ImageUploadResult | null = null;
-  @Input() selectedStyle: string = 'Mulberry';
-
-  // Gallery states (keep for now - will move in Phase 2)
-  generatedImages: string[] = [];
-  selectedImageIndex: number | null = null;
-  isGenerated: boolean = false;
-  showImages: boolean = false;
-  isLoading: boolean = false;
-  isRefreshing: boolean = false;
-
-  // Rating states (keep for now - will move in Phase 2)
-  rating: number = 0;
-  promptAccuracy: number = 0;
-  styleAccuracy: number = 0;
-  showDetailedRatings: boolean = false;
 
   ngOnInit() {
     // Initialize styles using base class method
@@ -87,46 +72,11 @@ export class ImageModeComponent extends BaseSymbolCreatorComponent implements On
     });
   }
 
-  // Gallery event handlers
-  selectImage(index: number) {
-    this.selectedImageIndex = index;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
-
+  // Component-specific event handlers
   onExpandDone(event: AnimationEvent) {
     if (event.phaseName === 'done' && event.fromState === 'void') {
       this.showImages = true;
     }
-  }
-
-  closeSelected() {
-    this.selectedImageIndex = null;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-  }
-
-  // Rating event handlers
-  setRating(value: number) {
-    this.rating = value;
-    console.log(`[ImageModeComponent] Overall rated ${value} stars for image index: ${this.selectedImageIndex}`);
-    if (value > 0) {
-      this.showDetailedRatings = true;
-    }
-  }
-
-  setPromptAccuracy(value: number) {
-    this.promptAccuracy = value;
-    console.log(`[ImageModeComponent] Prompt Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
-  }
-
-  setStyleAccuracy(value: number) {
-    this.styleAccuracy = value;
-    console.log(`[ImageModeComponent] Style Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
   }
 
   // Action handlers
@@ -165,13 +115,6 @@ export class ImageModeComponent extends BaseSymbolCreatorComponent implements On
     if (this.uploadedImageData) {
       this.generateImageVariations();
     }
-  }
-
-  get selectedImageUrl(): string {
-    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
-      return this.generatedImages[this.selectedImageIndex];
-    }
-    return '';
   }
 
   get originalImageUrl(): string {

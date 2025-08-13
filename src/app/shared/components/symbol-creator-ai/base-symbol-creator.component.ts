@@ -20,6 +20,20 @@ export abstract class BaseSymbolCreatorComponent {
   outlinesEnabled: boolean = true;
   
   public availableStyles: string[] = [];
+
+  // Gallery state management (common to both child components)
+  generatedImages: string[] = [];
+  selectedImageIndex: number | null = null;
+  isGenerated: boolean = false;
+  showImages: boolean = false;
+  isLoading: boolean = false;
+  isRefreshing: boolean = false;
+
+  // Rating state management (common to both child components)
+  rating: number = 0;
+  promptAccuracy: number = 0;
+  styleAccuracy: number = 0;
+  showDetailedRatings: boolean = false;
   
   private styleConfigs: Record<string, StyleConfig> = {
     'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
@@ -60,5 +74,49 @@ export abstract class BaseSymbolCreatorComponent {
     this.selectedStyle = newStyle;
     this.updateFromConfig();
     // Child components can override this method to add additional logic
+  }
+
+  // Common gallery methods (identical in both child components)
+  selectImage(index: number) {
+    this.selectedImageIndex = index;
+    this.rating = 0;
+    this.promptAccuracy = 0;
+    this.styleAccuracy = 0;
+    this.showDetailedRatings = false;
+  }
+
+  closeSelected() {
+    this.selectedImageIndex = null;
+    this.rating = 0;
+    this.promptAccuracy = 0;
+    this.styleAccuracy = 0;
+    this.showDetailedRatings = false;
+  }
+
+  // Common rating methods (identical in both child components)
+  setRating(value: number) {
+    this.rating = value;
+    console.log(`Overall rated ${value} stars for image index: ${this.selectedImageIndex}`);
+    if (value > 0) {
+      this.showDetailedRatings = true;
+    }
+  }
+
+  setPromptAccuracy(value: number) {
+    this.promptAccuracy = value;
+    console.log(`Prompt Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
+  }
+
+  setStyleAccuracy(value: number) {
+    this.styleAccuracy = value;
+    console.log(`Style Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
+  }
+
+  // Common getter (identical in both child components)
+  get selectedImageUrl(): string {
+    if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
+      return this.generatedImages[this.selectedImageIndex];
+    }
+    return '';
   }
 }
