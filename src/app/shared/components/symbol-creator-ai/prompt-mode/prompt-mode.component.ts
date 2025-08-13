@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { trigger, transition, style, animate, AnimationEvent } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@env';
@@ -7,13 +7,7 @@ import { ImageBase64Service } from '@data/services/image-base64.service';
 import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 import { MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
-
-// Define the interface here
-interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
+import { BaseSymbolCreatorComponent } from '../base-symbol-creator.component';
 
 @Component({
   selector: 'app-prompt-mode',
@@ -46,60 +40,36 @@ interface StyleConfig {
     ]),
   ]
 })
-export class PromptModeComponent implements OnInit, OnDestroy {
+export class PromptModeComponent extends BaseSymbolCreatorComponent implements OnInit, OnDestroy {
   @Input() initialPrompt: string = '';
-  @Output() saveRequested = new EventEmitter<string>();
   @Input() parentDialogRef?: MatDialogRef<any>;
 
   prompt: string = '';
-  additionalText: string = '';
-  backgroundEnabled: boolean = true;
-  outlinesEnabled: boolean = true;
 
+  // Gallery states (keep for now - will move in Phase 2)
   isGenerated: boolean = false;
   showImages: boolean = false;
   generatedImages: string[] = [];
   generationId: number = 0;
 
+  // Rating states (keep for now - will move in Phase 2)  
   selectedImageIndex: number | null = null;
   rating: number = 0;
   promptAccuracy: number = 0;
   styleAccuracy: number = 0;
   showDetailedRatings: boolean = false;
 
+  // Prompt-specific properties
   fullPrompt: string = '';
   showPrompt: boolean = false;
   private promptHotkey: Hotkey | null = null;
   private minSpinnerTime = 600;
 
+  // Loading states (keep for now - will move in Phase 2)
   isLoading: boolean = false;
   isRefreshing: boolean = false;
   isFirstGeneration: boolean = true;
 
-  public availableStyles: string[] = [];
-
-  private styleConfigs: Record<string, StyleConfig> = {
-    'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-    'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-    'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  };
-
-  private _selectedStyle: string = '';  // Backing field for selectedStyle
-
-  private outlineWidth: number = 7;  // Initial default (will be updated)
-  private saturation: string = 'bold';  // Initial default (will be updated)
-
-  // Define getter and setter for selectedStyle
-  get selectedStyle(): string {
-    return this._selectedStyle;
-  }
-
-  set selectedStyle(value: string) {
-    this._selectedStyle = value;
-    this.updateFromConfig();
-  }
 
   get selectedImageUrl(): string {
     if (this.selectedImageIndex !== null && this.generatedImages[this.selectedImageIndex]) {
@@ -118,6 +88,8 @@ export class PromptModeComponent implements OnInit, OnDestroy {
     private imageBase64Service: ImageBase64Service,
     private dialogService: DialogService
   ) {
+    super(); // Required call to parent constructor
+    
     this.promptHotkey = new Hotkey('ctrl+p', (event: KeyboardEvent): boolean => {
       this.showPrompt = !this.showPrompt;
       return false;
@@ -127,9 +99,10 @@ export class PromptModeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.prompt = this.initialPrompt;
-    this.availableStyles = Object.keys(this.styleConfigs);
+    
+    // Initialize styles using base class method  
+    this.initializeStyles();
     this.selectedStyle = this.availableStyles[0];  // Default to 'Mulberry'
-    this.updateFromConfig();
   }
 
   onSubmit() {
@@ -340,18 +313,4 @@ export class PromptModeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateFromConfig() {
-    const config = this.styleConfigs[this.selectedStyle];
-    if (config) {
-      this.backgroundEnabled = config.background;
-      this.outlinesEnabled = true;
-      this.outlineWidth = config.outlineWidth;
-      this.saturation = config.saturation;
-    } else {
-      this.backgroundEnabled = true;
-      this.outlinesEnabled = true;
-      this.outlineWidth = 2;
-      this.saturation = 'bold';
-    }
-  }
 }

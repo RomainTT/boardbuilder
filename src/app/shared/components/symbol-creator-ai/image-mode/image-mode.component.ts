@@ -1,15 +1,9 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { trigger, transition, style, animate, AnimationEvent } from '@angular/animations';
 import { ImageUploadResult } from '../../image-upload-dialog/image-upload-dialog.component';
-
-// Style configuration interface copied from prompt mode
-interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
+import { BaseSymbolCreatorComponent } from '../base-symbol-creator.component';
 
 @Component({
   selector: 'app-image-mode',
@@ -24,16 +18,12 @@ interface StyleConfig {
     ]),
   ]
 })
-export class ImageModeComponent implements OnInit {
+export class ImageModeComponent extends BaseSymbolCreatorComponent implements OnInit {
 
   @Input() uploadedImageData: ImageUploadResult | null = null;
   @Input() selectedStyle: string = 'Mulberry';
-  @Output() saveRequested = new EventEmitter<string>();
 
-  // Culture field (added to match prompt-mode)
-  additionalText: string = '';
-
-  // Gallery states
+  // Gallery states (keep for now - will move in Phase 2)
   generatedImages: string[] = [];
   selectedImageIndex: number | null = null;
   isGenerated: boolean = false;
@@ -41,30 +31,15 @@ export class ImageModeComponent implements OnInit {
   isLoading: boolean = false;
   isRefreshing: boolean = false;
 
-  // Rating states
+  // Rating states (keep for now - will move in Phase 2)
   rating: number = 0;
   promptAccuracy: number = 0;
   styleAccuracy: number = 0;
   showDetailedRatings: boolean = false;
 
-  // Style configurations copied from prompt mode
-  public availableStyles: string[] = [];
-  private styleConfigs: Record<string, StyleConfig> = {
-    'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-    'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-    'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  };
-
-  backgroundEnabled: boolean = true;
-  outlinesEnabled: boolean = true;
-  private outlineWidth: number = 7;
-  private saturation: string = 'bold';
-
   ngOnInit() {
-    this.availableStyles = Object.keys(this.styleConfigs);
-    this.updateFromConfig();
+    // Initialize styles using base class method
+    this.initializeStyles();
     
     // Auto-generate variations when component loads with uploaded image
     if (this.uploadedImageData) {
@@ -182,27 +157,13 @@ export class ImageModeComponent implements OnInit {
     // TODO: Implement actual import to designer functionality
   }
 
-  // Style management
+  // Override base class method to add image generation logic
   onStyleChange(newStyle: string) {
-    this.selectedStyle = newStyle;
-    this.updateFromConfig();
+    super.onStyleChange(newStyle); // Call base class logic
+    
+    // Add image-specific logic: regenerate if image is uploaded
     if (this.uploadedImageData) {
       this.generateImageVariations();
-    }
-  }
-
-  private updateFromConfig() {
-    const config = this.styleConfigs[this.selectedStyle];
-    if (config) {
-      this.backgroundEnabled = config.background;
-      this.outlinesEnabled = true;
-      this.outlineWidth = config.outlineWidth;
-      this.saturation = config.saturation;
-    } else {
-      this.backgroundEnabled = true;
-      this.outlinesEnabled = true;
-      this.outlineWidth = 2;
-      this.saturation = 'bold';
     }
   }
 

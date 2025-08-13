@@ -1,13 +1,10 @@
 <div class="unified-image-mode">
-  <div class="section-header">
-    <h2>{{ title }}</h2>
-  </div>
-  
+
   <!-- Gallery section (appears after generation) - moved to top -->
   <div *ngIf="isGenerated" class="gallery-section">
     <app-ai-image-gallery
       [generatedImages]="generatedImages"
-      [selectedImageIndex]="selectedImageIndex" 
+      [selectedImageIndex]="selectedImageIndex"
       [isGenerated]="isGenerated"
       [showImages]="showImages"
       [isLoading]="isLoading"
@@ -15,7 +12,7 @@
       (imageSelected)="selectImage($event)"
       (expandDone)="showImages = true">
     </app-ai-image-gallery>
-    
+
     <!-- Rating and Actions for selected image -->
     <div *ngIf="selectedImageIndex !== null">
       <app-ai-rating-system
@@ -27,7 +24,7 @@
         (promptAccuracyChanged)="setPromptAccuracy($event)"
         (styleAccuracyChanged)="setStyleAccuracy($event)">
       </app-ai-rating-system>
-      
+
       <app-ai-image-actions
         [selectedImageUrl]="selectedImageUrl"
         [canSave]="true"
@@ -38,11 +35,11 @@
       </app-ai-image-actions>
     </div>
   </div>
-  
+
   <div class="upload-content">
     <div class="upload-container">
       <!-- Drag and drop area -->
-      <div 
+      <div
         class="drop-zone"
         [class.drag-over]="isDragOver"
         [class.has-file]="selectedFile"
@@ -51,13 +48,13 @@
         (dragleave)="onDragLeave($event)"
         (drop)="onDrop($event)"
         (click)="fileInput.click()">
-        
+
         <!-- Loading state -->
         <div *ngIf="isLoading" class="loading-state">
           <mat-spinner diameter="40"></mat-spinner>
           <p>Processing image...</p>
         </div>
-        
+
         <!-- Preview state -->
         <div *ngIf="previewUrl && !isLoading" class="preview-state">
           <img [src]="previewUrl" alt="Preview" class="image-preview">
@@ -69,7 +66,7 @@
             </button>
           </div>
         </div>
-        
+
         <!-- Empty state -->
         <div *ngIf="!selectedFile && !isLoading" class="empty-state">
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
@@ -82,15 +79,15 @@
           </p>
         </div>
       </div>
-      
+
       <!-- Hidden file input -->
-      <input 
+      <input
         #fileInput
-        type="file" 
+        type="file"
         [accept]="acceptString"
         (change)="onFileSelected($event)"
         style="display: none;">
-      
+
       <!-- Error message -->
       <div *ngIf="errorMessage" class="error-message">
         <mat-icon>error</mat-icon>
@@ -98,14 +95,14 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Style controls section (always visible and enabled) -->
   <div class="style-controls-section">
     <div class="controls-row">
       <mat-form-field appearance="outline" class="control-item">
         <mat-label>Style</mat-label>
-        <mat-select 
-          [(ngModel)]="selectedStyle" 
+        <mat-select
+          [(ngModel)]="selectedStyle"
           (ngModelChange)="onStyleChange($event)"
           name="style">
           <mat-option *ngFor="let style of availableStyles" [value]="style">
@@ -119,17 +116,17 @@
         <input matInput [(ngModel)]="additionalText">
       </mat-form-field>
 
-      <mat-slide-toggle 
-        [(ngModel)]="backgroundEnabled" 
+      <mat-slide-toggle
+        [(ngModel)]="backgroundEnabled"
         class="control-item">
         White Background
       </mat-slide-toggle>
     </div>
-    
-    <button 
-      mat-raised-button 
+
+    <button
+      mat-raised-button
       color="primary"
-      [disabled]="!uploadedImageData || isLoading" 
+      [disabled]="!uploadedImageData || isLoading"
       (click)="generateImageVariations()"
       class="mt-1">
       <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>

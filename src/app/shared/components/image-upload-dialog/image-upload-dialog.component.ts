@@ -36,9 +36,8 @@ export class ImageUploadDialogComponent implements OnInit {
   previewUrl: string | null = null;
   errorMessage: string | null = null;
   isLoading = false;
-  
+
   // Default configuration
-  title = 'Upload Image';
   acceptedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
   acceptedExtensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp'];
   maxSizeInMB = 5;
@@ -111,7 +110,7 @@ export class ImageUploadDialogComponent implements OnInit {
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.isDragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleFile(files[0]);
@@ -127,7 +126,7 @@ export class ImageUploadDialogComponent implements OnInit {
 
   private handleFile(file: File) {
     this.errorMessage = null;
-    
+
     // Validate file type
     if (!this.acceptedTypes.includes(file.type)) {
       this.errorMessage = `Invalid file type. Please select one of: ${this.acceptedExtensions.join(', ')}`;
@@ -147,18 +146,18 @@ export class ImageUploadDialogComponent implements OnInit {
 
   private createPreview(file: File) {
     this.isLoading = true;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       this.previewUrl = e.target?.result as string;
-      
+
       // For SVG files, we don't need to validate dimensions
       if (file.type === 'image/svg+xml') {
         this.autoProcessImage();
         this.isLoading = false;
         return;
       }
-      
+
       // Create image element to check dimensions for raster images
       const img = new Image();
       img.onload = () => {
@@ -180,12 +179,12 @@ export class ImageUploadDialogComponent implements OnInit {
       };
       img.src = this.previewUrl;
     };
-    
+
     reader.onerror = () => {
       this.errorMessage = 'Error reading file.';
       this.isLoading = false;
     };
-    
+
     reader.readAsDataURL(file);
   }
 
@@ -206,7 +205,7 @@ export class ImageUploadDialogComponent implements OnInit {
     try {
       // Create image element to get dimensions
       const img = new Image();
-      
+
       const result: ImageUploadResult = await new Promise((resolve, reject) => {
         if (this.selectedFile!.type === 'image/svg+xml') {
           // For SVG files, we don't need to wait for image load
@@ -252,7 +251,7 @@ export class ImageUploadDialogComponent implements OnInit {
     if (!this.selectedFile || !this.previewUrl) {
       return;
     }
-    
+
     // Automatically call onUpload to process the image
     this.onUpload();
   }
@@ -295,7 +294,7 @@ export class ImageUploadDialogComponent implements OnInit {
     console.log(`[ImageUploadDialogComponent] POST ${this.uploadedImageData.base64.substring(0, 50)}... to /api/symbols/image-to-image`);
     console.log(`[ImageUploadDialogComponent] Style: ${this.selectedStyle}, Culture: ${this.additionalText}, Background: ${this.backgroundEnabled}, Outlines: ${this.outlinesEnabled}`);
     console.log(`[ImageUploadDialogComponent] Original image size: ${this.uploadedImageData.width}x${this.uploadedImageData.height}`);
-    
+
     this.isLoading = true;
     this.isRefreshing = true;
     this.selectedImageIndex = null;
