@@ -1,0 +1,48 @@
+<div *ngIf="showPrompt" class="floating-prompt">
+  <h3 style="font-weight: 400;margin-bottom: 3px;">{{ fullPrompt || 'No prompt generated yet' }}</h3>
+  <button mat-icon-button style="width: 100%; text-align: right;" *ngIf="fullPrompt" (click)="copyPrompt()" aria-label="Copy prompt" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>
+
+<app-ai-image-gallery
+  [generatedImages]="generatedImages"
+  [selectedImageIndex]="selectedImageIndex"
+  [isGenerated]="isGenerated"
+  [showImages]="showImages"
+  [isLoading]="isLoading"
+  [isRefreshing]="isRefreshing"
+  [apiError]="apiError"
+  [showApiError]="showApiError"
+  (imageSelected)="selectImage($event)"
+  (expandDone)="onExpandDone($event)"
+  (retryRequested)="onSubmit()">
+</app-ai-image-gallery>
+
+<!-- Selected generated image section -->
+<app-ai-selected-image
+  [selectedImageIndex]="selectedImageIndex"
+  [selectedImageUrl]="selectedImageUrl"
+  (saveRequested)="onSave()"
+  (downloadRequested)="downloadPng()"
+  (importToDesignerRequested)="importToDesigner()"
+  (closeRequested)="closeSelected()">
+</app-ai-selected-image>
+
+<mat-form-field style="width:100%" appearance="fill">
+  <textarea matInput placeholder="Describe your symbol" [(ngModel)]="prompt"></textarea>
+</mat-form-field>
+
+<!-- AI Controls -->
+<app-ai-controls
+  [selectedStyle]="selectedStyle"
+  [availableStyles]="availableStyles"
+  [additionalText]="additionalText"
+  [backgroundEnabled]="backgroundEnabled"
+  [generateButtonText]="'Generate Images'"
+  [generateButtonDisabled]="prompt.length < 1"
+  (styleChanged)="selectedStyle = $event"
+  (additionalTextChanged)="additionalText = $event"
+  (backgroundEnabledChanged)="backgroundEnabled = $event"
+  (generateClicked)="onSubmit()">
+</app-ai-controls>

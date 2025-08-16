@@ -29,12 +29,7 @@ export interface PromptBuilderOptions {
 
 export interface AiImageToImageParams {
   image: string; // base64 encoded image
-  style: string;
-  culture?: string;
-  backgroundEnabled: boolean;
-  outlinesEnabled: boolean;
-  outlineWidth: number;
-  saturation: string;
+  prompt: string; // built prompt using buildPrompt()
   num_images: number;
   steps: number;
 }

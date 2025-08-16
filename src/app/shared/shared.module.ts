@@ -36,7 +36,7 @@ import { AdaptableImageComponent } from './components/adaptable-image/adaptable-
 import { ColourPickerComponent } from './components/colour-picker/colour-picker.component';
 import {MatBadgeModule} from '@angular/material/badge';
 import { SymbolCreatorAiComponent } from './components/symbol-creator-ai/symbol-creator-ai.component';
-import { PromptModeComponent } from './components/symbol-creator-ai/prompt-mode/prompt-mode.component';
+import { TextModeComponent } from './components/symbol-creator-ai/text-mode/text-mode.component';
 import { ImageModeComponent } from './components/symbol-creator-ai/image-mode/image-mode.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { HotkeyModule } from '@conflito/angular2-hotkeys';  // Fixed import
@@ -44,8 +44,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule as MatProgressSpinnerModuleImport } from '@angular/material/progress-spinner';
 import { ImageUploadDialogComponent } from './components/image-upload-dialog/image-upload-dialog.component';
 import { AiImageGalleryComponent } from './components/ai-image-gallery/ai-image-gallery.component';
-import { AiRatingSystemComponent } from './components/ai-rating-system/ai-rating-system.component';
-import { AiImageActionsComponent } from './components/ai-image-actions/ai-image-actions.component';
+import { AiSelectedImageComponent } from './components/ai-selected-image/ai-selected-image.component';
+import { AiControlsComponent } from './components/ai-controls/ai-controls.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
@@ -68,12 +68,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     AdaptableImageComponent,
     ColourPickerComponent,
     SymbolCreatorAiComponent,
-    PromptModeComponent,
+    TextModeComponent,
     ImageModeComponent,
     ImageUploadDialogComponent,
     AiImageGalleryComponent,
-    AiRatingSystemComponent,
-    AiImageActionsComponent
+    AiSelectedImageComponent,
+    AiControlsComponent
   ],
     exports: [
         ConfirmDialogComponent,

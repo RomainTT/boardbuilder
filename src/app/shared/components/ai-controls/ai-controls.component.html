@@ -1,0 +1,29 @@
+<!-- Style controls -->
+<div class="controls-row">
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Style</mat-label>
+    <mat-select [value]="selectedStyle" (selectionChange)="styleChanged.emit($event.value)" name="style">
+      <mat-option *ngFor="let style of availableStyles" [value]="style">
+        {{ style }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Culture</mat-label>
+    <input matInput [value]="additionalText" (input)="additionalTextChanged.emit($event.target.value)">
+  </mat-form-field>
+
+  <mat-slide-toggle [checked]="backgroundEnabled" (change)="backgroundEnabledChanged.emit($event.checked)" class="control-item">
+    White Background
+  </mat-slide-toggle>
+</div>
+
+<button *ngIf="showGenerateButton" 
+        mat-raised-button 
+        color="primary" 
+        (click)="generateClicked.emit()" 
+        class="mt-1" 
+        [disabled]="generateButtonDisabled">
+  {{ generateButtonText }}
+</button>

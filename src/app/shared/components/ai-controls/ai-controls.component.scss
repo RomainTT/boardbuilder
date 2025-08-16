@@ -1,0 +1,14 @@
+@import "~app/shared/variables";
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.control-item {
+  flex: 1;
+  min-width: 120px;
+}

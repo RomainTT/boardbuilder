@@ -1,7 +1,4 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { BaseSymbolCreatorComponent } from '../symbol-creator-ai/base-symbol-creator.component';
-import { AiSymbolService } from '@data/services/ai-symbol.service';
-import { AiImageToImageParams } from '@data/models/ai-symbol.interfaces';
 
 export interface ImageUploadDialogData {
   title?: string;
@@ -25,7 +22,7 @@ export interface ImageUploadResult {
   templateUrl: './image-upload-dialog.component.html',
   styleUrls: ['./image-upload-dialog.component.scss']
 })
-export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent implements OnInit {
+export class ImageUploadDialogComponent implements OnInit {
   isDragOver = false;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -39,13 +36,11 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
   maxWidth = 2000;
   maxHeight = 2000;
 
-  // Component-specific properties (keeping only what's unique)
+  // Component-specific properties
   uploadedImageData: ImageUploadResult | null = null;
+  @Output() imageUploaded = new EventEmitter<ImageUploadResult>();
 
-  constructor(private aiSymbolServicePrivate: AiSymbolService) {
-    super(); // Required call to parent constructor
-    this.aiSymbolService = this.aiSymbolServicePrivate;
-  }
+  constructor() {}
 
   ngOnInit() {
     // Update accepted extensions based on accepted types
@@ -59,9 +54,6 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
         default: return '';
       }
     }).filter(ext => ext);
-
-    // Initialize styles using base class method
-    this.initializeStyles();
   }
 
   onDragOver(event: DragEvent) {
@@ -225,88 +217,13 @@ export class ImageUploadDialogComponent extends BaseSymbolCreatorComponent imple
 
   private processUploadedImage(result: ImageUploadResult) {
     this.uploadedImageData = result;
-    console.log('[ImageUploadDialogComponent] Image uploaded successfully:', result);
-    // Image is now ready for generation when user clicks Generate button
+    console.log('[ImageUploadDialogComponent] Image uploaded:', {
+      filename: result.file.name,
+      dimensions: `${result.width}x${result.height}`,
+      fileSize: `${(result.file.size / 1024).toFixed(1)}KB`
+    });
+    // Emit the uploaded image data for parent components to handle
+    this.imageUploaded.emit(result);
   }
 
-  // Override base class method to add image regeneration logic
-  onStyleChange(newStyle: string) {
-    super.onStyleChange(newStyle); // Call base class logic
-    // Could auto-regenerate here if desired
-  }
-
-  // Generate image variations using AiSymbolService
-  generateImageVariations() {
-    if (!this.uploadedImageData) {
-      console.warn('[ImageUploadDialogComponent] No uploaded image data available');
-      return;
-    }
-
-    console.log('[ImageUploadDialogComponent] Starting image-to-image generation using AiSymbolService');
-    console.log(`[ImageUploadDialogComponent] Original image size: ${this.uploadedImageData.width}x${this.uploadedImageData.height}`);
-    console.log(`[ImageUploadDialogComponent] Style: ${this.selectedStyle}, Culture: ${this.additionalText}`);
-
-    // Clear any previous errors
-    this.clearApiError();
-
-    this.isLoading = true;
-    this.isRefreshing = true;
-    this.selectedImageIndex = null;
-    this.rating = 0;
-    this.promptAccuracy = 0;
-    this.styleAccuracy = 0;
-    this.showDetailedRatings = false;
-    this.showImages = false;
-
-    this.generatedImages = Array(4).fill('');
-
-    // Build parameters for image-to-image generation
-    const params: AiImageToImageParams = {
-      image: this.uploadedImageData.base64,
-      style: this.selectedStyle,
-      culture: this.additionalText || undefined,
-      backgroundEnabled: this.backgroundEnabled,
-      outlinesEnabled: this.outlinesEnabled,
-      outlineWidth: this.outlineWidth,
-      saturation: this.saturation,
-      num_images: 4,
-      steps: 4
-    };
-
-    // Call the service to generate image variations
-    this.aiSymbolServicePrivate.generateImageVariations(params)
-      .subscribe({
-        next: (response) => {
-          console.log('[ImageUploadDialogComponent] Received API response:', response);
-          this.generatedImages = response.images;
-          this.isGenerated = true;
-          this.isLoading = false;
-          this.isRefreshing = false;
-        },
-        error: (error) => {
-          console.error('[ImageUploadDialogComponent] API error:', error);
-          this.handleApiError(error);
-        }
-      });
-  }
-
-
-  // Component-specific action methods
-  downloadPng() {
-    console.log('[ImageUploadDialogComponent] downloadPng called, using service via base class');
-    this.performDownload('image_upload_variation');
-  }
-
-  importToDesigner() {
-    if (this.selectedImageIndex === null || !this.generatedImages[this.selectedImageIndex]) {
-      console.warn('[ImageUploadDialogComponent] No image selected for editing');
-      return;
-    }
-    console.log(`[ImageUploadDialogComponent] Import to designer requested for: ${this.generatedImages[this.selectedImageIndex]}`);
-    // TODO: Implement actual import to designer functionality
-  }
-
-  get originalImageUrl(): string {
-    return this.uploadedImageData?.preview || '';
-  }
 }

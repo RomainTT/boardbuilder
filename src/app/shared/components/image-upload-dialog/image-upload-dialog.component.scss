@@ -38,7 +38,7 @@
   }
 }
 
-.unified-image-mode {
+.image-upload-dialog {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -153,18 +153,22 @@
   flex: 1 1 auto;
 }
 
-// Style controls styling (copied from prompt-mode)
-.controls-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-}
 
-.control-item {
-  flex: 1;
-  min-width: 120px;
+.upload-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: #e8f5e8;
+  border-radius: 4px;
+  color: #2e7d32;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }
 
 // Dialog actions styling
