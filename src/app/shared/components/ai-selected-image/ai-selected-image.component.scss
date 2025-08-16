@@ -1,5 +1,9 @@
 @import "~app/shared/variables";
 
+:host {
+  display: block;
+}
+
 .selected-image {
   margin-top: 20px;
   border: 1px solid #ddd;
@@ -10,89 +14,164 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  .image-and-details {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    justify-content: center;
+    position: relative;
+  }
+
+  .enlarged-placeholder {
+    height: 300px;
+    width: 300px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 }
 
-.image-and-details {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 20px;
-  width: 100%;
-  justify-content: center;
-  position: relative;
-}
-
-.enlarged-placeholder {
-  height: 300px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-// Rating Section Styles
 .rating-section {
   .rating-detailed {
     display: flex;
     flex-direction: column;
     gap: 15px;
     position: absolute;
-    right: 0;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
+    opacity: 1;
+    transition: opacity 400ms ease-in-out;
+
+    &.fade-in {
+      animation: fadeInDetailed 400ms ease-in-out;
+    }
   }
 
   .rating-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+      width: 100%;
+    }
   }
 
-  .rating-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+}
+
+// Global rating styles - applies to all rating divs
+.rating {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  font-size: 24px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: transform 200ms ease-in-out;
+
+  &.fade-in {
+    animation: fadeIn 300ms ease-in-out;
   }
 
-  .rating {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    font-size: 24px;
+  mat-icon {
+    transition: all 200ms ease-in-out;
     cursor: pointer;
-  }
 
-  .rating mat-icon.filled {
-    color: gold;
+    &.filled {
+      color: gold;
+      transform: scale(1.1);
+    }
+
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 }
 
-// Actions Section Styles
 .actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
   .options {
     display: flex;
     justify-content: center;
-    gap: 5px;
-    margin-bottom: 15px;
+    gap: 8px;
+  }
+
+  button {
+    transition: transform 150ms ease-in-out;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
   }
 }
 
-/* Responsive: Stack image and ratings vertically on small screens */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDetailed {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
 @media (max-width: 600px) {
-  .image-and-details {
-    flex-direction: column;
-    align-items: center;
+  .selected-image {
+    .image-and-details {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .enlarged-placeholder {
+      margin-bottom: 20px;
+    }
   }
 
-  .enlarged-placeholder {
-    margin-bottom: 20px;
-  }
+  .rating-section {
+    .rating-detailed {
+      position: static;
+      transform: none;
+      margin-top: 20px;
+      animation: none;
 
-  .rating-section .rating-detailed {
-    position: static;
-    transform: none;
-    margin-top: 20px;
+      &.fade-in {
+        animation: fadeIn 400ms ease-in-out;
+      }
+    }
   }
 }

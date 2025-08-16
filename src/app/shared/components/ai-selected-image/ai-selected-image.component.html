@@ -1,54 +1,85 @@
-<!-- Selected generated image section -->
-<div *ngIf="selectedImageIndex !== null" class="selected-image mb-3" [@expandSelected]>
+<div *ngIf="selectedImageIndex !== null" class="selected-image" [@expandSelected]>
   <div class="image-and-details">
     <div class="enlarged-placeholder"
-         [style.background-image]="'url(' + selectedImageUrl + ')'"
-         [style.background-size]="'cover'"
-         [style.background-position]="'center'">
+         [style.background-image]="hasValidImageUrl ? 'url(' + selectedImageUrl + ')' : 'none'"
+         [attr.aria-label]="'Generated image ' + (selectedImageIndex + 1)">
     </div>
 
-    <!-- Rating Section -->
-    <section class="rating-section">
-      <div class="rating-detailed" *ngIf="showDetailedRatings">
-        <div>
-          <div class="rating-group text-center w-100 mb-1">
-            <label class="w-100">Prompt Accuracy</label>
-            <div class="rating mb-1">
-              <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setPromptAccuracy(star)"
-                        [class.filled]="star <= promptAccuracy">{{ star <= promptAccuracy ? 'star' : 'star_border' }}</mat-icon>
-            </div>
-          </div>
-          <div class="rating-group text-center w-100">
-            <label class="w-100">Style Accuracy</label>
-            <div class="rating">
-              <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setStyleAccuracy(star)"
-                        [class.filled]="star <= styleAccuracy">{{ star <= styleAccuracy ? 'star' : 'star_border' }}</mat-icon>
-            </div>
+    <section class="rating-section" role="region" aria-label="Image rating">
+      <div class="rating-detailed" *ngIf="showDetailedRatings" [@fadeInDetailed]>
+        <div class="rating-group">
+          <label for="prompt-accuracy-rating">Prompt Accuracy</label>
+          <div class="rating" [@fadeIn] role="radiogroup" aria-labelledby="prompt-accuracy-rating">
+            <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                      (click)="setPromptAccuracy(star)"
+                      [class.filled]="star <= promptAccuracy"
+                      [attr.aria-label]="star + ' star'"
+                      role="radio"
+                      [attr.aria-checked]="star === promptAccuracy">
+              {{ star <= promptAccuracy ? 'star' : 'star_border' }}
+            </mat-icon>
           </div>
         </div>
-      </div>
-
-      <div class="rating">
-        <mat-icon *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)" [ngClass]="{ 'filled': star <= rating }">
-          {{ star <= rating ? 'star' : 'star_border' }}
-        </mat-icon>
+        
+        <div class="rating-group">
+          <label for="style-accuracy-rating">Style Accuracy</label>
+          <div class="rating" [@fadeIn] role="radiogroup" aria-labelledby="style-accuracy-rating">
+            <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                      (click)="setStyleAccuracy(star)"
+                      [class.filled]="star <= styleAccuracy"
+                      [attr.aria-label]="star + ' star'"
+                      role="radio"
+                      [attr.aria-checked]="star === styleAccuracy">
+              {{ star <= styleAccuracy ? 'star' : 'star_border' }}
+            </mat-icon>
+          </div>
+        </div>
       </div>
     </section>
   </div>
   
-  <!-- Actions Section -->
-  <section class="actions-section">
-    <div class="mb-1">
-      <button mat-raised-button color="primary" (click)="onSave()">Save</button>
-    </div>
+  <section class="actions-section" role="region" aria-label="Image actions">
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSave()"
+            [disabled]="!hasValidImageUrl">
+      Save
+    </button>
+    
     <div class="options">
-      <button mat-icon-button color="primary" aria-label="Save Symbol to Device" matTooltip="Save to Device" (click)="onDownload()">
+      <button mat-icon-button 
+              color="primary" 
+              aria-label="Save Symbol to Device" 
+              matTooltip="Save to Device" 
+              (click)="onDownload()"
+              [disabled]="!hasValidImageUrl">
         <mat-icon>save_alt</mat-icon>
       </button>
-      <button mat-icon-button color="primary" aria-label="Send to Designer" matTooltip="Send to Designer" (click)="onImportToDesigner()">
+      <button mat-icon-button 
+              color="primary" 
+              aria-label="Send to Designer" 
+              matTooltip="Send to Designer" 
+              (click)="onImportToDesigner()"
+              [disabled]="!hasValidImageUrl">
         <mat-icon>construction</mat-icon>
       </button>
     </div>
-    <button mat-icon-button class="mt-1" (click)="onClose()">Close</button>
+
+    <div class="rating" [@fadeIn] role="radiogroup" aria-label="Overall rating">
+      <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                (click)="setRating(star)" 
+                [class.filled]="star <= rating"
+                [attr.aria-label]="star + ' star'"
+                role="radio"
+                [attr.aria-checked]="star === rating">
+        {{ star <= rating ? 'star' : 'star_border' }}
+      </mat-icon>
+    </div>
+    
+    <button mat-button 
+            (click)="onClose()"
+            aria-label="Close selected image">
+      Close
+    </button>
   </section>
 </div>
