@@ -1,24 +1,24 @@
-<div class="images-container" *ngIf="isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
+<div class="images-container" *ngIf="galleryState?.isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
   <!-- Error state -->
-  <div class="error-state" *ngIf="showApiError && apiError">
+  <div class="error-state" *ngIf="errorState?.showApiError && errorState?.apiError">
     <div class="error-content">
       <mat-icon class="error-icon">error_outline</mat-icon>
-      <p class="error-message">{{ apiError }}</p>
+      <p class="error-message">{{ errorState?.apiError }}</p>
       <button mat-raised-button color="primary" (click)="onRetry()" class="retry-button">
         <mat-icon>refresh</mat-icon>
         Try Again
       </button>
     </div>
   </div>
-  
+
   <!-- Images display -->
-  <div class="images-row" *ngIf="showImages && !showApiError">
-   <div class="image-placeholder" [ngClass]="{ 'selected': i === selectedImageIndex, 'refreshing': isRefreshing }" *ngFor="let img of generatedImages; let i = index; trackBy: trackByIndex"
-         (click)="selectImage(i)" [@fadeIn]
-         [style.background-image]="'url(' + img + ')'"
-         [style.background-size]="'cover'"
-         [style.background-position]="'center'">
+  <div class="images-row" *ngIf="galleryState?.showImages && !errorState?.showApiError">
+    <div class="image-placeholder" [ngClass]="{ 'selected': i === galleryState?.selectedImageIndex, 'refreshing': galleryState?.isRefreshing }" *ngFor="let img of galleryState?.generatedImages; let i = index; trackBy: trackByIndex"
+      (click)="selectImage(i)" [@fadeIn]
+      [style.background-image]="'url(' + img + ')'"
+      [style.background-size]="'cover'"
+      [style.background-position]="'center'">
     </div>
-          <mat-progress-spinner *ngIf="isLoading" mode="indeterminate" diameter="100" class="loading-overlay"></mat-progress-spinner>
+    <mat-progress-spinner *ngIf="galleryState?.isLoading" mode="indeterminate" diameter="100" class="loading-overlay"></mat-progress-spinner>
   </div>
 </div>

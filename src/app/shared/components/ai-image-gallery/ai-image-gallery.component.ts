@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { trigger, transition, style, animate, AnimationEvent } from '@angular/animations';
+import { GalleryState, ErrorState } from '@data/services/ai-symbol-state.service';
 
 @Component({
   selector: 'app-ai-image-gallery',
@@ -21,14 +22,8 @@ import { trigger, transition, style, animate, AnimationEvent } from '@angular/an
   ]
 })
 export class AiImageGalleryComponent {
-  @Input() generatedImages: string[] = [];
-  @Input() selectedImageIndex: number | null = null;
-  @Input() isGenerated: boolean = false;
-  @Input() showImages: boolean = false;
-  @Input() isLoading: boolean = false;
-  @Input() isRefreshing: boolean = false;
-  @Input() apiError: string | null = null;
-  @Input() showApiError: boolean = false;
+  @Input() galleryState: GalleryState | null = null;
+  @Input() errorState: ErrorState | null = null;
 
   @Output() imageSelected = new EventEmitter<number>();
   @Output() expandDone = new EventEmitter<AnimationEvent>();

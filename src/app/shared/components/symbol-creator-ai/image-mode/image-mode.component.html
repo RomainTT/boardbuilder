@@ -1,13 +1,7 @@
 <!-- AI generated variations gallery -->
 <app-ai-image-gallery
-  [generatedImages]="(galleryState$ | async)?.generatedImages || []"
-  [selectedImageIndex]="(galleryState$ | async)?.selectedImageIndex ?? null"
-  [isGenerated]="(galleryState$ | async)?.isGenerated || false"
-  [showImages]="(galleryState$ | async)?.showImages || false"
-  [isLoading]="(galleryState$ | async)?.isLoading || false"
-  [isRefreshing]="(galleryState$ | async)?.isRefreshing || false"
-  [apiError]="(errorState$ | async)?.apiError || null"
-  [showApiError]="(errorState$ | async)?.showApiError || false"
+  [galleryState]="galleryState$ | async"
+  [errorState]="errorState$ | async"
   (imageSelected)="selectImage($event)"
   (expandDone)="onExpandDone($event)"
   (retryRequested)="generateImages()">
