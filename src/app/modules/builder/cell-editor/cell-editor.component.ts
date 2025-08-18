@@ -167,7 +167,9 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     this.cell.media_id = media.id;
     this.cell.image_url = media.public_url;
 
-    this.saveCell();
+    this.saveCell(() => {
+      this.closed.emit(true);
+    });
   }
 
   saveCell(next?): void {

@@ -1,22 +1,22 @@
 <!-- AI generated variations gallery -->
 <app-ai-image-gallery
-  [generatedImages]="generatedImages"
-  [selectedImageIndex]="selectedImageIndex"
-  [isGenerated]="isGenerated"
-  [showImages]="showImages"
-  [isLoading]="isLoading"
-  [isRefreshing]="isRefreshing"
-  [apiError]="apiError"
-  [showApiError]="showApiError"
+  [generatedImages]="(galleryState$ | async)?.generatedImages || []"
+  [selectedImageIndex]="(galleryState$ | async)?.selectedImageIndex ?? null"
+  [isGenerated]="(galleryState$ | async)?.isGenerated || false"
+  [showImages]="(galleryState$ | async)?.showImages || false"
+  [isLoading]="(galleryState$ | async)?.isLoading || false"
+  [isRefreshing]="(galleryState$ | async)?.isRefreshing || false"
+  [apiError]="(errorState$ | async)?.apiError || null"
+  [showApiError]="(errorState$ | async)?.showApiError || false"
   (imageSelected)="selectImage($event)"
   (expandDone)="onExpandDone($event)"
-  (retryRequested)="generateImageVariations()">
+  (retryRequested)="generateImages()">
 </app-ai-image-gallery>
 
 <!-- Selected generated image section -->
 <app-ai-selected-image
-  [selectedImageIndex]="selectedImageIndex"
-  [selectedImageUrl]="selectedImageUrl"
+  [selectedImageIndex]="(galleryState$ | async)?.selectedImageIndex ?? null"
+  [selectedImageUrl]="selectedImageUrl$ | async"
   (saveRequested)="onSave()"
   (downloadRequested)="downloadPng()"
   (importToDesignerRequested)="importToDesigner()"
@@ -45,15 +45,8 @@
 
 <!-- AI Controls -->
 <app-ai-controls
-  [selectedStyle]="selectedStyle"
-  [availableStyles]="availableStyles"
-  [additionalText]="additionalText"
-  [backgroundEnabled]="backgroundEnabled"
   [generateButtonText]="'Generate Variations'"
   [generateButtonDisabled]="!uploadedImageData"
-  (styleChanged)="onStyleChanged($event)"
-  (additionalTextChanged)="onAdditionalTextChanged($event)"
-  (backgroundEnabledChanged)="onBackgroundEnabledChanged($event)"
-  (generateClicked)="onGenerateClicked()">
+  (generateClicked)="generateImages()">
 </app-ai-controls>
 

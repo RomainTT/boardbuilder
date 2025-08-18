@@ -1,4 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AiSymbolStateService, StyleState } from '@data/services/ai-symbol-state.service';
 
 @Component({
   selector: 'app-ai-controls',
@@ -6,16 +8,28 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./ai-controls.component.scss']
 })
 export class AiControlsComponent {
-  @Input() selectedStyle: string = '';
-  @Input() availableStyles: string[] = [];
-  @Input() additionalText: string = '';
-  @Input() backgroundEnabled: boolean = true;
   @Input() showGenerateButton: boolean = true;
   @Input() generateButtonText: string = 'Generate';
   @Input() generateButtonDisabled: boolean = false;
 
-  @Output() styleChanged = new EventEmitter<string>();
-  @Output() additionalTextChanged = new EventEmitter<string>();
-  @Output() backgroundEnabledChanged = new EventEmitter<boolean>();
   @Output() generateClicked = new EventEmitter<void>();
+
+  // Access style state from service
+  styleState$: Observable<StyleState> = this.stateService.styleState$;
+
+  constructor(private stateService: AiSymbolStateService) {}
+
+  // Event handlers that update the state service
+  onStyleChanged(newStyle: string): void {
+    this.stateService.setSelectedStyle(newStyle);
+  }
+
+  onAdditionalTextChanged(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.stateService.setAdditionalText(target.value);
+  }
+
+  onBackgroundEnabledChanged(enabled: boolean): void {
+    this.stateService.setBackgroundEnabled(enabled);
+  }
 }

@@ -1,9 +1,9 @@
 <!-- Style controls -->
-<div class="controls-row">
+<div class="controls-row" *ngIf="styleState$ | async as styleState">
   <mat-form-field appearance="outline" class="control-item">
     <mat-label>Style</mat-label>
-    <mat-select [value]="selectedStyle" (selectionChange)="styleChanged.emit($event.value)" name="style">
-      <mat-option *ngFor="let style of availableStyles" [value]="style">
+    <mat-select [value]="styleState.selectedStyle" (selectionChange)="onStyleChanged($event.value)" name="style">
+      <mat-option *ngFor="let style of styleState.availableStyles" [value]="style">
         {{ style }}
       </mat-option>
     </mat-select>
@@ -11,10 +11,10 @@
 
   <mat-form-field appearance="outline" class="control-item">
     <mat-label>Culture</mat-label>
-    <input matInput [value]="additionalText" (input)="additionalTextChanged.emit($event.target.value)">
+    <input matInput [value]="styleState.additionalText" (input)="onAdditionalTextChanged($event)">
   </mat-form-field>
 
-  <mat-slide-toggle [checked]="backgroundEnabled" (change)="backgroundEnabledChanged.emit($event.checked)" class="control-item">
+  <mat-slide-toggle [checked]="styleState.backgroundEnabled" (change)="onBackgroundEnabledChanged($event.checked)" class="control-item">
     White Background
   </mat-slide-toggle>
 </div>

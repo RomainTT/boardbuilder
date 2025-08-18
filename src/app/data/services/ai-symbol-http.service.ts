@@ -7,7 +7,7 @@ import { AiGenerationParams, AiGenerationResponse, PromptBuilderOptions, AiImage
 @Injectable({
   providedIn: 'root'
 })
-export class AiSymbolService {
+export class AiSymbolHttpService {
 
   constructor(private http: HttpClient) { }
 
@@ -16,7 +16,7 @@ export class AiSymbolService {
    */
   generateImages(params: AiGenerationParams): Observable<AiGenerationResponse> {
     const requestId = Date.now().toString(36);
-    console.log(`[AiSymbolService] → Prompt-based generation [${requestId}]:`, {
+    console.log(`[AiSymbolHttpService] → Prompt-based generation [${requestId}]:`, {
       prompt: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
       promptLength: params.prompt.length,
       numImages: params.num_images,
@@ -32,7 +32,7 @@ export class AiSymbolService {
    */
   generateImageVariations(params: AiImageToImageParams): Observable<AiGenerationResponse> {
     const requestId = Date.now().toString(36);
-    console.log(`[AiSymbolService] → Image-to-image generation [${requestId}]:`, {
+    console.log(`[AiSymbolHttpService] → Image-to-image generation [${requestId}]:`, {
       technicalParams: {
         prompt: params.prompt.substring(0, 100) + (params.prompt.length > 100 ? '...' : ''),
         promptLength: params.prompt.length,
@@ -52,7 +52,7 @@ export class AiSymbolService {
   buildPrompt(options: PromptBuilderOptions): string {
     const { basePrompt, style, culture, backgroundEnabled, outlinesEnabled, outlineWidth, saturation } = options;
     
-    console.log('[AiSymbolService] Building prompt from AI Controls:', {
+    console.log('[AiSymbolHttpService] Building prompt from AI Controls:', {
       basePrompt: basePrompt,
       aiControlsParams: {
         style: style,
@@ -77,7 +77,7 @@ export class AiSymbolService {
 
     fullPrompt += `, color saturation: ${saturation}`;
 
-    console.log('[AiSymbolService] ✓ Final prompt generated:', fullPrompt);
+    console.log('[AiSymbolHttpService] ✓ Final prompt generated:', fullPrompt);
     return fullPrompt;
   }
 
@@ -102,12 +102,12 @@ export class AiSymbolService {
    * Handle the complete download flow - fetch blob and trigger download
    */
   performDownload(imageUrl: string, filename: string): Observable<void> {
-    console.log('[AiSymbolService] Downloading:', filename);
+    console.log('[AiSymbolHttpService] Downloading:', filename);
     return new Observable(observer => {
       this.downloadImage(imageUrl, filename).subscribe({
         next: (blob) => {
           if (!blob) {
-            console.error('[AiSymbolService] Failed to fetch image blob');
+            console.error('[AiSymbolHttpService] Failed to fetch image blob');
             observer.error('Failed to fetch image blob');
             return;
           }
@@ -120,13 +120,13 @@ export class AiSymbolService {
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
-          console.log('[AiSymbolService] ✓ Download completed:', filename);
+          console.log('[AiSymbolHttpService] ✓ Download completed:', filename);
 
           observer.next();
           observer.complete();
         },
         error: (error) => {
-          console.error('[AiSymbolService] ✗ Download failed:', error);
+          console.error('[AiSymbolHttpService] ✗ Download failed:', error);
           observer.error(error);
         }
       });
