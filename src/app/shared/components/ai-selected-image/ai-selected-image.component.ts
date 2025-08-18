@@ -1,5 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { RatingState } from '@data/services/ai-symbol-state.service';
+
+export interface RatingChangeEvent {
+  type: 'overall' | 'prompt' | 'style';
+  value: number;
+}
 
 @Component({
   selector: 'app-ai-selected-image',
@@ -29,41 +35,36 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class AiSelectedImageComponent {
   @Input() selectedImageIndex: number | null = null;
   @Input() selectedImageUrl: string = '';
+  @Input() ratingState: RatingState | null = null;
 
-  // Internal rating state with proper typing
-  rating: number = 0;
-  promptAccuracy: number = 0;
-  styleAccuracy: number = 0;
-  showDetailedRatings: boolean = false;
-
-  // Simplified outputs - only the essential actions
+  // Outputs for actions
   @Output() saveRequested = new EventEmitter<void>();
   @Output() downloadRequested = new EventEmitter<void>();
   @Output() importToDesignerRequested = new EventEmitter<void>();
   @Output() closeRequested = new EventEmitter<void>();
 
-  // Internal rating methods with validation
+  // Output for rating changes
+  @Output() ratingChanged = new EventEmitter<RatingChangeEvent>();
+
+  // Rating methods that emit events to parent
   setRating(value: number): void {
     if (this.isValidRating(value)) {
-      this.rating = value;
       console.log(`Overall rated ${value} stars for image index: ${this.selectedImageIndex}`);
-      if (value > 0) {
-        this.showDetailedRatings = true;
-      }
+      this.ratingChanged.emit({ type: 'overall', value });
     }
   }
 
   setPromptAccuracy(value: number): void {
     if (this.isValidRating(value)) {
-      this.promptAccuracy = value;
       console.log(`Prompt Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
+      this.ratingChanged.emit({ type: 'prompt', value });
     }
   }
 
   setStyleAccuracy(value: number): void {
     if (this.isValidRating(value)) {
-      this.styleAccuracy = value;
       console.log(`Style Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
+      this.ratingChanged.emit({ type: 'style', value });
     }
   }
 

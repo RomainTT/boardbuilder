@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
+import { RatingChangeEvent } from '@shared/components/ai-selected-image/ai-selected-image.component';
 
 @Component({
   template: ''
@@ -63,6 +64,21 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
   setStyleAccuracy(value: number): void {
     this.stateService.setStyleAccuracy(value);
+  }
+
+  // Handle rating changes from ai-selected-image component
+  onRatingChanged(event: RatingChangeEvent): void {
+    switch (event.type) {
+      case 'overall':
+        this.stateService.setRating(event.value);
+        break;
+      case 'prompt':
+        this.stateService.setPromptAccuracy(event.value);
+        break;
+      case 'style':
+        this.stateService.setStyleAccuracy(event.value);
+        break;
+    }
   }
 
   // Shared style methods

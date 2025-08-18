@@ -17,10 +17,12 @@
 <app-ai-selected-image
   [selectedImageIndex]="(galleryState$ | async)?.selectedImageIndex ?? null"
   [selectedImageUrl]="selectedImageUrl$ | async"
+  [ratingState]="ratingState$ | async"
   (saveRequested)="onSave()"
   (downloadRequested)="downloadPng()"
   (importToDesignerRequested)="importToDesigner()"
-  (closeRequested)="closeSelected()">
+  (closeRequested)="closeSelected()"
+  (ratingChanged)="onRatingChanged($event)">
 </app-ai-selected-image>
 
 <mat-form-field style="width:100%" appearance="fill">
