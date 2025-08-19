@@ -58,6 +58,18 @@ export class DialogService {
     return this.currentDialog;
   }
 
+  /**
+   * Opens the Symbol Creator AI dialog for creating new symbols with AI
+   *
+   * NOTE: Consumers of this method must set parentDialogRef on the component instance
+   * to enable "Send to Designer" functionality. Example:
+   *
+   * const dialogRef = this.dialogService.openSymbolCreatorAI();
+   * dialogRef.componentInstance.parentDialogRef = dialogRef;
+   *
+   * @param media - Optional existing media to edit
+   * @returns MatDialogRef for the Symbol Creator AI dialog
+   */
   openSymbolCreatorAI(media?: Media): MatDialogRef<SymbolCreatorAIDialogComponent> {
     console.log('[DialogService] Opening Symbol Creator AI:', {
       mediaProvided: !!media,
@@ -94,10 +106,24 @@ export class DialogService {
   }
 
   /**
-   * Opens the Symbol Creator AI with a pre-loaded image from a search result
-   * Converts the search result image to the format expected by the AI component
-   * @param result - The search result containing the image to pre-load
-   * @returns MatDialogRef for the AI dialog
+   * Opens the Symbol Creator AI dialog with a pre-loaded image from a search result
+   *
+   * This method handles the complete workflow for loading an external image into the AI:
+   * 1. Downloads the image from the provided URL
+   * 2. Converts it to base64 and creates preview data
+   * 3. Formats it as ImageUploadResult for the AI component
+   * 4. Opens the AI dialog in image-mode with the pre-loaded image
+   * 5. Automatically sets parentDialogRef to enable "Send to Designer" functionality
+   *
+   * DIALOG CHAINING MECHANISM:
+   * - The parentDialogRef enables the "Send to Designer" workflow
+   * - When user clicks "Send to Designer" in image/text mode:
+   *   1. Current AI dialog closes
+   *   2. SymbolCreatorDialog opens with the generated image
+   *   3. User can edit the image and save as media
+   *
+   * @param result - The search result containing the image URL and metadata
+   * @returns Promise<MatDialogRef> for the AI dialog (async due to image conversion)
    */
   async openSymbolCreatorAIWithImage(result: SymbolSearchResult): Promise<MatDialogRef<SymbolCreatorAIDialogComponent>> {
     console.log('[DialogService] Opening Symbol Creator AI with pre-loaded image:', {
@@ -125,6 +151,12 @@ export class DialogService {
       // Set the preloaded image data on the component instance
       if (this.currentDialog.componentInstance) {
         this.currentDialog.componentInstance.preloadedImageData = imageUploadResult;
+
+        // Set parentDialogRef to enable "Send to Designer" functionality
+        // This allows image-mode and text-mode components to close this dialog
+        // and open the SymbolCreatorDialog when user clicks "Send to Designer"
+        // Without this, the "Send to Designer" button fails silently
+        this.currentDialog.componentInstance.parentDialogRef = this.currentDialog;
       }
 
       return this.currentDialog;
