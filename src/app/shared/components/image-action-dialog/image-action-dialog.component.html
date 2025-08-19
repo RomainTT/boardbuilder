@@ -1,0 +1,70 @@
+<!-- ImageActionDialog Template
+     Displays a dialog with image preview and two action options for search result images -->
+
+<div class="dialog-container">
+  <mat-dialog-content>
+    <h2 mat-dialog-title class="dialog-title">What would you like to do with this image?</h2>
+
+    <!-- Image preview card showing the selected search result -->
+    <mat-card class="image-preview">
+      <img mat-card-image [src]="data.result.imageUrl" [alt]="data.result.label" crossorigin=""/>
+      <mat-card-content>
+        <p class="image-title"><strong>{{data.result.label}}</strong></p>
+        <p class="image-source">{{data.result.tooltip}}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action options with descriptions -->
+    <div class="action-options">
+
+      <!-- Option 1: Use image directly -->
+      <mat-card class="action-card" [class.selected]="false">
+        <mat-card-content class="action-content">
+          <div>
+            <div class="action-header">
+              <mat-icon class="action-icon">image</mat-icon>
+              <h3 class="action-title">Use as-is</h3>
+            </div>
+            <p class="action-description">
+              Use this image directly in your board cell. The image will be placed immediately without any modifications.
+            </p>
+          </div>
+          <div class="action-footer">
+            <button mat-flat-button color="primary" (click)="selectAction(ImageAction.USE_AS_IS)">
+              <mat-icon>check</mat-icon>
+              Use Image
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Option 2: Send to AI Designer -->
+      <mat-card class="action-card" [class.selected]="false">
+        <mat-card-content class="action-content">
+          <div class="action-header">
+            <mat-icon class="action-icon">auto_fix_high</mat-icon>
+            <h3 class="action-title">Send to Symbol Creator AI </h3>
+          </div>
+          <p class="action-description">
+            Use this image as a starting point in the Symbol Creator AI. You can generate variations, apply different styles, and create enhanced versions.
+          </p>
+          <div class="action-footer">
+            <button mat-flat-button color="accent" (click)="selectAction(ImageAction.SEND_TO_AI)">
+              <mat-icon>auto_fix_high</mat-icon>
+              Open AI Creator
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- Cancel option -->
+  <mat-dialog-actions>
+    <button mat-button (click)="cancel()" class="cancel-button">
+      <mat-icon>close</mat-icon>
+      Cancel
+    </button>
+  </mat-dialog-actions>
+</div>

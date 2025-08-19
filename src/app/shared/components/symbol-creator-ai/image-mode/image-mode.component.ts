@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { AnimationEvent } from '@angular/animations';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ImageUploadResult } from '../../image-upload-dialog/image-upload-dialog.component';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
@@ -39,13 +40,33 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
 
   constructor(
     aiSymbolHttpService: AiSymbolHttpService,
-    stateService: AiSymbolStateService
+    stateService: AiSymbolStateService,
+    private sanitizer: DomSanitizer
   ) {
     super(aiSymbolHttpService, stateService);
   }
 
   ngOnInit() {
     // Component ready - user can upload image and configure settings
+    console.log('[ImageMode] Component initialized - analyzing input requirements');
+    console.log('[ImageMode] Expected uploadedImageData structure:', {
+      example: {
+        file: 'File object',
+        base64: 'string - base64 encoded image data',
+        preview: 'string - data URL for preview',
+        width: 'number',
+        height: 'number'
+      }
+    });
+    
+    if (this.uploadedImageData) {
+      console.log('[ImageMode] Pre-loaded image data:', {
+        filename: this.uploadedImageData.file?.name,
+        hasBase64: !!this.uploadedImageData.base64,
+        hasPreview: !!this.uploadedImageData.preview,
+        dimensions: `${this.uploadedImageData.width}x${this.uploadedImageData.height}`
+      });
+    }
   }
 
   // Image upload handling
@@ -56,6 +77,22 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       dimensions: `${result.width}x${result.height}`,
       fileSize: `${(result.file.size / 1024).toFixed(1)}KB`
     });
+    
+    console.log('[ImageModeComponent] Full ImageUploadResult structure:', {
+      file: result.file,
+      base64: result.base64 ? `${result.base64.substring(0, 50)}...` : null,
+      preview: result.preview ? `${result.preview.substring(0, 50)}...` : null,
+      width: result.width,
+      height: result.height,
+      fullResult: result
+    });
+    
+    console.log('[ImageModeComponent] Conversion requirements from SymbolSearchResult:');
+    console.log('  - Need to fetch image from SymbolSearchResult.imageUrl');
+    console.log('  - Convert to File object or Blob');
+    console.log('  - Generate base64 encoding');
+    console.log('  - Create preview data URL');
+    console.log('  - Extract image dimensions');
     
     // Clear any previous generation results
     this.clearPreviousResults();
@@ -163,8 +200,12 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     // TODO: Implement actual import to designer functionality
   }
 
-  get originalImageUrl(): string {
-    return this.uploadedImageData?.preview || '';
+  get originalImageUrl(): SafeUrl | string {
+    if (this.uploadedImageData?.preview) {
+      // Sanitize blob URLs to make them safe for Angular
+      return this.sanitizer.bypassSecurityTrustUrl(this.uploadedImageData.preview);
+    }
+    return '';
   }
 
   ngOnDestroy() {

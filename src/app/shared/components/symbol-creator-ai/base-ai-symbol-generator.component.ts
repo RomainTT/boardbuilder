@@ -32,7 +32,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   ) {
     this.aiSymbolHttpService = aiSymbolHttpService;
     this.stateService = stateService;
-    
+
     // Initialize observables after services are assigned
     this.galleryState$ = this.stateService.galleryState$;
     this.ratingState$ = this.stateService.ratingState$;
@@ -111,7 +111,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   // Shared error handling methods
   handleApiError(error: any): void {
     console.error('API error:', error);
-    
+
     // Extract meaningful error message from different error types
     let errorMessage = 'Failed to generate images. Please try again.';
     if (error?.message) {
@@ -123,9 +123,9 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     } else if (error?.status) {
       errorMessage = `HTTP ${error.status}: ${error.statusText || 'Request failed'}`;
     }
-    
+
     this.stateService.setApiError(errorMessage);
-    
+
     // Show empty images as fallback (existing behavior)
     this.stateService.setGeneratedImages(Array(4).fill(''));
     this.stateService.setShowImages(true);
@@ -145,7 +145,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
     const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
     const styleState = this.stateService.currentStyleState;
-    
+
     // Generate filename - subclasses can override this if they need specific logic
     const filename = this.generateDownloadFilename(styleState.selectedStyle);
 

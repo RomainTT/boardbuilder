@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { Media } from '@data/models/media.model';
@@ -10,6 +10,7 @@ import { ImageBase64Service } from '@data/services/image-base64.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
 import { SymbolCreatorAIDialogComponent } from '../symbol-creator-ai-dialog/symbol-creator-ai-dialog.component';
 import { ImageUploadDialogComponent, ImageUploadDialogData, ImageUploadResult } from '../image-upload-dialog/image-upload-dialog.component';
+import { SymbolSearchResult } from '@data/models/symbol-search-result';
 import { environment } from '@env';
 
 enum Mode {
@@ -22,8 +23,9 @@ enum Mode {
   templateUrl: './symbol-creator-ai.component.html',
   styleUrls: ['./symbol-creator-ai.component.scss']
 })
-export class SymbolCreatorAiComponent implements OnInit {
+export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   @Input() parentDialogRef?: MatDialogRef<any>; // Add this to receive and pass the reference
+  @Input() preloadedImageData?: ImageUploadResult; // For pre-loaded images from search results
 
   currentMode: Mode | null = null;
   Mode = Mode;
@@ -45,7 +47,26 @@ export class SymbolCreatorAiComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.stateService.resetAllState();
+    // Delay state reset to avoid change detection errors
+    setTimeout(() => {
+      this.stateService.resetAllState();
+    }, 0);
+  }
+
+  ngAfterViewInit(): void {
+    // View is fully initialized, safe to set mode and avoid change detection errors
+    if (this.preloadedImageData) {
+      console.log('[SymbolCreatorAI] Pre-loaded image detected, switching to image mode:', {
+        filename: this.preloadedImageData.file?.name,
+        dimensions: `${this.preloadedImageData.width}x${this.preloadedImageData.height}`
+      });
+      
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      // This ensures the mode change happens after the current change detection cycle
+      setTimeout(() => {
+        this.goToImageModeWithPreloadedImage(this.preloadedImageData!);
+      }, 0);
+    }
   }
 
   goToPromptMode() {
@@ -58,6 +79,22 @@ export class SymbolCreatorAiComponent implements OnInit {
     // Switch directly to image mode - the unified component handles upload + controls + gallery
     this.currentMode = Mode.Image;
     this.uploadedImageData = null; // Start with no uploaded image, component will handle upload
+  }
+
+  /**
+   * Switches to image mode with pre-loaded image data from search result
+   * @param imageData - Pre-converted ImageUploadResult from search result
+   */
+  goToImageModeWithPreloadedImage(imageData: ImageUploadResult) {
+    console.log('[SymbolCreatorAI] Switching to image mode with pre-loaded image');
+    this.stateService.resetAllState();
+    this.currentMode = Mode.Image;
+    this.uploadedImageData = imageData; // Pre-load the image data
+    console.log('[SymbolCreatorAI] Image mode activated with uploaded data:', {
+      hasFile: !!imageData.file,
+      hasBase64: !!imageData.base64,
+      hasPreview: !!imageData.preview
+    });
   }
 
   goToImageModeFromPrompt(prompt: string) {
@@ -142,7 +179,28 @@ export class SymbolCreatorAiComponent implements OnInit {
   save(): Observable<Media> {
     console.log('[SymbolCreatorAiComponent] Save method called');
     
-    // Handle uploaded file directly
+    // Priority 1: Handle generated image URL (selected variation)
+    if (this.generatedImageUrl) {
+      console.log('[SymbolCreatorAiComponent] Saving generated image from URL:', this.generatedImageUrl.substring(0, 50) + '...');
+      return this.http.get(this.generatedImageUrl, { responseType: 'blob' }).pipe(
+        switchMap(blob => {
+          if (!blob) {
+            console.error('[SymbolCreatorAiComponent] Failed to fetch generated image blob');
+            this.lastError = 'Failed to fetch generated image';
+            return of(null);
+          }
+          console.log('[SymbolCreatorAiComponent] Generated image blob fetched, size:', blob.size, 'bytes');
+          return this.mediaService.add(blob, null);
+        }),
+        catchError(err => {
+          console.error('[SymbolCreatorAiComponent] Error saving generated image:', err);
+          this.lastError = err.message || 'Error saving generated image';
+          return of(null);
+        })
+      );
+    }
+    
+    // Priority 2: Handle uploaded file directly (fallback for original image)
     if (this.uploadedImageData) {
       console.log('[SymbolCreatorAiComponent] Saving uploaded file:', this.uploadedImageData.file.name);
       return this.mediaService.add(this.uploadedImageData.file, null).pipe(
@@ -154,30 +212,9 @@ export class SymbolCreatorAiComponent implements OnInit {
       );
     }
 
-    // Handle generated image URL
-    if (!this.generatedImageUrl) {
-      console.warn('[SymbolCreatorAiComponent] No image URL available for save');
-      this.lastError = 'No image selected';
-      return of(null);
-    }
-
-    console.log('[SymbolCreatorAiComponent] Fetching generated image from URL:', this.generatedImageUrl.substring(0, 50) + '...');
-    return this.http.get(this.generatedImageUrl, { responseType: 'blob' }).pipe(
-      switchMap(blob => {
-        if (!blob) {
-          console.error('[SymbolCreatorAiComponent] Failed to fetch image blob');
-          this.lastError = 'Failed to fetch image';
-          return of(null);
-        }
-        console.log('[SymbolCreatorAiComponent] Image blob fetched, size:', blob.size, 'bytes');
-        console.log('[SymbolCreatorAiComponent] Adding blob to media service');
-        return this.mediaService.add(blob, null); // Assumes null canvas is valid
-      }),
-      catchError(err => {
-        console.error('[SymbolCreatorAiComponent] Error in save process:', err);
-        this.lastError = err.message || 'Error saving image';
-        return of(null);
-      })
-    );
+    // No image available
+    console.warn('[SymbolCreatorAiComponent] No image available for save');
+    this.lastError = 'No image selected';
+    return of(null);
   }
 }

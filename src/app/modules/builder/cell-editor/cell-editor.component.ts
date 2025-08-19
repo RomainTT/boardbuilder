@@ -119,6 +119,43 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     this.saveCell();
   }
 
+  /**
+   * Handles cell data from the new "Use as-is" workflow
+   * Applies the converted cell data and closes the editor
+   * @param cellData - Partial cell data from search result conversion
+   */
+  handleCellDataSelected(cellData: Partial<Cell>) {
+    console.log('[CellEditor] Handling cell data selected:', cellData);
+    
+    // Apply the converted data to the current cell
+    this.cell.media = null;
+    this.cell.media_id = null;
+    this.cell.image_url = cellData.image_url;
+    this.cell.picto_id = cellData.picto_id;
+    this.cell.picto = cellData.picto;
+    
+    // Only set caption from search result if cell is completely empty
+    // This preserves user-entered captions and avoids unwanted labels
+    if (!this.cell.caption && !this.cell.image_url) {
+      // Cell is empty, so we can optionally set a caption from search result
+      // For now, let's not auto-set captions to avoid confusion
+      // this.cell.caption = result.label;
+    }
+
+    // If the user is loaded, the picto is adaptable and preferences are set, load custom hair/skin colours
+    if (this.user && cellData.picto?.adaptable) {
+      if (this.user.default_hair_colour) { this.cell.hair_colour = this.user.default_hair_colour; }
+      if (this.user.default_skin_colour) { this.cell.skin_colour = this.user.default_skin_colour; }
+    }
+
+    console.log('[CellEditor] Updated cell with data, saving and closing');
+    
+    // Save the cell and close the editor
+    this.saveCell(() => {
+      this.closed.emit(true);
+    });
+  }
+
   // Fires an automatic search when the Search tab is opened.
   // Only fires if the cell has a caption we can search for.
   triggerSearch($event: MatTabChangeEvent) {

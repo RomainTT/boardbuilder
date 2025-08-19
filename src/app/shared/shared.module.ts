@@ -47,6 +47,7 @@ import { AiImageGalleryComponent } from './components/ai-image-gallery/ai-image-
 import { AiSelectedImageComponent } from './components/ai-selected-image/ai-selected-image.component';
 import { AiControlsComponent } from './components/ai-controls/ai-controls.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ImageActionDialogComponent } from './components/image-action-dialog/image-action-dialog.component';
 
 
 @NgModule({
@@ -73,7 +74,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     ImageUploadDialogComponent,
     AiImageGalleryComponent,
     AiSelectedImageComponent,
-    AiControlsComponent
+    AiControlsComponent,
+    ImageActionDialogComponent
   ],
     exports: [
         ConfirmDialogComponent,

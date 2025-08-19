@@ -11,6 +11,9 @@ import {
 import {ConfirmDialogComponent, ConfirmDialogData} from '@shared/components/confirm-dialog/confirm-dialog.component';
 import {ObzUploadDialogComponent} from '../../obz-upload-dialog/obz-upload-dialog.component';
 import {BoardSet} from '@data/models/boardset.model';
+import { ImageActionDialogComponent, ImageActionDialogData } from '@shared/components/image-action-dialog/image-action-dialog.component';
+import { SymbolSearchResult } from '@data/models/symbol-search-result';
+import { SearchResultConverterService } from '@shared/services/search-result-converter.service';
 
 interface BasicDialogData {
   heading: string;
@@ -31,7 +34,8 @@ export class DialogService {
   currentDialog: MatDialogRef<any>;
 
   constructor(
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private searchResultConverter: SearchResultConverterService
   ) { }
 
   messageBox(data: ConfirmDialogData): MatDialogRef<ConfirmDialogComponent> {
@@ -55,12 +59,88 @@ export class DialogService {
   }
 
   openSymbolCreatorAI(media?: Media): MatDialogRef<SymbolCreatorAIDialogComponent> {
+    console.log('[DialogService] Opening Symbol Creator AI:', {
+      mediaProvided: !!media,
+      mediaId: media?.id,
+      mediaUrl: media?.public_url,
+      mediaData: media
+    });
+
     this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
       width: '800px',
       data: {media}
     });
 
     return this.currentDialog;
+  }
+
+  /**
+   * Opens the ImageActionDialog for users to choose what to do with a search result image
+   * @param result - The search result containing image and metadata
+   * @returns MatDialogRef that resolves with the chosen ImageAction or undefined if cancelled
+   */
+  openImageActionDialog(result: SymbolSearchResult): MatDialogRef<ImageActionDialogComponent> {
+    console.log('[DialogService] Opening Image Action Dialog for result:', result.label);
+
+    const dialogData: ImageActionDialogData = { result };
+
+    this.currentDialog = this.dialog.open(ImageActionDialogComponent, {
+      maxWidth: '95vw',
+      width: 'auto',
+      data: dialogData
+    });
+
+    return this.currentDialog;
+  }
+
+  /**
+   * Opens the Symbol Creator AI with a pre-loaded image from a search result
+   * Converts the search result image to the format expected by the AI component
+   * @param result - The search result containing the image to pre-load
+   * @returns MatDialogRef for the AI dialog
+   */
+  async openSymbolCreatorAIWithImage(result: SymbolSearchResult): Promise<MatDialogRef<SymbolCreatorAIDialogComponent>> {
+    console.log('[DialogService] Opening Symbol Creator AI with pre-loaded image:', {
+      resultId: result.id,
+      label: result.label,
+      imageUrl: result.imageUrl
+    });
+
+    try {
+      console.log('[DialogService] Converting search result to image upload format...');
+
+      // Convert the search result to ImageUploadResult format
+      const imageUploadResult = await this.searchResultConverter.convertToImageUploadResult(result);
+
+      console.log('[DialogService] Image conversion successful, opening AI dialog');
+
+      // Open the AI dialog with the converted image data
+      this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
+        width: '800px',
+        data: {
+          preloadedImageData: imageUploadResult // Pass the converted image data
+        }
+      });
+
+      // Set the preloaded image data on the component instance
+      if (this.currentDialog.componentInstance) {
+        this.currentDialog.componentInstance.preloadedImageData = imageUploadResult;
+      }
+
+      return this.currentDialog;
+
+    } catch (error) {
+      console.error('[DialogService] Failed to convert image for AI dialog:', error);
+
+      // Fallback: open regular AI dialog without pre-loaded image
+      console.log('[DialogService] Falling back to regular AI dialog');
+      this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
+        width: '800px',
+        data: { error: 'Failed to load image: ' + error.message }
+      });
+
+      return this.currentDialog;
+    }
   }
 
   openMediaLibrary(data: AddSymbolDialogData = addSymbolDialogDataDefault): MatDialogRef<AddSymbolDialogComponent> {

@@ -32,5 +32,9 @@
 </div>
 
 <div class="mt-2" *ngIf="currentMode === Mode.Image">
-  <app-image-mode (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef"></app-image-mode>
+  <app-image-mode 
+    [uploadedImageData]="uploadedImageData"
+    (saveRequested)="onSaveRequested($event)" 
+    [parentDialogRef]="parentDialogRef">
+  </app-image-mode>
 </div>
