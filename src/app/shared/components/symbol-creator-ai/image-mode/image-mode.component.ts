@@ -6,7 +6,10 @@ import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
 import { BaseAiSymbolGeneratorComponent } from '../base-ai-symbol-generator.component';
 import { AiImageToImageParams, PromptBuilderOptions } from '@data/models/ai-symbol.interfaces';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
+import { HotkeysService } from '@conflito/angular2-hotkeys';
+import { DialogService } from '@app/services/dialog.service';
+import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 
 // Style configuration interface
 export interface StyleConfig {
@@ -26,24 +29,26 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
 
   // Component-specific state only
   outlinesEnabled: boolean = true;
-  
-  private styleConfigs: Record<string, StyleConfig> = {
-    'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-    'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-    'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  };
-  
+
+  // private styleConfigs: Record<string, StyleConfig> = {
+  //   'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
+  //   'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
+  //   'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
+  //   'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
+  //   'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
+  // };
+
   protected outlineWidth: number = 7;
   protected saturation: string = 'bold';
 
   constructor(
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService,
-    private sanitizer: DomSanitizer
+    hotkeysService: HotkeysService,
+    private sanitizer: DomSanitizer,
+    private dialogService: DialogService
   ) {
-    super(aiSymbolHttpService, stateService);
+    super(aiSymbolHttpService, stateService, hotkeysService);
   }
 
   ngOnInit() {
@@ -58,7 +63,7 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
         height: 'number'
       }
     });
-    
+
     if (this.uploadedImageData) {
       console.log('[ImageMode] Pre-loaded image data:', {
         filename: this.uploadedImageData.file?.name,
@@ -77,7 +82,7 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       dimensions: `${result.width}x${result.height}`,
       fileSize: `${(result.file.size / 1024).toFixed(1)}KB`
     });
-    
+
     console.log('[ImageModeComponent] Full ImageUploadResult structure:', {
       file: result.file,
       base64: result.base64 ? `${result.base64.substring(0, 50)}...` : null,
@@ -86,14 +91,14 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       height: result.height,
       fullResult: result
     });
-    
+
     console.log('[ImageModeComponent] Conversion requirements from SymbolSearchResult:');
     console.log('  - Need to fetch image from SymbolSearchResult.imageUrl');
     console.log('  - Convert to File object or Blob');
     console.log('  - Generate base64 encoding');
     console.log('  - Create preview data URL');
     console.log('  - Extract image dimensions');
-    
+
     // Clear any previous generation results
     this.clearPreviousResults();
   }
@@ -122,7 +127,7 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
 
     const generationId = Date.now().toString(36);
     console.log('[ImageModeComponent] Generating variations from uploaded image:', this.uploadedImageData.file.name);
-    
+
     // Clear any previous errors and update state
     this.stateService.clearApiError();
     this.stateService.setLoading(true);
@@ -136,9 +141,9 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     // Build prompt using service and current style state
     const styleState = this.stateService.currentStyleState;
     const styleConfig = this.stateService.getStyleConfiguration(styleState.selectedStyle);
-    
+
     const promptOptions: PromptBuilderOptions = {
-      basePrompt: 'symbol', // Default base prompt for image-to-image
+      basePrompt: 'SYMBOL', // TODO: Replace this with a keyword from the API response
       style: styleState.selectedStyle,
       culture: styleState.additionalText,
       backgroundEnabled: styleState.backgroundEnabled,
@@ -146,14 +151,14 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       outlineWidth: styleConfig?.outlineWidth || 7,
       saturation: styleConfig?.saturation || 'bold'
     };
-    
-    const fullPrompt = this.aiSymbolHttpService.buildPrompt(promptOptions);
-    console.log(`[ImageModeComponent] Built prompt [${generationId}]:`, fullPrompt);
+
+    this.fullPrompt = this.aiSymbolHttpService.buildPrompt(promptOptions);
+    console.log(`[ImageModeComponent] Built prompt [${generationId}]:`, this.fullPrompt);
 
     // Build parameters for image-to-image generation
     const params: AiImageToImageParams = {
       image: this.uploadedImageData.base64,
-      prompt: fullPrompt, // Use the built prompt
+      prompt: this.fullPrompt, // Use the built prompt
       num_images: 4,
       steps: 4
     };
@@ -186,18 +191,48 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
 
   // Override filename generation for image variations
   protected generateDownloadFilename(style: string): string {
-    return this.aiSymbolHttpService.generateFilename('image_variation', style);
+    return this.aiSymbolHttpService.generateFilename(this.fullPrompt, style);
   }
 
   importToDesigner() {
     const galleryState = this.stateService.currentGalleryState;
-    
+    const styleState = this.stateService.currentStyleState;
+
     if (galleryState.selectedImageIndex === null || !galleryState.generatedImages[galleryState.selectedImageIndex]) {
       console.warn('[ImageModeComponent] No image selected for import to designer');
       return;
     }
-    console.log('[ImageModeComponent] Importing generated image to designer');
-    // TODO: Implement actual import to designer functionality
+
+    const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
+    const filename = this.aiSymbolHttpService.generateFilename(this.fullPrompt, styleState.selectedStyle);
+
+    this.aiSymbolHttpService.downloadImage(imageUrl, filename).subscribe(
+      (blob) => {
+        if (!blob) {
+          console.error('Failed to fetch image blob for editing');
+          return;
+        }
+
+        if (this.parentDialogRef) {
+          this.parentDialogRef.afterClosed().subscribe(() => {
+            const dialogConfig: MatDialogConfig = {
+              width: '800px',
+              data: { blob } as SymbolCreatorDialogData,
+            };
+            const dialogRef = this.dialogService.openSymbolCreator(dialogConfig);
+            dialogRef.afterClosed().subscribe((mediaItem) => {
+              if (mediaItem) {
+                console.log('Symbol Creator dialog closed with media:', mediaItem);
+              }
+            });
+          });
+          this.parentDialogRef.close();
+        }
+      },
+      (error) => {
+        console.error('Error fetching image for editing:', error);
+      }
+    );
   }
 
   get originalImageUrl(): SafeUrl | string {

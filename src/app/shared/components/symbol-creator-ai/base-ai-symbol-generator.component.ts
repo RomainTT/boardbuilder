@@ -5,6 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
 import { RatingChangeEvent } from '@shared/components/ai-selected-image/ai-selected-image.component';
+import { HotkeysService, Hotkey } from '@conflito/angular2-hotkeys';
 
 @Component({
   template: ''
@@ -15,9 +16,15 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   // Services
   protected aiSymbolHttpService: AiSymbolHttpService;
   protected stateService: AiSymbolStateService;
+  protected hotkeysService: HotkeysService;
 
   // Subscription management
   protected destroy$ = new Subject<void>();
+
+  // Shared prompt display functionality
+  fullPrompt: string = '';
+  showPrompt: boolean = false;
+  private promptHotkey: Hotkey | null = null;
 
   // State observables (initialized in constructor)
   galleryState$: any;
@@ -28,10 +35,12 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
   constructor(
     aiSymbolHttpService: AiSymbolHttpService,
-    stateService: AiSymbolStateService
+    stateService: AiSymbolStateService,
+    hotkeysService: HotkeysService
   ) {
     this.aiSymbolHttpService = aiSymbolHttpService;
     this.stateService = stateService;
+    this.hotkeysService = hotkeysService;
 
     // Initialize observables after services are assigned
     this.galleryState$ = this.stateService.galleryState$;
@@ -39,6 +48,13 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     this.styleState$ = this.stateService.styleState$;
     this.errorState$ = this.stateService.errorState$;
     this.selectedImageUrl$ = this.stateService.selectedImageUrl$;
+
+    // Setup shared prompt hotkey
+    this.promptHotkey = new Hotkey('ctrl+p', (event: KeyboardEvent): boolean => {
+      this.showPrompt = !this.showPrompt;
+      return false;
+    });
+    this.hotkeysService.add(this.promptHotkey);
   }
 
   // Abstract method that components must implement
@@ -176,7 +192,25 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     return index;
   }
 
+  // Shared prompt functionality
+  copyPrompt(): void {
+    if (this.fullPrompt) {
+      navigator.clipboard.writeText(this.fullPrompt)
+        .then(() => {
+          console.log('Prompt copied to clipboard!');
+        })
+        .catch(err => {
+          console.error('Failed to copy prompt:', err);
+        });
+    }
+  }
+
   ngOnDestroy(): void {
+    // Clean up prompt hotkey
+    if (this.promptHotkey) {
+      this.hotkeysService.remove(this.promptHotkey);
+    }
+    
     this.destroy$.next();
     this.destroy$.complete();
   }

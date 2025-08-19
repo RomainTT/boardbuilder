@@ -29,10 +29,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   prompt: string = '';
   generationId: number = 0;
 
-  // Prompt-specific properties
-  fullPrompt: string = '';
-  showPrompt: boolean = false;
-  private promptHotkey: Hotkey | null = null;
+  // Text-mode specific properties
   private minSpinnerTime = 600;
 
   // Prompt-specific loading states
@@ -45,18 +42,12 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
 
   constructor(
     private http: HttpClient,
-    private hotkeysService: HotkeysService,
+    hotkeysService: HotkeysService,
     private dialogService: DialogService,
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService
   ) {
-    super(aiSymbolHttpService, stateService);
-    
-    this.promptHotkey = new Hotkey('ctrl+p', (event: KeyboardEvent): boolean => {
-      this.showPrompt = !this.showPrompt;
-      return false;
-    });
-    this.hotkeysService.add(this.promptHotkey);
+    super(aiSymbolHttpService, stateService, hotkeysService);
   }
 
   ngOnInit() {
@@ -195,22 +186,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   }
 
 
-  copyPrompt() {
-    if (this.fullPrompt) {
-      navigator.clipboard.writeText(this.fullPrompt)
-        .then(() => {
-          console.log('Prompt copied to clipboard!');
-        })
-        .catch(err => {
-          console.error('Failed to copy prompt:', err);
-        });
-    }
-  }
-
   ngOnDestroy() {
-    if (this.promptHotkey) {
-      this.hotkeysService.remove(this.promptHotkey);
-    }
     super.ngOnDestroy();
   }
 

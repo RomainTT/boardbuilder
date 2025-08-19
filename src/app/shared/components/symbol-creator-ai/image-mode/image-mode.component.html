@@ -1,3 +1,11 @@
+<!-- Floating prompt display (Ctrl+P to toggle) -->
+<div *ngIf="showPrompt" class="floating-prompt">
+  <h3 style="font-weight: 400;margin-bottom: 3px;">{{ fullPrompt || 'No prompt generated yet' }}</h3>
+  <button mat-icon-button style="width: 100%; text-align: right;" *ngIf="fullPrompt" (click)="copyPrompt()" aria-label="Copy prompt" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>
+
 <!-- AI generated variations gallery -->
 <app-ai-image-gallery
   [galleryState]="galleryState$ | async"

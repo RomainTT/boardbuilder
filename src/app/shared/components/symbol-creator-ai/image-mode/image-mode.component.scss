@@ -1,5 +1,20 @@
 @import "~app/shared/variables";
 
+.floating-prompt {
+  position: fixed;  // Fixed to viewport for floating/sticky
+  top: 10px;
+  left: 10px;
+  z-index: 1000;  // Above other elements
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  max-width: 330px;  // Prevent it from being too wide
+  overflow: auto;  // Scroll if prompt is long
+  font-size: 14px;
+}
+
 .original-image-section {
   margin-bottom: 24px;
   padding: 16px;
