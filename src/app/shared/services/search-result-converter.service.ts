@@ -1,16 +1,16 @@
 /**
  * SearchResultConverter Service
- * 
+ *
  * This service handles data conversion between different formats used in the application:
  * 1. SymbolSearchResult → Cell data mapping for board population
  * 2. SymbolSearchResult → ImageUploadResult conversion for AI Designer integration
- * 
+ *
  * Key Functions:
  * - Fetches images from URLs and converts them to required formats
  * - Handles base64 encoding and blob conversion for image processing
  * - Maps search result metadata to board cell properties
  * - Provides error handling for network requests and image processing
- * 
+ *
  * Dependencies:
  * - HttpClient for fetching images from URLs
  * - ImageBase64Service for image processing utilities
@@ -18,8 +18,6 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 import { SymbolSearchResult } from '@data/models/symbol-search-result';
 import { Cell } from '@data/models/cell.model';
 import { ImageUploadResult } from '@shared/components/image-upload-dialog/image-upload-dialog.component';
@@ -38,13 +36,13 @@ export class SearchResultConverterService {
   /**
    * Converts a SymbolSearchResult to partial Cell data for direct board population
    * Maps relevant properties from search result to cell structure
-   * 
+   *
    * @param result - The search result to convert
    * @returns Partial Cell object with populated image and metadata
    */
   convertToCellData(result: SymbolSearchResult): Partial<Cell> {
     console.log('[SearchResultConverter] Converting to cell data:', result.label);
-    
+
     return {
       image_url: result.imageUrl,
       // Don't set caption here - let the component decide whether to set it
@@ -59,37 +57,37 @@ export class SearchResultConverterService {
   /**
    * Converts a SymbolSearchResult to ImageUploadResult for AI Designer integration
    * Fetches the image from URL, converts to blob, generates base64, and extracts dimensions
-   * 
+   *
    * @param result - The search result containing image URL and metadata
    * @returns Promise resolving to ImageUploadResult ready for AI processing
    */
   async convertToImageUploadResult(result: SymbolSearchResult): Promise<ImageUploadResult> {
     console.log('[SearchResultConverter] Converting to ImageUploadResult:', result.imageUrl);
-    
+
     try {
       // Step 1: Fetch image as blob from URL
       const blob = await this.fetchImageAsBlob(result.imageUrl);
-      
+
       // Step 2: Create File object from blob
-      const file = new File([blob], this.generateFilename(result), { 
-        type: blob.type || 'image/png' 
+      const file = new File([blob], this.generateFilename(result), {
+        type: blob.type || 'image/png'
       });
-      
+
       // Step 3: Generate base64 encoding
       const base64 = await this.blobToBase64(blob);
-      
+
       // Step 4: Create preview data URL
       const preview = URL.createObjectURL(blob);
-      
+
       // Step 5: Extract image dimensions
       const dimensions = await this.getImageDimensions(preview);
-      
+
       console.log('[SearchResultConverter] Conversion completed:', {
         filename: file.name,
         size: file.size,
         dimensions: `${dimensions.width}x${dimensions.height}`
       });
-      
+
       return {
         file,
         base64,
@@ -97,7 +95,7 @@ export class SearchResultConverterService {
         width: dimensions.width,
         height: dimensions.height
       };
-      
+
     } catch (error) {
       console.error('[SearchResultConverter] Conversion failed:', error);
       throw new Error(`Failed to convert search result to upload format: ${error.message}`);
