@@ -181,12 +181,8 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   }
 
   save(): Observable<Media> {
-    console.log('🔥🔥🔥 [SymbolCreatorAiComponent] SAVE METHOD CALLED 🔥🔥🔥');
-    console.log('[SymbolCreatorAiComponent] Generated image URL:', this.generatedImageUrl);
-
     // Priority 1: Handle generated image URL (selected variation)
     if (this.generatedImageUrl) {
-      console.log('📥 [SymbolCreatorAiComponent] Fetching blob from URL...');
       return this.http.get(this.generatedImageUrl, { responseType: 'blob' }).pipe(
         switchMap(blob => {
           if (!blob) {
@@ -195,27 +191,10 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
             return of(null);
           }
 
-          // Convert blob to proper File object with correct MIME type (following SearchResultConverterService pattern)
-          // AI images are typically PNG format, so default to that if blob.type is not set
+          // Convert blob to proper File object with correct MIME type
           const mimeType = blob.type && blob.type !== '' ? blob.type : 'image/png';
-
-          // FORCE PNG for AI images - they're never SVG!
-          const finalMimeType = mimeType === 'image/svg+xml' ? 'image/png' : mimeType;
-          const fileName = `ai-generated-${Date.now()}.png`; // Always use .png for AI images
-
-          const file = new File([blob], fileName, {
-            type: finalMimeType
-          });
-
-          // Debug logging
-          console.log('[SymbolCreatorAiComponent] Blob info:', {
-            blobType: blob.type,
-            detectedMimeType: mimeType,
-            finalMimeType: finalMimeType,
-            forcedFileName: fileName,
-            blobSize: blob.size,
-            fileName: file.name,
-            fileType: file.type
+          const file = new File([blob], this.generateProperFilename(blob), {
+            type: mimeType
           });
 
           return this.mediaService.add(file, null);

@@ -25,7 +25,6 @@ export class MediaService {
   }
 
   add(file: File|Blob, canvas?: File|Blob): Observable<Media> {
-    console.log('🚀🚀🚀 [MediaService] ADD METHOD CALLED 🚀🚀🚀');
     const formData: FormData = new FormData();
 
     // Use the file's own name if it's a File object, otherwise generate a proper name for blobs
@@ -39,23 +38,7 @@ export class MediaService {
       fileName = `file.${extension}`;
     }
 
-    console.log('📁 [MediaService] File info:', {
-      isFile: file instanceof File,
-      originalName: file instanceof File ? file.name : 'N/A',
-      usedName: fileName,
-      mimeType: file.type,
-      fileSize: file.size
-    });
-
     formData.append('file', file, fileName);
-
-    // Additional debug: check what's actually in the FormData
-    console.log('[MediaService] FormData debug:', {
-      fileNameUsed: fileName,
-      fileType: file.type,
-      fileSize: file.size,
-      isFileObject: file instanceof File
-    });
 
     if (canvas) { formData.append('canvas', canvas, 'canvas.json'); }
 
