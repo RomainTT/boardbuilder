@@ -181,8 +181,12 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   }
 
   save(): Observable<Media> {
+    console.log('🔥🔥🔥 [SymbolCreatorAiComponent] SAVE METHOD CALLED 🔥🔥🔥');
+    console.log('[SymbolCreatorAiComponent] Generated image URL:', this.generatedImageUrl);
+
     // Priority 1: Handle generated image URL (selected variation)
     if (this.generatedImageUrl) {
+      console.log('📥 [SymbolCreatorAiComponent] Fetching blob from URL...');
       return this.http.get(this.generatedImageUrl, { responseType: 'blob' }).pipe(
         switchMap(blob => {
           if (!blob) {
