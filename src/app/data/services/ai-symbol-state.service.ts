@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, Optional } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, combineLatest, forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { APP_BASE_HREF } from '@angular/common';
 
 // Style configuration interface
 export interface StyleConfig {
@@ -106,14 +107,20 @@ export class AiSymbolStateService {
     })
   );
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Optional() @Inject(APP_BASE_HREF) private baseHref: string
+  ) {
     // Load configuration from assets
     this.loadStyleConfigurations();
   }
 
   private async loadStyleConfigurations(): Promise<void> {
     try {
-      const config = await this.http.get<Record<string, StyleConfig>>('/assets/ai-style-configs.json').toPromise();
+      // Construct the path using baseHref to support i18n language directories
+      const baseHref = this.baseHref || '/';
+      const configPath = `${baseHref}assets/ai-style-configs.json`.replace(/\/+/g, '/');
+      const config = await this.http.get<Record<string, StyleConfig>>(configPath).toPromise();
       if (config) {
         this.styleConfigs = config;
         this.configLoaded = true;
