@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AiSymbolStateService, StyleState } from '@data/services/ai-symbol-state.service';
+import { AiSymbolStateService, StyleUiState, GalleryState } from '@data/services/ai-symbol-state.service';
 
 @Component({
   selector: 'app-ai-controls',
@@ -15,7 +15,8 @@ export class AiControlsComponent {
   @Output() generateClicked = new EventEmitter<void>();
 
   // Access style state from service
-  styleState$: Observable<StyleState> = this.stateService.styleState$;
+  styleState$: Observable<StyleUiState> = this.stateService.styleState$;
+  galleryState$: Observable<GalleryState> = this.stateService.galleryState$;
 
   constructor(private stateService: AiSymbolStateService) {}
 
@@ -24,12 +25,9 @@ export class AiControlsComponent {
     this.stateService.setSelectedStyle(newStyle);
   }
 
-  onAdditionalTextChanged(event: Event): void {
+  onCultureTextChanged(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.stateService.setAdditionalText(target.value);
+    this.stateService.setCultureText(target.value);
   }
 
-  onBackgroundEnabledChanged(enabled: boolean): void {
-    this.stateService.setBackgroundEnabled(enabled);
-  }
 }

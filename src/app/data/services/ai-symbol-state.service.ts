@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, combineLatest, forkJoin } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 // Style configuration interface
 export interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
+  culture?: {
+    enabled: boolean;
+    defaultValue: string;
+  };
+  prompt?: string;
 }
 
 // Gallery state interface
@@ -27,11 +30,11 @@ export interface RatingState {
   showDetailedRatings: boolean;
 }
 
-// Style state interface
-export interface StyleState {
+// UI Style state interface
+export interface StyleUiState {
   selectedStyle: string;
-  additionalText: string;
-  backgroundEnabled: boolean;
+  cultureText: string;
+  cultureEnabled: boolean;
   availableStyles: string[];
 }
 
@@ -46,14 +49,12 @@ export interface ErrorState {
 })
 export class AiSymbolStateService {
 
-  // Style configurations for different styles
-  private readonly styleConfigs: Record<string, StyleConfig> = {
-    'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-    'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-    'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-    'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  };
+  // Configurations for different styles, loaded from assets
+  private styleConfigs: Record<string, StyleConfig> = {};
+  private configLoaded = false;
+
+   // Dyvogra
+    // Jellow
 
   // Gallery state management
   private _galleryState$ = new BehaviorSubject<GalleryState>({
@@ -74,11 +75,11 @@ export class AiSymbolStateService {
   });
 
   // Style state management
-  private _styleState$ = new BehaviorSubject<StyleState>({
+  private _styleState$ = new BehaviorSubject<StyleUiState>({
     selectedStyle: 'Mulberry',
-    additionalText: '',
-    backgroundEnabled: true,
-    availableStyles: Object.keys(this.styleConfigs)
+    cultureText: '',
+    cultureEnabled: true,
+    availableStyles: [] // Will be updated after config loads
   });
 
   // Error state management
@@ -90,7 +91,7 @@ export class AiSymbolStateService {
   // Public observables
   readonly galleryState$: Observable<GalleryState> = this._galleryState$.asObservable();
   readonly ratingState$: Observable<RatingState> = this._ratingState$.asObservable();
-  readonly styleState$: Observable<StyleState> = this._styleState$.asObservable();
+  readonly styleState$: Observable<StyleUiState> = this._styleState$.asObservable();
   readonly errorState$: Observable<ErrorState> = this._errorState$.asObservable();
 
   // Computed observables
@@ -105,17 +106,36 @@ export class AiSymbolStateService {
     })
   );
 
-  constructor() {
-    // Initialize background enabled based on default style
-    this.updateStyleConfiguration('Mulberry');
+  constructor(private http: HttpClient) {
+    // Load configuration from assets
+    this.loadStyleConfigurations();
+  }
+
+  private async loadStyleConfigurations(): Promise<void> {
+    try {
+      const config = await this.http.get<Record<string, StyleConfig>>('/assets/ai-style-configs.json').toPromise();
+      if (config) {
+        this.styleConfigs = config;
+        this.configLoaded = true;
+
+        // Update available styles in the state
+        this._styleState$.next({
+          ...this._styleState$.value,
+          availableStyles: Object.keys(config)
+        });
+
+        // Initialize style configuration with default style after config is loaded
+        this.updateStyleConfiguration('Mulberry');
+      }
+    } catch (error) {
+      console.error('[AiSymbolStateService] Failed to load style configurations:', error);
+      // Fallback to empty config if loading fails
+      this.configLoaded = true;
+    }
   }
 
   // Gallery state methods
   setGeneratedImages(images: string[]): void {
-    console.log('[AiSymbolStateService] Setting generated images:', {
-      count: images.length,
-      previews: images.map((img, i) => `${i}: ${img.substring(0, 30)}...`)
-    });
     this._galleryState$.next({
       ...this._galleryState$.value,
       generatedImages: images,
@@ -124,10 +144,6 @@ export class AiSymbolStateService {
   }
 
   selectImage(index: number): void {
-    console.log('[AiSymbolStateService] Image selected - selected image panel opening:', {
-      index,
-      imagePreview: this._galleryState$.value.generatedImages[index]?.substring(0, 30) + '...' || 'none'
-    });
     this._galleryState$.next({
       ...this._galleryState$.value,
       selectedImageIndex: index
@@ -137,7 +153,6 @@ export class AiSymbolStateService {
   }
 
   clearSelection(): void {
-    console.log('[AiSymbolStateService] Clearing selection - side panel closing');
     this._galleryState$.next({
       ...this._galleryState$.value,
       selectedImageIndex: null
@@ -167,12 +182,6 @@ export class AiSymbolStateService {
   }
 
   clearGalleryState(): void {
-    const currentState = this._galleryState$.value;
-    console.log('[AiSymbolStateService] Clearing gallery state:', {
-      hadImages: currentState.generatedImages.length,
-      wasSelected: currentState.selectedImageIndex,
-      wasGenerated: currentState.isGenerated
-    });
     this._galleryState$.next({
       generatedImages: [],
       selectedImageIndex: null,
@@ -185,10 +194,6 @@ export class AiSymbolStateService {
 
   // Rating state methods
   setRating(value: number): void {
-    console.log('[AiSymbolStateService] Rating set:', {
-      rating: value,
-      selectedImage: this._galleryState$.value.selectedImageIndex
-    });
     this._ratingState$.next({
       ...this._ratingState$.value,
       rating: value,
@@ -228,37 +233,42 @@ export class AiSymbolStateService {
     this.updateStyleConfiguration(style);
   }
 
-  setAdditionalText(text: string): void {
+  setCultureText(text: string): void {
     this._styleState$.next({
       ...this._styleState$.value,
-      additionalText: text
+      cultureText: text
     });
   }
 
-  setBackgroundEnabled(enabled: boolean): void {
-    this._styleState$.next({
-      ...this._styleState$.value,
-      backgroundEnabled: enabled
-    });
-  }
 
   private updateStyleConfiguration(styleName: string): void {
+    if (!this.configLoaded) {
+      console.warn('[AiSymbolStateService] Configuration not loaded yet, cannot update style configuration');
+      return;
+    }
+
     const config = this.styleConfigs[styleName];
     if (config) {
       this._styleState$.next({
         ...this._styleState$.value,
-        backgroundEnabled: config.background
+        cultureText: config.culture.enabled ? config.culture.defaultValue : '',
+        cultureEnabled: config.culture.enabled
       });
+    } else {
+      console.warn('[AiSymbolStateService] Style configuration not found for:', styleName);
     }
   }
 
   getStyleConfiguration(styleName: string): StyleConfig | null {
+    if (!this.configLoaded) {
+      console.warn('[AiSymbolStateService] Configuration not loaded yet, cannot get style configuration');
+      return null;
+    }
     return this.styleConfigs[styleName] || null;
   }
 
   // Error state methods
   setApiError(message: string): void {
-    console.log('[AiSymbolStateService] API Error:', message);
     this._errorState$.next({
       apiError: message,
       showApiError: true
@@ -284,7 +294,7 @@ export class AiSymbolStateService {
     return this._ratingState$.value;
   }
 
-  get currentStyleState(): StyleState {
+  get currentStyleState(): StyleUiState {
     return this._styleState$.value;
   }
 
@@ -302,7 +312,6 @@ export class AiSymbolStateService {
 
   // Comprehensive reset method - call this when starting fresh
   resetAllState(): void {
-    console.log('[AiSymbolStateService] Resetting all state');
     // Reset all state to initial values
     this.clearGalleryState();
     this.clearRatings();

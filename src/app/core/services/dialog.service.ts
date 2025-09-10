@@ -71,13 +71,6 @@ export class DialogService {
    * @returns MatDialogRef for the Symbol Creator AI dialog
    */
   openSymbolCreatorAI(media?: Media): MatDialogRef<SymbolCreatorAIDialogComponent> {
-    console.log('[DialogService] Opening Symbol Creator AI:', {
-      mediaProvided: !!media,
-      mediaId: media?.id,
-      mediaUrl: media?.public_url,
-      mediaData: media
-    });
-
     this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
       width: '800px',
       data: {media}
@@ -92,8 +85,6 @@ export class DialogService {
    * @returns MatDialogRef that resolves with the chosen ImageAction or undefined if cancelled
    */
   openImageActionDialog(result: SymbolSearchResult): MatDialogRef<ImageActionDialogComponent> {
-    console.log('[DialogService] Opening Image Action Dialog for result:', result.label);
-
     const dialogData: ImageActionDialogData = { result };
 
     this.currentDialog = this.dialog.open(ImageActionDialogComponent, {
@@ -126,19 +117,9 @@ export class DialogService {
    * @returns Promise<MatDialogRef> for the AI dialog (async due to image conversion)
    */
   async openSymbolCreatorAIWithImage(result: SymbolSearchResult): Promise<MatDialogRef<SymbolCreatorAIDialogComponent>> {
-    console.log('[DialogService] Opening Symbol Creator AI with pre-loaded image:', {
-      resultId: result.id,
-      label: result.label,
-      imageUrl: result.imageUrl
-    });
-
     try {
-      console.log('[DialogService] Converting search result to image upload format...');
-
       // Convert the search result to ImageUploadResult format
       const imageUploadResult = await this.searchResultConverter.convertToImageUploadResult(result);
-
-      console.log('[DialogService] Image conversion successful, opening AI dialog');
 
       // Open the AI dialog with the converted image data
       this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
@@ -165,7 +146,6 @@ export class DialogService {
       console.error('[DialogService] Failed to convert image for AI dialog:', error);
 
       // Fallback: open regular AI dialog without pre-loaded image
-      console.log('[DialogService] Falling back to regular AI dialog');
       this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
         width: '800px',
         data: { error: 'Failed to load image: ' + error.message }

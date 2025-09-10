@@ -1,3 +1,5 @@
+import { StyleConfig, StyleUiState } from '@data/services/ai-symbol-state.service';
+
 export interface AiGenerationParams {
   prompt: string;
   num_images: number;
@@ -5,26 +7,7 @@ export interface AiGenerationParams {
 }
 
 export interface AiGenerationResponse {
-  images: string[];
-}
-
-export interface StyleOptions {
-  style: string;
-  additionalText?: string;
-  backgroundEnabled: boolean;
-  outlinesEnabled: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
-
-export interface PromptBuilderOptions {
-  basePrompt: string;
-  style: string;
-  culture?: string;
-  backgroundEnabled: boolean;
-  outlinesEnabled: boolean;
-  outlineWidth: number;
-  saturation: string;
+  image_urls: string[];
 }
 
 export interface AiImageToImageParams {
@@ -32,4 +15,11 @@ export interface AiImageToImageParams {
   prompt: string; // built prompt using buildPrompt()
   num_images: number;
   steps: number;
+}
+
+export interface PromptOptions {
+  mode: 'text' | 'image';
+  userPrompt: string;
+  styleState: StyleUiState;
+  styleConfig?: StyleConfig;
 }

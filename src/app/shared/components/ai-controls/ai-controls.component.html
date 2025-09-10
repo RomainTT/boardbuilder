@@ -11,12 +11,9 @@
 
   <mat-form-field appearance="outline" class="control-item">
     <mat-label>Culture</mat-label>
-    <input matInput [value]="styleState.additionalText" (input)="onAdditionalTextChanged($event)">
+    <input matInput [value]="styleState.cultureText" (input)="onCultureTextChanged($event)" [disabled]="!styleState.cultureEnabled">
   </mat-form-field>
 
-  <mat-slide-toggle [checked]="styleState.backgroundEnabled" (change)="onBackgroundEnabledChanged($event.checked)" class="control-item">
-    White Background
-  </mat-slide-toggle>
 </div>
 
 <button *ngIf="showGenerateButton" 
@@ -24,6 +21,6 @@
         color="primary" 
         (click)="generateClicked.emit()" 
         class="mt-1" 
-        [disabled]="generateButtonDisabled">
-  {{ generateButtonText }}
+        [disabled]="generateButtonDisabled || (galleryState$ | async)?.isLoading">
+  {{ (galleryState$ | async)?.isLoading ? 'Loading images...' : generateButtonText }}
 </button>

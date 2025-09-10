@@ -3,20 +3,14 @@ import { AnimationEvent } from '@angular/animations';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ImageUploadResult } from '../../image-upload-dialog/image-upload-dialog.component';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
-import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
+import { AiSymbolStateService, StyleConfig } from '@data/services/ai-symbol-state.service';
 import { BaseAiSymbolGeneratorComponent } from '../base-ai-symbol-generator.component';
-import { AiImageToImageParams, PromptBuilderOptions } from '@data/models/ai-symbol.interfaces';
+import { AiImageToImageParams, PromptOptions } from '@data/models/ai-symbol.interfaces';
 import { MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 import { HotkeysService } from '@conflito/angular2-hotkeys';
 import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
-
-// Style configuration interface
-export interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
+import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 
 @Component({
   selector: 'app-image-mode',
@@ -30,14 +24,6 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
   // Component-specific state only
   outlinesEnabled: boolean = true;
 
-  // private styleConfigs: Record<string, StyleConfig> = {
-  //   'Mulberry': { background: false, outlineWidth: 7, saturation: 'bold' },
-  //   'Jellow': { background: true, outlineWidth: 5, saturation: 'bold' },
-  //   'Tawasol': { background: true, outlineWidth: 4, saturation: 'bold' },
-  //   'ARASAAC': { background: true, outlineWidth: 4, saturation: 'bold' },
-  //   'Dyvogra': { background: true, outlineWidth: 2, saturation: 'soft' },
-  // };
-
   protected outlineWidth: number = 7;
   protected saturation: string = 'bold';
 
@@ -46,58 +32,19 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     stateService: AiSymbolStateService,
     hotkeysService: HotkeysService,
     private sanitizer: DomSanitizer,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private promptBuilder: PromptBuilderService
   ) {
     super(aiSymbolHttpService, stateService, hotkeysService);
   }
 
   ngOnInit() {
     // Component ready - user can upload image and configure settings
-    console.log('[ImageMode] Component initialized - analyzing input requirements');
-    console.log('[ImageMode] Expected uploadedImageData structure:', {
-      example: {
-        file: 'File object',
-        base64: 'string - base64 encoded image data',
-        preview: 'string - data URL for preview',
-        width: 'number',
-        height: 'number'
-      }
-    });
-
-    if (this.uploadedImageData) {
-      console.log('[ImageMode] Pre-loaded image data:', {
-        filename: this.uploadedImageData.file?.name,
-        hasBase64: !!this.uploadedImageData.base64,
-        hasPreview: !!this.uploadedImageData.preview,
-        dimensions: `${this.uploadedImageData.width}x${this.uploadedImageData.height}`
-      });
-    }
   }
 
   // Image upload handling
   onImageUploaded(result: ImageUploadResult) {
     this.uploadedImageData = result;
-    console.log('[ImageModeComponent] Image uploaded:', {
-      filename: result.file.name,
-      dimensions: `${result.width}x${result.height}`,
-      fileSize: `${(result.file.size / 1024).toFixed(1)}KB`
-    });
-
-    console.log('[ImageModeComponent] Full ImageUploadResult structure:', {
-      file: result.file,
-      base64: result.base64 ? `${result.base64.substring(0, 50)}...` : null,
-      preview: result.preview ? `${result.preview.substring(0, 50)}...` : null,
-      width: result.width,
-      height: result.height,
-      fullResult: result
-    });
-
-    console.log('[ImageModeComponent] Conversion requirements from SymbolSearchResult:');
-    console.log('  - Need to fetch image from SymbolSearchResult.imageUrl');
-    console.log('  - Convert to File object or Blob');
-    console.log('  - Generate base64 encoding');
-    console.log('  - Create preview data URL');
-    console.log('  - Extract image dimensions');
 
     // Clear any previous generation results
     this.clearPreviousResults();
@@ -120,20 +67,26 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
 
   // Generate image variations using AiSymbolHttpService
   generateImageVariations() {
+    // Guard against concurrent generations
+    if (this.stateService.currentGalleryState.isLoading) {
+      return;
+    }
     if (!this.uploadedImageData) {
       console.warn('[ImageModeComponent] No uploaded image data available');
       return;
     }
 
     const generationId = Date.now().toString(36);
-    console.log('[ImageModeComponent] Generating variations from uploaded image:', this.uploadedImageData.file.name);
 
     // Clear any previous errors and update state
     this.stateService.clearApiError();
+    // Detect if we are refreshing existing images vs. first load
+    const hadImages = this.stateService.currentGalleryState.generatedImages.some(img => !!img);
     this.stateService.setLoading(true);
-    this.stateService.setRefreshing(true);
+    // Keep placeholders visible while loading to mimic initial request behavior
+    this.stateService.setRefreshing(false);
     this.stateService.clearSelection();
-    this.stateService.setShowImages(false);
+    // Do not hide images-row on refresh; leave showImages as-is so placeholders stay visible
 
     // Set empty images initially
     this.stateService.setGeneratedImages(Array(4).fill(''));
@@ -142,18 +95,14 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     const styleState = this.stateService.currentStyleState;
     const styleConfig = this.stateService.getStyleConfiguration(styleState.selectedStyle);
 
-    const promptOptions: PromptBuilderOptions = {
-      basePrompt: 'SYMBOL', // TODO: Replace this with a keyword from the API response
-      style: styleState.selectedStyle,
-      culture: styleState.additionalText,
-      backgroundEnabled: styleState.backgroundEnabled,
-      outlinesEnabled: true,
-      outlineWidth: styleConfig?.outlineWidth || 7,
-      saturation: styleConfig?.saturation || 'bold'
+    const promptOptions: PromptOptions = {
+      mode: 'image',
+      userPrompt: '',
+      styleState,
+      styleConfig: styleConfig || undefined
     };
 
-    this.fullPrompt = this.aiSymbolHttpService.buildPrompt(promptOptions);
-    console.log(`[ImageModeComponent] Built prompt [${generationId}]:`, this.fullPrompt);
+    this.fullPrompt = this.promptBuilder.buildPrompt(promptOptions);
 
     // Build parameters for image-to-image generation
     const params: AiImageToImageParams = {
@@ -167,11 +116,7 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     this.aiSymbolHttpService.generateImageVariations(params)
       .subscribe({
         next: (response) => {
-          console.log(`[ImageModeComponent] ✓ Generation completed [${generationId}]:`, {
-            imagesGenerated: response.images.length,
-            firstImagePreview: response.images[0] ? `${response.images[0].substring(0, 50)}...` : 'none'
-          });
-          this.stateService.setGeneratedImages(response.images);
+          this.stateService.setGeneratedImages(response.image_urls);
           this.stateService.setLoading(false);
           this.stateService.setRefreshing(false);
         },
@@ -222,7 +167,7 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
             const dialogRef = this.dialogService.openSymbolCreator(dialogConfig);
             dialogRef.afterClosed().subscribe((mediaItem) => {
               if (mediaItem) {
-                console.log('Symbol Creator dialog closed with media:', mediaItem);
+                // Symbol Creator dialog closed with media
               }
             });
           });

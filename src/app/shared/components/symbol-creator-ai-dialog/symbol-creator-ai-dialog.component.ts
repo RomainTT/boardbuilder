@@ -25,13 +25,8 @@ export class SymbolCreatorAIDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: SymbolCreatorAIDialogData,
     public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>) {
     if (data.media) { this.media = data.media; }
-    if (data.preloadedImageData) { 
+    if (data.preloadedImageData) {
       this.preloadedImageData = data.preloadedImageData;
-      console.log('[SymbolCreatorAIDialog] Received preloaded image data:', {
-        hasFile: !!data.preloadedImageData.file,
-        hasBase64: !!data.preloadedImageData.base64,
-        filename: data.preloadedImageData.file?.name
-      });
     }
   }
 

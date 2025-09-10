@@ -29,8 +29,8 @@ export const authConfig: AuthConfig = {
   // The first four are defined by OIDC.
   // Important: Request offline_access to get a refresh token
   // The api scope is a usecase specific one
-  scope: 'openid profile email boardset:read boardset:write offline_access',
-
+  scope: 'openid profile email boardset:read boardset:write offline_access ai:write',
+  
   // showDebugInformation: !environment.production,
   showDebugInformation: true,
   // nonceStateSeparator : 'semicolon' // ?????

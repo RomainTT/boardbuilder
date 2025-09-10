@@ -1,0 +1,44 @@
+{
+  "Mulberry": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
+  },
+  "Simple": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
+  },
+  "Arasaac": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>.  No shadow, no  highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Arasaac_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "Minimalist cartoon style with maximum 3 pale colors and thick black stroke outline<culture-placeholder></culture-placeholder>. Very low resolution. Large flat 2D image. Minimise the number of details. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. The face should have small ears. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Tawasol": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "<culture>Arabic culture</culture>. In a cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Tawasol_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, oval face, and flat clothing. Facing forwards. 400 pixels wide."
+  }
+}

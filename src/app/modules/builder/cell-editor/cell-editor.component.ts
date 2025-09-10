@@ -125,8 +125,6 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
    * @param cellData - Partial cell data from search result conversion
    */
   handleCellDataSelected(cellData: Partial<Cell>) {
-    console.log('[CellEditor] Handling cell data selected:', cellData);
-    
     // Apply the converted data to the current cell
     this.cell.media = null;
     this.cell.media_id = null;
@@ -148,8 +146,6 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
       if (this.user.default_skin_colour) { this.cell.skin_colour = this.user.default_skin_colour; }
     }
 
-    console.log('[CellEditor] Updated cell with data, saving and closing');
-    
     // Save the cell and close the editor
     this.saveCell(() => {
       this.closed.emit(true);

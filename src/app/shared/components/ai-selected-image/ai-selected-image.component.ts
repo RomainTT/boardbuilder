@@ -49,21 +49,18 @@ export class AiSelectedImageComponent {
   // Rating methods that emit events to parent
   setRating(value: number): void {
     if (this.isValidRating(value)) {
-      console.log(`Overall rated ${value} stars for image index: ${this.selectedImageIndex}`);
       this.ratingChanged.emit({ type: 'overall', value });
     }
   }
 
   setPromptAccuracy(value: number): void {
     if (this.isValidRating(value)) {
-      console.log(`Prompt Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
       this.ratingChanged.emit({ type: 'prompt', value });
     }
   }
 
   setStyleAccuracy(value: number): void {
     if (this.isValidRating(value)) {
-      console.log(`Style Accuracy rated ${value} stars for image index: ${this.selectedImageIndex}`);
       this.ratingChanged.emit({ type: 'style', value });
     }
   }

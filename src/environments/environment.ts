@@ -8,12 +8,11 @@ export const environment = {
   globalSymbolsBase: 'http://localhost:3000',
 
   globalSymbolsApiBase: 'http://localhost:3000/api/v1',
-  // globalSymbolsApiBase: 'https://globalsymbols.com/api/v1',
+
   boardBuilderApiBase: 'http://localhost:3000/api/boardbuilder/v1',
 
   globalSymbolsOauthClientId: 'Msd0ocExMmwsloYOox-CQrg-e767OR_akzUEYoNstgc',
   
-  scaAiApiBase: 'http://localhost:3001'  // New: For Mockoon
 };
 
 /*

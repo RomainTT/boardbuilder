@@ -10,7 +10,7 @@ import {DialogService} from '@app/services/dialog.service';
 import { Media } from '@data/models/media.model'; // Add this
 import { MediaUpdateService } from '@data/services/media-update.service'; // Add this
 import { Cell } from '@data/models/cell.model';
-import { ImageActionDialogComponent, ImageAction, ImageActionDialogData } from '../image-action-dialog/image-action-dialog.component';
+// Removed: ImageActionDialogComponent, ImageAction, ImageActionDialogData - no longer used since we skip the dialog
 import { SearchResultConverterService } from '@shared/services/search-result-converter.service';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -148,63 +148,40 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   }
 
   selectImage(result: SymbolSearchResult) {
-    console.log('[SearchPanel] Image selected - opening action dialog:', {
-      id: result.id,
-      label: result.label,
-      imageUrl: result.imageUrl
-    });
-    
-    // Open the ImageActionDialog to let user choose what to do with the selected image
-    const dialogData: ImageActionDialogData = { result };
-    
-    const dialogRef = this.dialog.open(ImageActionDialogComponent, {
-      maxWidth: '95vw',
-      width: 'auto',
-      data: dialogData
-    });
-    
-    dialogRef.afterClosed().subscribe((action: ImageAction) => {
-      if (action) {
-        console.log('[SearchPanel] User selected action:', action);
-        this.handleImageAction(result, action);
-      } else {
-        console.log('[SearchPanel] Dialog cancelled');
-      }
-    });
+    // Directly use the image without showing the action dialog
+    this.handleUseAsIs(result);
   }
 
   /**
-   * Handles the user's selected action for a search result image
+   * COMMENTED OUT: handleImageAction method - no longer needed since we skip the dialog and directly use images
+   * Previously handled USE_AS_IS and SEND_TO_AI actions from the ImageActionDialogComponent
    * @param result - The selected search result
    * @param action - The action chosen by the user (USE_AS_IS or SEND_TO_AI)
    */
-  private handleImageAction(result: SymbolSearchResult, action: ImageAction): void {
-    switch (action) {
-      case ImageAction.USE_AS_IS:
-        console.log('[SearchPanel] Handling USE_AS_IS action');
-        this.handleUseAsIs(result);
-        break;
-        
-      case ImageAction.SEND_TO_AI:
-        console.log('[SearchPanel] Handling SEND_TO_AI action');
-        this.handleSendToAI(result);
-        break;
-        
-      default:
-        console.warn('[SearchPanel] Unknown action:', action);
-    }
-  }
+  // private handleImageAction(result: SymbolSearchResult, action: ImageAction): void {
+  //   switch (action) {
+  //     case ImageAction.USE_AS_IS:
+  //       console.log('[SearchPanel] Handling USE_AS_IS action');
+  //       this.handleUseAsIs(result);
+  //       break;
+  //
+  //     case ImageAction.SEND_TO_AI:
+  //       console.log('[SearchPanel] Handling SEND_TO_AI action');
+  //       this.handleSendToAI(result);
+  //       break;
+  //
+  //     default:
+  //       console.warn('[SearchPanel] Unknown action:', action);
+  //   }
+  // }
 
   /**
    * Handles the "Use as-is" action - converts search result to cell data and emits it
    * @param result - The search result to convert
    */
   private handleUseAsIs(result: SymbolSearchResult): void {
-    console.log('[SearchPanel] Converting search result to cell data for direct use');
-    
     const cellData = this.searchResultConverter.convertToCellData(result);
-    
-    console.log('[SearchPanel] Emitting cell data:', cellData);
+
     this.cellDataSelected.emit(cellData);
     
     // Also emit the original selectionChange for backward compatibility
@@ -212,73 +189,29 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   }
 
   /**
-   * Handles the "Send to AI" action - opens the AI creator with pre-loaded image
-   * @param result - The search result to send to AI designer
+   * Handles the "Send to AI" action - opens the AI creator in text mode
+   * (Image mode functionality preserved but hidden from UI)
+   * @param result - The search result (image mode disabled, opens text mode instead)
    */
   private async handleSendToAI(result: SymbolSearchResult): Promise<void> {
-    console.log('[SearchPanel] Opening AI Designer with pre-loaded image');
-    
     try {
-      // Use the new DialogService method to open AI with pre-loaded image (now async)
-      const dialogRef = await this.dialogService.openSymbolCreatorAIWithImage(result);
-      
+      // Open regular AI dialog in text mode (image mode functionality commented out)
+      const dialogRef = this.dialogService.openSymbolCreatorAI();
+
+      dialogRef.componentInstance.parentDialogRef = dialogRef; // Pass the dialog reference
       dialogRef.afterClosed().subscribe((mediaItem: Media) => {
         if (mediaItem) {
-          console.log('[SearchPanel] AI Dialog closed with media:', mediaItem.id);
           this.mediaUpdateService.triggerUpdate(mediaItem);
         } else {
-          console.log('[SearchPanel] AI Dialog cancelled');
+          // AI Dialog cancelled
         }
       });
-      
+
     } catch (error) {
-      console.error('[SearchPanel] Failed to open AI designer with image:', error);
+      console.error('[SearchPanel] Failed to open AI designer:', error);
     }
   }
 
-  private logDataMappingValidation(result: SymbolSearchResult) {
-    console.log('[SearchPanel] === DATA MAPPING VALIDATION ===');
-    
-    // 1. SymbolSearchResult → Cell mapping
-    console.log('1. SymbolSearchResult → Cell mapping:');
-    const cellMapping = {
-      'result.imageUrl': '→ cell.image_url',
-      'result.label': '→ cell.caption', 
-      'result.pictoId': '→ cell.picto_id',
-      'result.picto': '→ cell.picto',
-      'result.id': '→ ? (no direct Cell equivalent)',
-      'result.tooltip': '→ ? (could use for caption fallback)'
-    };
-    console.table(cellMapping);
-    
-    // 2. SymbolSearchResult → ImageUploadResult mapping
-    console.log('2. SymbolSearchResult → ImageUploadResult conversion:');
-    console.log('  Input: result.imageUrl =', result.imageUrl);
-    console.log('  Required steps:');
-    console.log('    a) Fetch image from URL');
-    console.log('    b) Convert to Blob/File');
-    console.log('    c) Generate base64 encoding'); 
-    console.log('    d) Create preview data URL');
-    console.log('    e) Extract image dimensions');
-    console.log('    f) Build ImageUploadResult object');
-    
-    // 3. Missing data identification
-    console.log('3. Missing data/compatibility issues:');
-    const issues = [];
-    if (!result.imageUrl) issues.push('Missing imageUrl');
-    if (!result.label) issues.push('Missing label for caption');
-    if (result.imageUrl && !result.imageUrl.match(/\.(jpg|jpeg|png|gif|svg)$/i)) {
-      issues.push('Image URL may not have standard extension');
-    }
-    
-    if (issues.length === 0) {
-      console.log('  ✓ No immediate compatibility issues detected');
-    } else {
-      console.log('  ⚠ Issues found:', issues);
-    }
-    
-    console.log('[SearchPanel] === END VALIDATION ===');
-  }
 
   
 openSymbolCreator() {
@@ -286,7 +219,6 @@ openSymbolCreator() {
     currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
       if (mediaItem) {
         this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
-        console.log('Symbol Creator dialog closed', mediaItem);
       }
     });
   }
@@ -298,7 +230,6 @@ openSymbolCreator() {
     currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
       if (mediaItem) {
         this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
-        console.log('SCAI dialog closed', mediaItem);
       }
     });
   }

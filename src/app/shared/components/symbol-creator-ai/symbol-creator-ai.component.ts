@@ -50,23 +50,26 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     // Delay state reset to avoid change detection errors
     setTimeout(() => {
       this.stateService.resetAllState();
+      // Skip mode selection and go directly to text mode
+      this.goToPromptMode();
     }, 0);
   }
 
   ngAfterViewInit(): void {
     // View is fully initialized, safe to set mode and avoid change detection errors
-    if (this.preloadedImageData) {
-      console.log('[SymbolCreatorAI] Pre-loaded image detected, switching to image mode:', {
-        filename: this.preloadedImageData.file?.name,
-        dimensions: `${this.preloadedImageData.width}x${this.preloadedImageData.height}`
-      });
-      
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      // This ensures the mode change happens after the current change detection cycle
-      setTimeout(() => {
-        this.goToImageModeWithPreloadedImage(this.preloadedImageData!);
-      }, 0);
-    }
+    // COMMENTED OUT: Image mode functionality preserved but hidden from UI
+    // if (this.preloadedImageData) {
+    //   console.log('[SymbolCreatorAI] Pre-loaded image detected, switching to image mode:', {
+    //     filename: this.preloadedImageData.file?.name,
+    //     dimensions: `${this.preloadedImageData.width}x${this.preloadedImageData.height}`
+    //   });
+
+    //   // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    //   // This ensures the mode change happens after the current change detection cycle
+    //   setTimeout(() => {
+    //     this.goToImageModeWithPreloadedImage(this.preloadedImageData!);
+    //   }, 0);
+    // }
   }
 
   goToPromptMode() {
@@ -74,34 +77,37 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     this.currentMode = Mode.Prompt;
   }
 
-  goToImageModeFromIntro() {
-    this.stateService.resetAllState();
-    // Switch directly to image mode - the unified component handles upload + controls + gallery
-    this.currentMode = Mode.Image;
-    this.uploadedImageData = null; // Start with no uploaded image, component will handle upload
-  }
+  // COMMENTED OUT: Image mode functionality preserved but hidden from UI
+  // goToImageModeFromIntro() {
+  //   this.stateService.resetAllState();
+  //   // Switch directly to image mode - the unified component handles upload + controls + gallery
+  //   this.currentMode = Mode.Image;
+  //   this.uploadedImageData = null; // Start with no uploaded image, component will handle upload
+  // }
 
   /**
    * Switches to image mode with pre-loaded image data from search result
    * @param imageData - Pre-converted ImageUploadResult from search result
    */
-  goToImageModeWithPreloadedImage(imageData: ImageUploadResult) {
-    console.log('[SymbolCreatorAI] Switching to image mode with pre-loaded image');
-    this.stateService.resetAllState();
-    this.currentMode = Mode.Image;
-    this.uploadedImageData = imageData; // Pre-load the image data
-    console.log('[SymbolCreatorAI] Image mode activated with uploaded data:', {
-      hasFile: !!imageData.file,
-      hasBase64: !!imageData.base64,
-      hasPreview: !!imageData.preview
-    });
-  }
+  // COMMENTED OUT: Image mode functionality preserved but hidden from UI
+  // goToImageModeWithPreloadedImage(imageData: ImageUploadResult) {
+  //   console.log('[SymbolCreatorAI] Switching to image mode with pre-loaded image');
+  //   this.stateService.resetAllState();
+  //   this.currentMode = Mode.Image;
+  //   this.uploadedImageData = imageData; // Pre-load the image data
+  //   console.log('[SymbolCreatorAI] Image mode activated with uploaded data:', {
+  //     hasFile: !!imageData.file,
+  //     hasBase64: !!imageData.base64,
+  //     hasPreview: !!imageData.preview
+  //   });
+  // }
 
-  goToImageModeFromPrompt(prompt: string) {
-    this.promptText = prompt;
-    this.generateImage();
-    this.currentMode = Mode.Image;
-  }
+  // COMMENTED OUT: Image mode functionality preserved but hidden from UI
+  // goToImageModeFromPrompt(prompt: string) {
+  //   this.promptText = prompt;
+  //   this.generateImage();
+  //   this.currentMode = Mode.Image;
+  // }
 
   goBackToDefault() {
     this.stateService.resetAllState();
@@ -127,7 +133,10 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
       steps: 4
     };
 
-    this.http.post<{ images: string[] }>(`${environment.scaAiApiBase}/api/symbols/generate`, payload)
+    this.http.post<{ images: string[] }>(
+      `${environment.boardBuilderApiBase}/ai/generate_image`,
+      { prompt: this.promptText || 'default prompt' }
+    )
       .subscribe(response => {
         this.generatedImageUrl = response.images[0] || '';
       }, error => {
@@ -138,14 +147,11 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   }
 
   onSaveRequested(imageUrl: string) {
-    console.log('[SymbolCreatorAiComponent] Save requested for image:', imageUrl.substring(0, 50) + '...');
     this.generatedImageUrl = imageUrl;
     this.saveAndClose();
   }
 
   saveAndClose() {
-    console.log('[SymbolCreatorAiComponent] Starting save and close process');
-    
     // Clear any previous errors and show loading state
     this.lastError = null;
     this.isSaving = true;
@@ -153,10 +159,8 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     this.save().subscribe({
       next: (media) => {
         this.isSaving = false;
-        console.log('[SymbolCreatorAiComponent] Save completed successfully:', media ? 'Media created' : 'No media returned');
-        
+
         if (media) {
-          console.log('[SymbolCreatorAiComponent] Closing dialog with media:', media.id);
           // Clear the selected image state so the panel closes
           this.stateService.clearSelection();
           this.dialogRef.close(media);
@@ -177,11 +181,8 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   }
 
   save(): Observable<Media> {
-    console.log('[SymbolCreatorAiComponent] Save method called');
-    
     // Priority 1: Handle generated image URL (selected variation)
     if (this.generatedImageUrl) {
-      console.log('[SymbolCreatorAiComponent] Saving generated image from URL:', this.generatedImageUrl.substring(0, 50) + '...');
       return this.http.get(this.generatedImageUrl, { responseType: 'blob' }).pipe(
         switchMap(blob => {
           if (!blob) {
@@ -189,7 +190,6 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
             this.lastError = 'Failed to fetch generated image';
             return of(null);
           }
-          console.log('[SymbolCreatorAiComponent] Generated image blob fetched, size:', blob.size, 'bytes');
           return this.mediaService.add(blob, null);
         }),
         catchError(err => {
@@ -202,7 +202,6 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     
     // Priority 2: Handle uploaded file directly (fallback for original image)
     if (this.uploadedImageData) {
-      console.log('[SymbolCreatorAiComponent] Saving uploaded file:', this.uploadedImageData.file.name);
       return this.mediaService.add(this.uploadedImageData.file, null).pipe(
         catchError(err => {
           console.error('[SymbolCreatorAiComponent] Error saving uploaded image:', err);

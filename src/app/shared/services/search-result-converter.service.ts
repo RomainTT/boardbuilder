@@ -41,8 +41,6 @@ export class SearchResultConverterService {
    * @returns Partial Cell object with populated image and metadata
    */
   convertToCellData(result: SymbolSearchResult): Partial<Cell> {
-    console.log('[SearchResultConverter] Converting to cell data:', result.label);
-
     return {
       image_url: result.imageUrl,
       // Don't set caption here - let the component decide whether to set it
@@ -62,8 +60,6 @@ export class SearchResultConverterService {
    * @returns Promise resolving to ImageUploadResult ready for AI processing
    */
   async convertToImageUploadResult(result: SymbolSearchResult): Promise<ImageUploadResult> {
-    console.log('[SearchResultConverter] Converting to ImageUploadResult:', result.imageUrl);
-
     try {
       // Step 1: Fetch image as blob from URL
       const blob = await this.fetchImageAsBlob(result.imageUrl);
@@ -81,12 +77,6 @@ export class SearchResultConverterService {
 
       // Step 5: Extract image dimensions
       const dimensions = await this.getImageDimensions(preview);
-
-      console.log('[SearchResultConverter] Conversion completed:', {
-        filename: file.name,
-        size: file.size,
-        dimensions: `${dimensions.width}x${dimensions.height}`
-      });
 
       return {
         file,

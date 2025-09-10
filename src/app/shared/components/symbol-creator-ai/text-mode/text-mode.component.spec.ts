@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PromptModeComponent } from './prompt-mode.component';
+import { TextModeComponent } from './text-mode.component';
 
 describe('PromptModeComponent', () => {
-  let component: PromptModeComponent;
-  let fixture: ComponentFixture<PromptModeComponent>;
+  let component: TextModeComponent;
+  let fixture: ComponentFixture<TextModeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PromptModeComponent ]
+      declarations: [ TextModeComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PromptModeComponent);
+    fixture = TestBed.createComponent(TextModeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

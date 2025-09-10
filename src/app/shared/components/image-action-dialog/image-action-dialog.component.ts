@@ -52,11 +52,6 @@ export class ImageActionDialogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log('[ImageActionDialog] Initialized with result:', {
-      id: this.data.result.id,
-      label: this.data.result.label,
-      imageUrl: this.data.result.imageUrl
-    });
   }
 
   /**
@@ -64,7 +59,6 @@ export class ImageActionDialogComponent implements OnInit {
    * @param action - The ImageAction chosen by the user
    */
   selectAction(action: ImageAction): void {
-    console.log('[ImageActionDialog] Action selected:', action);
     this.dialogRef.close(action);
   }
 
@@ -72,7 +66,6 @@ export class ImageActionDialogComponent implements OnInit {
    * Handles dialog cancellation - closes the dialog without returning any action
    */
   cancel(): void {
-    console.log('[ImageActionDialog] Dialog cancelled');
     this.dialogRef.close();
   }
 }

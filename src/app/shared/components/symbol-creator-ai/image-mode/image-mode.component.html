@@ -50,7 +50,7 @@
 <!-- AI Controls -->
 <app-ai-controls
   [generateButtonText]="'Generate Variations'"
-  [generateButtonDisabled]="!uploadedImageData"
+  [generateButtonDisabled]="!uploadedImageData || (galleryState$ | async)?.isLoading"
   (generateClicked)="generateImages()">
 </app-ai-controls>
 

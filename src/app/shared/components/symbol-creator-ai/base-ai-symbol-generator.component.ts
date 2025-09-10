@@ -102,13 +102,10 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     this.stateService.setSelectedStyle(newStyle);
   }
 
-  onAdditionalTextChanged(newText: string): void {
-    this.stateService.setAdditionalText(newText);
+  onCultureTextChanged(newText: string): void {
+    this.stateService.setCultureText(newText);
   }
 
-  onBackgroundEnabledChanged(enabled: boolean): void {
-    this.stateService.setBackgroundEnabled(enabled);
-  }
 
   onGenerateClicked(): void {
     this.generateImages();
@@ -197,7 +194,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     if (this.fullPrompt) {
       navigator.clipboard.writeText(this.fullPrompt)
         .then(() => {
-          console.log('Prompt copied to clipboard!');
+          // Prompt copied to clipboard successfully
         })
         .catch(err => {
           console.error('Failed to copy prompt:', err);

@@ -1,10 +1,16 @@
-<!-- AI lanading -->
+<!-- AI landing page - Mode selection removed, now goes directly to text mode -->
 
-<!-- Default content: Shown when no mode is selected (intro) -->
+<!-- Mode navigation modules -->
+
+<div class="mt-2" *ngIf="currentMode === Mode.Prompt">
+  <app-text-mode [initialPrompt]="promptText" (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef"></app-text-mode>
+</div>
+
+<!-- COMMENTED OUT: Image mode functionality preserved but hidden from UI -->
+<!-- Original mode selection screen (commented out):
 <div *ngIf="!currentMode" class="text-center">
   <h1 class="mb-5" style="display: inline-block;">Getting Started with Symbol Creator AI</h1>
-  <!-- <h3 class="mb-3">Choose your input</h3> -->
-   
+
   <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" class="my-3">
     <button mat-raised-button color="primary" class="button-lg" (click)="goToImageModeFromIntro()">
       <mat-icon>image</mat-icon> Image
@@ -16,25 +22,11 @@
   </div>
 </div>
 
-<!-- Mode navigation modules -->
-
-<!-- <div class="mt-2" *ngIf="currentMode === Mode.Prompt">
-  <app-prompt-mode [initialPrompt]="promptText" (submitPrompt)="goToImageModeFromPrompt($event)"></app-prompt-mode>
-</div>
-
 <div class="mt-2" *ngIf="currentMode === Mode.Image">
-  <app-image-mode [imageUrl]="generatedImageUrl" (save)="save()"></app-image-mode>
-</div> -->
-
-
-<div class="mt-2" *ngIf="currentMode === Mode.Prompt">
-  <app-text-mode [initialPrompt]="promptText" (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef"></app-text-mode>
-</div>
-
-<div class="mt-2" *ngIf="currentMode === Mode.Image">
-  <app-image-mode 
+  <app-image-mode
     [uploadedImageData]="uploadedImageData"
-    (saveRequested)="onSaveRequested($event)" 
+    (saveRequested)="onSaveRequested($event)"
     [parentDialogRef]="parentDialogRef">
   </app-image-mode>
 </div>
+-->

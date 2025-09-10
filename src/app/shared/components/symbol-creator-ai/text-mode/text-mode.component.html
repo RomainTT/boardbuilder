@@ -32,6 +32,6 @@
 <!-- AI Controls -->
 <app-ai-controls
   [generateButtonText]="'Generate Images'"
-  [generateButtonDisabled]="prompt.length < 1"
+  [generateButtonDisabled]="prompt.length < 1 || (galleryState$ | async)?.isLoading"
   (generateClicked)="generateImages()">
 </app-ai-controls>

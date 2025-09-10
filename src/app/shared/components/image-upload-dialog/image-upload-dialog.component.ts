@@ -217,11 +217,6 @@ export class ImageUploadDialogComponent implements OnInit {
 
   private processUploadedImage(result: ImageUploadResult) {
     this.uploadedImageData = result;
-    console.log('[ImageUploadDialogComponent] Image uploaded:', {
-      filename: result.file.name,
-      dimensions: `${result.width}x${result.height}`,
-      fileSize: `${(result.file.size / 1024).toFixed(1)}KB`
-    });
     // Emit the uploaded image data for parent components to handle
     this.imageUploaded.emit(result);
   }

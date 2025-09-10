@@ -6,16 +6,10 @@ import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 import { MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
-import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
+import { AiSymbolStateService, StyleConfig } from '@data/services/ai-symbol-state.service';
 import { BaseAiSymbolGeneratorComponent } from '../base-ai-symbol-generator.component';
-import { AiGenerationParams, PromptBuilderOptions } from '@data/models/ai-symbol.interfaces';
-
-// Style configuration interface
-export interface StyleConfig {
-  background: boolean;
-  outlineWidth: number;
-  saturation: string;
-}
+import { AiGenerationParams, PromptOptions } from '@data/models/ai-symbol.interfaces';
+import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 
 @Component({
   selector: 'app-text-mode',
@@ -45,7 +39,8 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     hotkeysService: HotkeysService,
     private dialogService: DialogService,
     aiSymbolHttpService: AiSymbolHttpService,
-    stateService: AiSymbolStateService
+    stateService: AiSymbolStateService,
+    private promptBuilder: PromptBuilderService
   ) {
     super(aiSymbolHttpService, stateService, hotkeysService);
   }
@@ -60,7 +55,10 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   }
 
   onSubmit() {
-    console.log('[TextModeComponent] Generating images from prompt:', this.prompt.substring(0, 50) + (this.prompt.length > 50 ? '...' : ''));
+    // Guard against concurrent generations
+    if (this.stateService.currentGalleryState.isLoading) {
+      return;
+    }
     const isRefresh = !this.isFirstGeneration;
     const minTime = isRefresh ? this.minSpinnerTime : 0;
     const startTime = Date.now();
@@ -70,29 +68,28 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
 
     // Update state via service
     this.stateService.setLoading(true);
-    this.stateService.setRefreshing(true);
+    // Keep placeholders visible during loading just like initial request
+    this.stateService.setRefreshing(false);
     this.stateService.clearSelection();
-    this.stateService.setShowImages(false);
+    // Do not hide images-row on refresh; leave showImages unchanged so placeholders remain visible
     this.generationId++;
 
     // Set empty images initially
     this.stateService.setGeneratedImages(Array(4).fill(''));
 
-    // Build prompt using service and current style state
+    // Build prompt using the UI state (styleState) and the style configuration (styleConfig) specified in the styleConfigs state
     const styleState = this.stateService.currentStyleState;
     const styleConfig = this.stateService.getStyleConfiguration(styleState.selectedStyle);
-    
-    const promptOptions: PromptBuilderOptions = {
-      basePrompt: this.prompt,
-      style: styleState.selectedStyle,
-      culture: styleState.additionalText,
-      backgroundEnabled: styleState.backgroundEnabled,
-      outlinesEnabled: true,
-      outlineWidth: styleConfig?.outlineWidth || 7,
-      saturation: styleConfig?.saturation || 'bold'
+
+    // define the prompt options for injection into the buildPrompt() function
+    const promptOptions: PromptOptions = {
+      mode: 'text',
+      userPrompt: this.prompt,
+      styleState,
+      styleConfig: styleConfig || undefined
     };
 
-    this.fullPrompt = this.aiSymbolHttpService.buildPrompt(promptOptions);
+    this.fullPrompt = this.promptBuilder.buildPrompt(promptOptions);
 
     const params: AiGenerationParams = {
       prompt: this.fullPrompt,
@@ -102,7 +99,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
 
     this.aiSymbolHttpService.generateImages(params)
       .subscribe(response => {
-        this.stateService.setGeneratedImages(response.images);
+        this.stateService.setGeneratedImages(response.image_urls);
         if (!this.isFirstGeneration) {
           this.stateService.setShowImages(true);
         }
@@ -172,7 +169,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
             const dialogRef = this.dialogService.openSymbolCreator(dialogConfig);
             dialogRef.afterClosed().subscribe((mediaItem) => {
               if (mediaItem) {
-                console.log('Symbol Creator dialog closed with media:', mediaItem);
+                // Symbol Creator dialog closed with media
               }
             });
           });

@@ -2,12 +2,13 @@
 
 <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary="body">
 
-  <header class="dialog">
-    <div id="header-button-back">
+  <header class="dialog" cdkDragHandle>
+    <!-- COMMENTED OUT: Back button no longer needed since mode selection is removed -->
+    <!-- <div id="header-button-back">
         <button mat-icon-button *ngIf="shouldShowHeader" (click)="goBack()">
           <mat-icon>arrow_back</mat-icon>
         </button>
-    </div>
+    </div> -->
     <div id="header-title">
         <h1 *ngIf="shouldShowHeader" mat-dialog-title class="mb-0">Symbol Creator AI</h1>
     </div>
