@@ -192,8 +192,19 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
           }
 
           // Convert blob to proper File object with correct MIME type (following SearchResultConverterService pattern)
+          // AI images are typically PNG format, so default to that if blob.type is not set
+          const mimeType = blob.type && blob.type !== '' ? blob.type : 'image/png';
           const file = new File([blob], this.generateProperFilename(blob), {
-            type: blob.type || 'image/png'
+            type: mimeType
+          });
+
+          // Debug logging
+          console.log('[SymbolCreatorAiComponent] Blob info:', {
+            blobType: blob.type,
+            detectedMimeType: mimeType,
+            blobSize: blob.size,
+            fileName: file.name,
+            fileType: file.type
           });
 
           return this.mediaService.add(file, null);
