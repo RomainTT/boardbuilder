@@ -190,7 +190,13 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
             this.lastError = 'Failed to fetch generated image';
             return of(null);
           }
-          return this.mediaService.add(blob, null);
+
+          // Convert blob to proper File object with correct MIME type (following SearchResultConverterService pattern)
+          const file = new File([blob], this.generateProperFilename(blob), {
+            type: blob.type || 'image/png'
+          });
+
+          return this.mediaService.add(file, null);
         }),
         catchError(err => {
           console.error('[SymbolCreatorAiComponent] Error saving generated image:', err);
@@ -215,5 +221,31 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     console.warn('[SymbolCreatorAiComponent] No image available for save');
     this.lastError = 'No image selected';
     return of(null);
+  }
+
+  /**
+   * Generates a proper filename for AI-generated images based on blob MIME type
+   * @private
+   */
+  private generateProperFilename(blob: Blob): string {
+    const timestamp = Date.now();
+    const extension = this.getExtensionFromBlob(blob);
+    return `ai-generated-${timestamp}.${extension}`;
+  }
+
+  /**
+   * Extracts file extension from blob MIME type
+   * @private
+   */
+  private getExtensionFromBlob(blob: Blob): string {
+    const mimeToExt: { [key: string]: string } = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg'
+    };
+    return mimeToExt[blob.type] || 'png';
   }
 }
