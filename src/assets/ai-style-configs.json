@@ -4,14 +4,14 @@
         "enabled": true,
         "defaultValue": ""
       },
-      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder>with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
+      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
     },
     "Mulberry_People": {
       "culture": {
         "enabled": true,
         "defaultValue": ""
       },
-      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder>with maximum 3 bold colors and a thick black stroke outline. Just draw the outline and then fill with flat colors. Simple lines. Low detail. Simple color blocks. on plain white background. circular face. Facing forwards. Image should be 400 pixels wide."
+      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Just draw the outline and then fill with flat colors. Simple lines. Low detail. Simple color blocks. on plain white background. circular face. Facing forwards. Image should be 400 pixels wide."
     },
     "Arasaac": {
       "culture": {
