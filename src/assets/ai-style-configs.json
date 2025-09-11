@@ -1,44 +1,65 @@
 {
-  "Mulberry": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Mulberry": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder>with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
     },
-    "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
-  },
-  "Simple": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Mulberry_People": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder>with maximum 3 bold colors and a thick black stroke outline. Just draw the outline and then fill with flat colors. Simple lines. Low detail. Simple color blocks. on plain white background. circular face. Facing forwards. Image should be 400 pixels wide."
     },
-    "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
-  },
-  "Arasaac": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Arasaac": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>. No shadow, no highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
     },
-    "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>.  No shadow, no  highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
-  },
-  "Arasaac_People": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Arasaac_People": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "Minimalist cartoon style with maximum 3 pale colors and thick black stroke outline<culture-placeholder></culture-placeholder>. Very low resolution. Large flat 2D image. Minimise the number of details. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. The face should have small ears. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
     },
-    "prompt": "Minimalist cartoon style with maximum 3 pale colors and thick black stroke outline<culture-placeholder></culture-placeholder>. Very low resolution. Large flat 2D image. Minimise the number of details. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. The face should have small ears. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
-  },
-  "Tawasol": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Tawasol": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
     },
-    "prompt": "<culture>Arabic culture</culture>. In a cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
-  },
-  "Tawasol_People": {
-    "culture": {
-      "enabled": true,
-      "defaultValue": ""
+    "Tawasol_People": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, oval face, and flat clothing. Facing forwards. 400 pixels wide."
     },
-    "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, oval face, and flat clothing. Facing forwards. 400 pixels wide."
+    "Jellow": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+    },
+    "Jellow_People": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+    },
+    "Simple": {
+      "culture": {
+        "enabled": true,
+        "defaultValue": ""
+      },
+      "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
+    }
   }
-}
