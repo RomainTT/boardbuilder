@@ -109,7 +109,8 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       image: this.uploadedImageData.base64,
       prompt: this.fullPrompt, // Use the built prompt
       num_images: 4,
-      steps: 4
+      steps: 4,
+      loraAdapter: styleConfig?.loraAdapter
     };
 
     // Call the service to generate image variations

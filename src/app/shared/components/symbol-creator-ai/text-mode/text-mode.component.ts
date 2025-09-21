@@ -94,7 +94,8 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     const params: AiGenerationParams = {
       prompt: this.fullPrompt,
       num_images: 4,
-      steps: 4
+      steps: 4,
+      loraAdapter: styleConfig?.loraAdapter
     };
 
     this.aiSymbolHttpService.generateImages(params)

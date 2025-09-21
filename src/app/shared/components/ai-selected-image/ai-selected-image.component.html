@@ -39,13 +39,20 @@
   </div>
   
   <section class="actions-section" role="region" aria-label="Image actions">
-    <button mat-raised-button 
-            color="primary" 
+    <button mat-raised-button
+            color="primary"
             (click)="onSave()"
             [disabled]="!hasValidImageUrl">
       Save
     </button>
-    
+
+    <button mat-raised-button
+            color="primary"
+            (click)="onSave()"
+            [disabled]="!hasValidImageUrl">
+    Remove Background
+    </button>
+
     <div class="options">
       <button mat-icon-button 
               color="primary" 

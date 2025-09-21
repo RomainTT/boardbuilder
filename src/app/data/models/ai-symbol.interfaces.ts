@@ -4,6 +4,7 @@ export interface AiGenerationParams {
   prompt: string;
   num_images: number;
   steps: number;
+  loraAdapter?: string;
 }
 
 export interface AiGenerationResponse {
@@ -15,6 +16,7 @@ export interface AiImageToImageParams {
   prompt: string; // built prompt using buildPrompt()
   num_images: number;
   steps: number;
+  loraAdapter?: string;
 }
 
 export interface PromptOptions {

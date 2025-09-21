@@ -9,6 +9,7 @@ export interface StyleConfig {
     enabled: boolean;
     defaultValue: string;
   };
+  loraAdapter?: string;
   prompt?: string;
 }
 

@@ -16,12 +16,17 @@ export class AiSymbolHttpService {
    */
   generateImages(params: AiGenerationParams): Observable<AiGenerationResponse> {
     const requestId = Date.now().toString(36);
-    const body = {
+    const body: any = {
       prompt: params.prompt,
       steps: params.steps || 2,
       guidance_scale: 7.0,
       num_images: params.num_images || 4
     };
+
+    // Only include adapter_name if loraAdapter has a non-empty value
+    if (params.loraAdapter && params.loraAdapter.trim() !== '') {
+      body.adapter_name = params.loraAdapter;
+    }
 
     return this.http.post<AiGenerationResponse>(
       `${environment.boardBuilderApiBase}/ai/generate_image`,
@@ -34,13 +39,18 @@ export class AiSymbolHttpService {
    */
   generateImageVariations(params: AiImageToImageParams): Observable<AiGenerationResponse> {
     const requestId = Date.now().toString(36);
-    const body = {
+    const body: any = {
       prompt: params.prompt,
       image: params.image,
       steps: params.steps || 2,
       guidance_scale: 7.0,
       num_images: params.num_images || 4
     };
+
+    // Only include adapter_name if loraAdapter has a non-empty value
+    if (params.loraAdapter && params.loraAdapter.trim() !== '') {
+      body.adapter_name = params.loraAdapter;
+    }
 
     return this.http.post<AiGenerationResponse>(
       `${environment.boardBuilderApiBase}/ai/generate_image`,

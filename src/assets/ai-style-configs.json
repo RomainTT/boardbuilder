@@ -1,65 +1,130 @@
 {
-    "Mulberry": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
+  "Mulberry": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Mulberry_People": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Just draw the outline and then fill with flat colors. Simple lines. Low detail. Simple color blocks. on plain white background. circular face. Facing forwards. Image should be 400 pixels wide."
+    "loraAdapter": "",
+    "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
+  },
+  "Mulberry_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Arasaac": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>. No shadow, no highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+    "loraAdapter": "",
+    "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Just draw the outline and then fill with flat colors. Simple lines. Low detail. Simple color blocks. on plain white background. circular face. Facing forwards. Image should be 400 pixels wide."
+  },
+  "Mulberry_lora": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Arasaac_People": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "Minimalist cartoon style with maximum 3 pale colors and thick black stroke outline<culture-placeholder></culture-placeholder>. Very low resolution. Large flat 2D image. Minimise the number of details. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. The face should have small ears. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+    "loraAdapter": "mulberry_v4",
+    "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
+  },
+  "Arasaac": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Tawasol": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+    "loraAdapter": "",
+    "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>. No shadow, no highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Arasaac_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Tawasol_People": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, oval face, and flat clothing. Facing forwards. 400 pixels wide."
+    "loraAdapter": "",
+    "prompt": "Minimalist cartoon style with maximum 3 pale colors and thick black stroke outline<culture-placeholder></culture-placeholder>. Very low resolution. Large flat 2D image. Minimise the number of details. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. The face should have small ears. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Arasaac_lora": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Jellow": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+    "loraAdapter": "arasaac_v4",
+    "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
+  },
+  "Tawasol": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Jellow_People": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+    "loraAdapter": "",
+    "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Tawasol_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
     },
-    "Simple": {
-      "culture": {
-        "enabled": true,
-        "defaultValue": ""
-      },
-      "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
-    }
+    "loraAdapter": "",
+    "prompt": "<culture>Arabic culture</culture>. In the style of cartoon style with maximum 3 colors and thin black outline. on a plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, oval face, and flat clothing. Facing forwards. 400 pixels wide."
+  },
+  "Tawasol_lora": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "tawasol_v4",
+    "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
+  },
+  "Jellow": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Jellow_People": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture>Indian culture</culture>. In the style of cartoon style with maximum 3 bold colors and thick black outline.   on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Few features, circle face, and flat clothing. Facing forwards. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "Jellow_lora": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "jellow_v4",
+    "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
+  },
+  "Simple": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "with minimal details<culture-placeholder></culture-placeholder>. bold outlines in a simple style on a white background."
+  },
+  "Cute": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture-placeholder></culture-placeholder>Kawaii art style. On a white background."
+  },
+  "Realistic": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture-placeholder></culture-placeholder>Realistic image on a white background."
+  },
+  "Cartoon": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture-placeholder></culture-placeholder>In the style of cartoon, vector, vibrant colors, bold outlines and white background."
   }
+}
