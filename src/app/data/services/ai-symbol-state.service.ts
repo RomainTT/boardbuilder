@@ -16,11 +16,13 @@ export interface StyleConfig {
 // Gallery state interface
 export interface GalleryState {
   generatedImages: string[];
+  originalImages: string[]; // Original URLs for undo functionality
   selectedImageIndex: number | null;
   isGenerated: boolean;
   showImages: boolean;
   isLoading: boolean;
   isRefreshing: boolean;
+  progressBars: number[]; // Progress values for each image (0-100)
 }
 
 // Rating state interface
@@ -60,11 +62,13 @@ export class AiSymbolStateService {
   // Gallery state management
   private _galleryState$ = new BehaviorSubject<GalleryState>({
     generatedImages: [],
+    originalImages: [],
     selectedImageIndex: null,
     isGenerated: false,
     showImages: false,
     isLoading: false,
-    isRefreshing: false
+    isRefreshing: false,
+    progressBars: [0, 0, 0, 0]
   });
 
   // Rating state management
@@ -143,7 +147,20 @@ export class AiSymbolStateService {
     this._galleryState$.next({
       ...this._galleryState$.value,
       generatedImages: images,
+      originalImages: images, // Store originals for undo functionality
       isGenerated: true
+    });
+  }
+
+  updateGeneratedImage(index: number, imageUrl: string): void {
+    const currentState = this._galleryState$.value;
+    const updatedImages = [...currentState.generatedImages];
+    updatedImages[index] = imageUrl;
+
+    this._galleryState$.next({
+      ...currentState,
+      generatedImages: updatedImages
+      // Note: originalImages remains unchanged
     });
   }
 
@@ -185,14 +202,42 @@ export class AiSymbolStateService {
     });
   }
 
+  setProgressBars(progressBars: number[]): void {
+    const current = this._galleryState$.value.progressBars;
+    // Avoid redundant emissions to prevent recursive loops
+    if (current.length === progressBars.length && current.every((v, i) => v === progressBars[i])) {
+      return;
+    }
+    this._galleryState$.next({
+      ...this._galleryState$.value,
+      progressBars: [...progressBars]
+    });
+  }
+
+  updateProgressBar(index: number, progress: number): void {
+    const currentProgressBars = [...this._galleryState$.value.progressBars];
+    const clamped = Math.max(0, Math.min(100, Math.round(progress)));
+    if (currentProgressBars[index] === clamped) {
+      return;
+    }
+    currentProgressBars[index] = clamped;
+    // Create a new array reference to ensure change detection
+    this._galleryState$.next({
+      ...this._galleryState$.value,
+      progressBars: [...currentProgressBars]
+    });
+  }
+
   clearGalleryState(): void {
     this._galleryState$.next({
       generatedImages: [],
+      originalImages: [],
       selectedImageIndex: null,
       isGenerated: false,
       showImages: false,
       isLoading: false,
-      isRefreshing: false
+      isRefreshing: false,
+      progressBars: [0, 0, 0, 0]
     });
   }
 

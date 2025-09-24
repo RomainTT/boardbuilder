@@ -36,9 +36,12 @@ export class AiSelectedImageComponent {
   @Input() selectedImageIndex: number | null = null;
   @Input() selectedImageUrl: string = '';
   @Input() ratingState: RatingState | null = null;
+  @Input() removeBackgroundButtonText: string = 'Remove Background';
+  @Input() isLoading: boolean = false;
 
   // Outputs for actions
   @Output() saveRequested = new EventEmitter<void>();
+  @Output() removeBackgroundRequested = new EventEmitter<void>();
   @Output() downloadRequested = new EventEmitter<void>();
   @Output() importToDesignerRequested = new EventEmitter<void>();
   @Output() closeRequested = new EventEmitter<void>();
@@ -78,6 +81,11 @@ export class AiSelectedImageComponent {
   // Internal action methods
   onSave(): void {
     this.saveRequested.emit();
+  }
+
+  onRemoveBackground(): void {
+    console.log('[AiSelectedImageComponent] Remove background clicked');
+    this.removeBackgroundRequested.emit();
   }
 
   onDownload(): void {

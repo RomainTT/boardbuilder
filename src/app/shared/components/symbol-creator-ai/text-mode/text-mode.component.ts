@@ -145,7 +145,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   importToDesigner() {
     const galleryState = this.stateService.currentGalleryState;
     const styleState = this.stateService.currentStyleState;
-    
+
     if (galleryState.selectedImageIndex === null || !galleryState.generatedImages[galleryState.selectedImageIndex]) {
       console.warn('No image selected for editing');
       return;
@@ -181,6 +181,11 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
         console.error('Error fetching image for editing:', error);
       }
     );
+  }
+
+  onRemoveBackground(): void {
+    console.log('[TextModeComponent] removeBackgroundRequested event received');
+    super.onRemoveBackground();
   }
 
 

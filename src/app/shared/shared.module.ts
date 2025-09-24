@@ -10,6 +10,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ErrorNotFoundComponent} from './components/error-not-found/error-not-found.component';
 import {LoadingNoticeComponent} from './components/loading-notice/loading-notice.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {CopyBoardSetDialogComponent} from './components/copy-board-set-dialog/copy-board-set-dialog.component';
 import {SearchPanelComponent} from './components/search-panel/search-panel.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -100,6 +101,7 @@ import { ImageActionDialogComponent } from './components/image-action-dialog/ima
         FlexModule,
         DragDropModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,

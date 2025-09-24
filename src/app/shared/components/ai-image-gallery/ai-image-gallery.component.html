@@ -15,10 +15,18 @@
   <div class="images-row" *ngIf="galleryState?.showImages && !errorState?.showApiError">
     <div class="image-placeholder" [ngClass]="{ 'selected': i === galleryState?.selectedImageIndex, 'refreshing': galleryState?.isRefreshing }" *ngFor="let img of galleryState?.generatedImages; let i = index; trackBy: trackByIndex"
       (click)="selectImage(i)" [@fadeIn]
-      [style.background-image]="'url(' + img + ')'"
+      [style.background-image]="img ? 'url(' + img + ')' : 'none'"
       [style.background-size]="'cover'"
       [style.background-position]="'center'">
+      <span class="placeholder-text" *ngIf="!img">Image {{ i + 1 }}</span>
+      <div
+        *ngIf="galleryState?.isLoading"
+        class="custom-progress-bar">
+        <div
+          class="custom-progress-fill"
+          [style.width.%]="progressBars[i]">
+        </div>
+      </div>
     </div>
-    <mat-progress-spinner *ngIf="galleryState?.isLoading" mode="indeterminate" diameter="100" class="loading-overlay"></mat-progress-spinner>
   </div>
 </div>

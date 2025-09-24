@@ -189,6 +189,11 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     return '';
   }
 
+  onRemoveBackground(): void {
+    console.log('[ImageModeComponent] removeBackgroundRequested event received');
+    super.onRemoveBackground();
+  }
+
   ngOnDestroy() {
     super.ngOnDestroy();
   }

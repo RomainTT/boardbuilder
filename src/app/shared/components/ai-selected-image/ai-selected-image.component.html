@@ -3,6 +3,9 @@
     <div class="enlarged-placeholder"
          [style.background-image]="hasValidImageUrl ? 'url(' + selectedImageUrl + ')' : 'none'"
          [attr.aria-label]="'Generated image ' + (selectedImageIndex + 1)">
+      <div *ngIf="isLoading" class="rb-loading-cover">
+        <mat-progress-spinner mode="indeterminate" diameter="64"></mat-progress-spinner>
+      </div>
     </div>
 
     <section class="rating-section" role="region" aria-label="Image rating">
@@ -39,19 +42,22 @@
   </div>
   
   <section class="actions-section" role="region" aria-label="Image actions">
+    
     <button mat-raised-button
-            color="primary"
-            (click)="onSave()"
+            color="secondary"
+            (click)="onRemoveBackground()"
             [disabled]="!hasValidImageUrl">
-      Save
+    {{ removeBackgroundButtonText }}
     </button>
 
     <button mat-raised-button
             color="primary"
             (click)="onSave()"
             [disabled]="!hasValidImageUrl">
-    Remove Background
+      Save to cell
     </button>
+
+    
 
     <div class="options">
       <button mat-icon-button 

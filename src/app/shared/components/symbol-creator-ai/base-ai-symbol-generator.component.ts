@@ -26,6 +26,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   showPrompt: boolean = false;
   private promptHotkey: Hotkey | null = null;
 
+
   // State observables (initialized in constructor)
   galleryState$: any;
   ratingState$: any;
@@ -121,6 +122,87 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     }
   }
 
+  onRemoveBackground(): void {
+    console.log('[BaseAiSymbolGeneratorComponent] onRemoveBackground called');
+
+    const galleryState = this.stateService.currentGalleryState;
+    console.log('[BaseAiSymbolGeneratorComponent] Gallery state:', {
+      selectedImageIndex: galleryState.selectedImageIndex,
+      totalImages: galleryState.generatedImages.length,
+      hasSelectedImage: galleryState.selectedImageIndex !== null && !!galleryState.generatedImages[galleryState.selectedImageIndex]
+    });
+
+    if (galleryState.selectedImageIndex === null || !galleryState.generatedImages[galleryState.selectedImageIndex]) {
+      console.warn('[BaseAiSymbolGeneratorComponent] No image selected for background removal');
+      return;
+    }
+
+    const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
+    const originalImageUrl = galleryState.originalImages[galleryState.selectedImageIndex];
+    console.log('[BaseAiSymbolGeneratorComponent] Remove background clicked:', {
+      selectedIndex: galleryState.selectedImageIndex,
+      currentImage: imageUrl?.substring(0, 50),
+      originalImage: originalImageUrl?.substring(0, 50),
+      isUndoMode: imageUrl !== originalImageUrl
+    });
+
+    if (!imageUrl || !originalImageUrl) {
+      console.warn('[BaseAiSymbolGeneratorComponent] Selected image URL is empty');
+      return;
+    }
+
+    // Check if we're in undo mode (current image is different from original)
+    if (imageUrl !== originalImageUrl) {
+      console.log('[BaseAiSymbolGeneratorComponent] Undo mode: restoring original image');
+      this.undoRemoveBackground();
+      return;
+    }
+
+    // Clear any previous errors
+    this.stateService.clearApiError();
+
+    // Set loading state
+    this.stateService.setLoading(true);
+    console.log('[BaseAiSymbolGeneratorComponent] Set loading state to true, calling removeBackground API');
+
+    this.aiSymbolHttpService.removeBackground(imageUrl)
+      .subscribe({
+        next: (processedImageUrl) => {
+          console.log('[BaseAiSymbolGeneratorComponent] Background removal successful, updating gallery with:', processedImageUrl.substring(0, 50) + '...');
+
+          // Update the selected image in the gallery with the processed image
+          this.stateService.updateGeneratedImage(galleryState.selectedImageIndex!, processedImageUrl);
+
+          console.log('[BaseAiSymbolGeneratorComponent] Background removal completed');
+
+          // Clear loading state
+          this.stateService.setLoading(false);
+          console.log('[BaseAiSymbolGeneratorComponent] Cleared loading state');
+        },
+        error: (error) => {
+          console.error('[BaseAiSymbolGeneratorComponent] Error removing background:', error);
+          this.handleApiError(error);
+        }
+      });
+  }
+
+  private undoRemoveBackground(): void {
+    const galleryState = this.stateService.currentGalleryState;
+
+    if (galleryState.selectedImageIndex === null || !galleryState.originalImages[galleryState.selectedImageIndex]) {
+      console.warn('[BaseAiSymbolGeneratorComponent] Cannot undo - no original image stored');
+      return;
+    }
+
+    const originalImageUrl = galleryState.originalImages[galleryState.selectedImageIndex];
+    console.log('[BaseAiSymbolGeneratorComponent] Restoring original image:', originalImageUrl);
+
+    // Restore the original image in the gallery
+    this.stateService.updateGeneratedImage(galleryState.selectedImageIndex, originalImageUrl);
+
+    console.log('[BaseAiSymbolGeneratorComponent] Undo completed');
+  }
+
   // Shared error handling methods
   handleApiError(error: any): void {
     console.error('API error:', error);
@@ -182,6 +264,29 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   // Utility getter for templates
   get selectedImageUrl(): string {
     return this.stateService.selectedImageUrl;
+  }
+
+  // Button text for remove background functionality
+  get removeBackgroundButtonText(): string {
+    const galleryState = this.stateService.currentGalleryState;
+    const selectedIndex = galleryState.selectedImageIndex;
+    const currentImage = selectedIndex !== null ? galleryState.generatedImages[selectedIndex] : null;
+    const originalImage = selectedIndex !== null ? galleryState.originalImages[selectedIndex] : null;
+
+    console.log('[BaseAiSymbolGeneratorComponent] Button text check:', {
+      selectedIndex,
+      currentImage: currentImage?.substring(0, 50),
+      originalImage: originalImage?.substring(0, 50),
+      isDifferent: currentImage !== originalImage
+    });
+
+    if (selectedIndex !== null &&
+        currentImage &&
+        originalImage &&
+        currentImage !== originalImage) {
+      return 'Undo Remove Background';
+    }
+    return 'Remove Background';
   }
 
   // Track by function for *ngFor optimization
