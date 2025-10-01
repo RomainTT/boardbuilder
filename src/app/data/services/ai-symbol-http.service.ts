@@ -83,17 +83,14 @@ export class AiSymbolHttpService {
    */
   removeBackground(imageUrl: string): Observable<string> {
     const requestId = Date.now().toString(36);
-    console.log(`[AiSymbolHttpService] Starting background removal [${requestId}] for URL:`, imageUrl);
 
     // Call the remove-background API with just the URL
-    console.log(`[AiSymbolHttpService] Calling remove_background API [${requestId}] at: ${environment.boardBuilderApiBase}/ai/remove_background`);
 
     return this.http.post<{ image_url: string }>(
       `${environment.boardBuilderApiBase}/ai/remove_background`,
       { image_url: imageUrl }
     ).pipe(
       map(response => {
-        console.log(`[AiSymbolHttpService] Received response from remove-background API [${requestId}]:`, response.image_url);
         return response.image_url;
       }),
       catchError(error => {

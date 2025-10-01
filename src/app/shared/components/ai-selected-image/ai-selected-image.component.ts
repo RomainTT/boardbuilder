@@ -84,7 +84,6 @@ export class AiSelectedImageComponent {
   }
 
   onRemoveBackground(): void {
-    console.log('[AiSelectedImageComponent] Remove background clicked');
     this.removeBackgroundRequested.emit();
   }
 

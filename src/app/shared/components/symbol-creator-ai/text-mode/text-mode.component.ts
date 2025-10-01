@@ -10,6 +10,7 @@ import { AiSymbolStateService, StyleConfig } from '@data/services/ai-symbol-stat
 import { BaseAiSymbolGeneratorComponent } from '../base-ai-symbol-generator.component';
 import { AiGenerationParams, PromptOptions } from '@data/models/ai-symbol.interfaces';
 import { PromptBuilderService } from '@shared/services/prompt-builder.service';
+import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 
 @Component({
   selector: 'app-text-mode',
@@ -40,9 +41,10 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     private dialogService: DialogService,
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService,
-    private promptBuilder: PromptBuilderService
+    private promptBuilder: PromptBuilderService,
+    analytics: ScaiAnalyticsService
   ) {
-    super(aiSymbolHttpService, stateService, hotkeysService);
+    super(aiSymbolHttpService, stateService, hotkeysService, analytics);
   }
 
   ngOnInit() {
@@ -90,6 +92,18 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     };
 
     this.fullPrompt = this.promptBuilder.buildPrompt(promptOptions);
+    // Log prompt
+    const sessionId = this.analytics.currentSessionId || 0;
+    if (sessionId) {
+      const styleState = this.stateService.currentStyleState;
+      this.analytics.createPrompt({
+        session_id: sessionId,
+        user_input: this.prompt,
+        full_prompt: this.fullPrompt,
+        style: styleState.selectedStyle,
+        culture: styleState.cultureText || undefined
+      }).subscribe();
+    }
 
     const params: AiGenerationParams = {
       prompt: this.fullPrompt,
@@ -101,6 +115,19 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     this.aiSymbolHttpService.generateImages(params)
       .subscribe(response => {
         this.stateService.setGeneratedImages(response.image_urls);
+        // Log generated images with prompt id
+        const promptId = this.analytics.lastPromptId || 0;
+        const sessionId = this.analytics.currentSessionId || 0;
+        if (promptId && sessionId) {
+          response.image_urls.forEach((url, idx) => {
+            this.analytics.createGeneratedImage({
+              prompt_id: promptId,
+              image_url: url,
+              position: idx + 1,
+              session_id: sessionId
+            }).subscribe();
+          });
+        }
         if (!this.isFirstGeneration) {
           this.stateService.setShowImages(true);
         }
@@ -152,6 +179,11 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     }
 
     const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
+    const mappedId = this.analytics?.getImageIdForUrl(imageUrl);
+    const imageId = mappedId ?? (galleryState.selectedImageIndex + 1);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'send to designer' }).subscribe();
+    }
     const filename = this.aiSymbolHttpService.generateFilename(this.fullPrompt, styleState.selectedStyle);
 
     this.aiSymbolHttpService.downloadImage(imageUrl, filename).subscribe(
@@ -184,7 +216,6 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   }
 
   onRemoveBackground(): void {
-    console.log('[TextModeComponent] removeBackgroundRequested event received');
     super.onRemoveBackground();
   }
 

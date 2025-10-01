@@ -11,6 +11,7 @@ import { HotkeysService } from '@conflito/angular2-hotkeys';
 import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 import { PromptBuilderService } from '@shared/services/prompt-builder.service';
+import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 
 @Component({
   selector: 'app-image-mode',
@@ -33,9 +34,10 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     hotkeysService: HotkeysService,
     private sanitizer: DomSanitizer,
     private dialogService: DialogService,
-    private promptBuilder: PromptBuilderService
+    private promptBuilder: PromptBuilderService,
+    analytics: ScaiAnalyticsService
   ) {
-    super(aiSymbolHttpService, stateService, hotkeysService);
+    super(aiSymbolHttpService, stateService, hotkeysService, analytics);
   }
 
   ngOnInit() {
@@ -103,6 +105,18 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     };
 
     this.fullPrompt = this.promptBuilder.buildPrompt(promptOptions);
+    // Log prompt (image mode: uploaded image provided)
+    const sessionId = this.analytics?.currentSessionId || 0;
+    if (sessionId) {
+      const styleState = this.stateService.currentStyleState;
+      this.analytics?.createPrompt({
+        session_id: sessionId,
+        user_input: '',
+        full_prompt: this.fullPrompt,
+        style: styleState.selectedStyle,
+        culture: styleState.cultureText || undefined
+      }).subscribe();
+    }
 
     // Build parameters for image-to-image generation
     const params: AiImageToImageParams = {
@@ -118,6 +132,19 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
       .subscribe({
         next: (response) => {
           this.stateService.setGeneratedImages(response.image_urls);
+          // Log generated images with prompt id
+          const promptId = this.analytics?.lastPromptId || 0;
+          const sessionId = this.analytics?.currentSessionId || 0;
+          if (promptId && sessionId) {
+            response.image_urls.forEach((url, idx) => {
+              this.analytics?.createGeneratedImage({
+                prompt_id: promptId,
+                image_url: url,
+                position: idx + 1,
+                session_id: sessionId
+              }).subscribe();
+            });
+          }
           this.stateService.setLoading(false);
           this.stateService.setRefreshing(false);
         },
@@ -150,6 +177,11 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     }
 
     const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
+    const mappedId = this.analytics?.getImageIdForUrl(imageUrl);
+    const imageId = mappedId ?? (galleryState.selectedImageIndex + 1);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'send to designer' }).subscribe();
+    }
     const filename = this.aiSymbolHttpService.generateFilename(this.fullPrompt, styleState.selectedStyle);
 
     this.aiSymbolHttpService.downloadImage(imageUrl, filename).subscribe(
@@ -190,7 +222,6 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
   }
 
   onRemoveBackground(): void {
-    console.log('[ImageModeComponent] removeBackgroundRequested event received');
     super.onRemoveBackground();
   }
 

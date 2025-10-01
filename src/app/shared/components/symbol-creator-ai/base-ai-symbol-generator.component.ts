@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AiSymbolHttpService } from '@data/services/ai-symbol-http.service';
 import { AiSymbolStateService } from '@data/services/ai-symbol-state.service';
+import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 import { RatingChangeEvent } from '@shared/components/ai-selected-image/ai-selected-image.component';
 import { HotkeysService, Hotkey } from '@conflito/angular2-hotkeys';
 
@@ -17,6 +18,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   protected aiSymbolHttpService: AiSymbolHttpService;
   protected stateService: AiSymbolStateService;
   protected hotkeysService: HotkeysService;
+  protected analytics?: ScaiAnalyticsService;
 
   // Subscription management
   protected destroy$ = new Subject<void>();
@@ -37,11 +39,13 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   constructor(
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService,
-    hotkeysService: HotkeysService
+    hotkeysService: HotkeysService,
+    analytics?: ScaiAnalyticsService
   ) {
     this.aiSymbolHttpService = aiSymbolHttpService;
     this.stateService = stateService;
     this.hotkeysService = hotkeysService;
+    this.analytics = analytics;
 
     // Initialize observables after services are assigned
     this.galleryState$ = this.stateService.galleryState$;
@@ -63,6 +67,12 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
   // Shared gallery methods
   selectImage(index: number): void {
+    const currentUrl = this.stateService.currentGalleryState.generatedImages[index] || '';
+    const mappedId = this.analytics?.getImageIdForUrl(currentUrl);
+    const imageId = mappedId ?? (index + 1);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'selected' }).subscribe();
+    }
     this.stateService.selectImage(index);
   }
 
@@ -96,6 +106,14 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
         this.stateService.setStyleAccuracy(event.value);
         break;
     }
+    // Log rating after mutation
+    if (event.type === 'overall') {
+      this.logRating('initial', event.value);
+    } else if (event.type === 'prompt') {
+      this.logRating('prompt accuracy', event.value);
+    } else if (event.type === 'style') {
+      this.logRating('style accuracy', event.value);
+    }
   }
 
   // Shared style methods
@@ -116,6 +134,12 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   onSave(): void {
     const imageUrl = this.stateService.selectedImageUrl;
     if (imageUrl) {
+      const selectedIdx = this.stateService.currentGalleryState.selectedImageIndex;
+      const mappedId = this.analytics?.getImageIdForUrl(imageUrl);
+      const imageId = mappedId ?? (selectedIdx !== null ? selectedIdx + 1 : 0);
+      if (imageId) {
+        this.analytics?.createAction({ image_id: imageId, action_type: 'save' }).subscribe();
+      }
       this.saveRequested.emit(imageUrl);
     } else {
       console.warn('No image selected for save');
@@ -123,39 +147,33 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   }
 
   onRemoveBackground(): void {
-    console.log('[BaseAiSymbolGeneratorComponent] onRemoveBackground called');
+    const selectedIdx = this.stateService.currentGalleryState.selectedImageIndex;
+    const currentUrl = selectedIdx !== null ? this.stateService.currentGalleryState.generatedImages[selectedIdx] : '';
 
     const galleryState = this.stateService.currentGalleryState;
-    console.log('[BaseAiSymbolGeneratorComponent] Gallery state:', {
-      selectedImageIndex: galleryState.selectedImageIndex,
-      totalImages: galleryState.generatedImages.length,
-      hasSelectedImage: galleryState.selectedImageIndex !== null && !!galleryState.generatedImages[galleryState.selectedImageIndex]
-    });
 
     if (galleryState.selectedImageIndex === null || !galleryState.generatedImages[galleryState.selectedImageIndex]) {
-      console.warn('[BaseAiSymbolGeneratorComponent] No image selected for background removal');
       return;
     }
 
     const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
     const originalImageUrl = galleryState.originalImages[galleryState.selectedImageIndex];
-    console.log('[BaseAiSymbolGeneratorComponent] Remove background clicked:', {
-      selectedIndex: galleryState.selectedImageIndex,
-      currentImage: imageUrl?.substring(0, 50),
-      originalImage: originalImageUrl?.substring(0, 50),
-      isUndoMode: imageUrl !== originalImageUrl
-    });
 
     if (!imageUrl || !originalImageUrl) {
-      console.warn('[BaseAiSymbolGeneratorComponent] Selected image URL is empty');
       return;
     }
 
     // Check if we're in undo mode (current image is different from original)
     if (imageUrl !== originalImageUrl) {
-      console.log('[BaseAiSymbolGeneratorComponent] Undo mode: restoring original image');
       this.undoRemoveBackground();
       return;
+    }
+
+    // Record analytics action: Remove Background (only when actually removing)
+    const mappedId = this.analytics?.getImageIdForUrl(currentUrl);
+    const imageId = mappedId ?? (selectedIdx !== null ? selectedIdx + 1 : 0);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'Remove Background' }).subscribe();
     }
 
     // Clear any previous errors
@@ -163,24 +181,34 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
     // Set loading state
     this.stateService.setLoading(true);
-    console.log('[BaseAiSymbolGeneratorComponent] Set loading state to true, calling removeBackground API');
 
     this.aiSymbolHttpService.removeBackground(imageUrl)
       .subscribe({
         next: (processedImageUrl) => {
-          console.log('[BaseAiSymbolGeneratorComponent] Background removal successful, updating gallery with:', processedImageUrl.substring(0, 50) + '...');
+          // removed custom log in favor of structured action event
+
+          // Get the original URL before updating
+          const originalUrl = galleryState.generatedImages[galleryState.selectedImageIndex!];
 
           // Update the selected image in the gallery with the processed image
           this.stateService.updateGeneratedImage(galleryState.selectedImageIndex!, processedImageUrl);
 
-          console.log('[BaseAiSymbolGeneratorComponent] Background removal completed');
+          // Update analytics mapping to point the new URL to the same database ID as the original URL
+          if (processedImageUrl !== originalUrl) {
+            this.analytics?.updateImageUrlMapping(originalUrl, processedImageUrl);
+          }
+
+          // Update the generated image record with the background-removed URL
+          const imageId = this.analytics?.getImageIdForUrl(processedImageUrl);
+          if (imageId) {
+            this.analytics?.updateGeneratedImage(imageId, { image_url_bg_removed: processedImageUrl }).subscribe();
+          }
 
           // Clear loading state
           this.stateService.setLoading(false);
-          console.log('[BaseAiSymbolGeneratorComponent] Cleared loading state');
         },
         error: (error) => {
-          console.error('[BaseAiSymbolGeneratorComponent] Error removing background:', error);
+          // removed custom log in favor of structured action event
           this.handleApiError(error);
         }
       });
@@ -190,17 +218,27 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     const galleryState = this.stateService.currentGalleryState;
 
     if (galleryState.selectedImageIndex === null || !galleryState.originalImages[galleryState.selectedImageIndex]) {
-      console.warn('[BaseAiSymbolGeneratorComponent] Cannot undo - no original image stored');
       return;
     }
 
+    const currentUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
+    // Record analytics action: Undo Background Removal
+    const mappedId = this.analytics?.getImageIdForUrl(currentUrl);
+    const imageId = mappedId ?? (galleryState.selectedImageIndex + 1);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'Undo Background Removal' }).subscribe();
+    }
+
     const originalImageUrl = galleryState.originalImages[galleryState.selectedImageIndex];
-    console.log('[BaseAiSymbolGeneratorComponent] Restoring original image:', originalImageUrl);
+    const currentProcessedUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
 
     // Restore the original image in the gallery
     this.stateService.updateGeneratedImage(galleryState.selectedImageIndex, originalImageUrl);
 
-    console.log('[BaseAiSymbolGeneratorComponent] Undo completed');
+    // Update analytics mapping to point the original URL back to the same database ID
+    if (currentProcessedUrl !== originalImageUrl) {
+      this.analytics?.updateImageUrlMapping(currentProcessedUrl, originalImageUrl);
+    }
   }
 
   // Shared error handling methods
@@ -241,6 +279,12 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     const imageUrl = galleryState.generatedImages[galleryState.selectedImageIndex];
     const styleState = this.stateService.currentStyleState;
 
+    const mappedId = this.analytics?.getImageIdForUrl(imageUrl);
+    const imageId = mappedId ?? (galleryState.selectedImageIndex + 1);
+    if (imageId) {
+      this.analytics?.createAction({ image_id: imageId, action_type: 'download png' }).subscribe();
+    }
+
     // Generate filename - subclasses can override this if they need specific logic
     const filename = this.generateDownloadFilename(styleState.selectedStyle);
 
@@ -261,6 +305,24 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     return this.aiSymbolHttpService.generateFilename('ai_generated', style);
   }
 
+  private logRating(type: 'initial' | 'prompt accuracy' | 'style accuracy', value: number) {
+    const gallery = this.stateService.currentGalleryState;
+    if (gallery.selectedImageIndex !== null) {
+      const url = gallery.generatedImages[gallery.selectedImageIndex];
+      const mappedId = this.analytics?.getImageIdForUrl(url);
+      const imageId = mappedId ?? (gallery.selectedImageIndex + 1);
+      if (imageId) {
+        const key = `${imageId}:${type}`;
+        const existingId = (this.analytics as any)?.imageIdAndTypeToRatingId?.get?.(key);
+        if (existingId) {
+          this.analytics?.updateImageRating(existingId, { value }).subscribe();
+        } else {
+          this.analytics?.createImageRating({ image_id: imageId, rating_type: type, value }).subscribe();
+        }
+      }
+    }
+  }
+
   // Utility getter for templates
   get selectedImageUrl(): string {
     return this.stateService.selectedImageUrl;
@@ -273,12 +335,7 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     const currentImage = selectedIndex !== null ? galleryState.generatedImages[selectedIndex] : null;
     const originalImage = selectedIndex !== null ? galleryState.originalImages[selectedIndex] : null;
 
-    console.log('[BaseAiSymbolGeneratorComponent] Button text check:', {
-      selectedIndex,
-      currentImage: currentImage?.substring(0, 50),
-      originalImage: originalImage?.substring(0, 50),
-      isDifferent: currentImage !== originalImage
-    });
+    
 
     if (selectedIndex !== null &&
         currentImage &&

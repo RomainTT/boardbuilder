@@ -1,6 +1,6 @@
-import { Component, OnInit, AfterViewInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { of, Observable } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { switchMap, catchError, filter, take } from 'rxjs/operators';
 import { Media } from '@data/models/media.model';
 import { MediaService } from '@data/services/media.service';
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +12,8 @@ import { SymbolCreatorAIDialogComponent } from '../symbol-creator-ai-dialog/symb
 import { ImageUploadDialogComponent, ImageUploadDialogData, ImageUploadResult } from '../image-upload-dialog/image-upload-dialog.component';
 import { SymbolSearchResult } from '@data/models/symbol-search-result';
 import { environment } from '@env';
+import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
+import { AuthService } from '@app/services/auth.service';
 
 enum Mode {
   Prompt = 'prompt',
@@ -23,7 +25,7 @@ enum Mode {
   templateUrl: './symbol-creator-ai.component.html',
   styleUrls: ['./symbol-creator-ai.component.scss']
 })
-export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
+export class SymbolCreatorAiComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() parentDialogRef?: MatDialogRef<any>; // Add this to receive and pass the reference
   @Input() preloadedImageData?: ImageUploadResult; // For pre-loaded images from search results
 
@@ -36,6 +38,14 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
   lastError: string | null = null; // For error handling like SymbolCreatorComponent
   isSaving: boolean = false; // Loading state for save operation
 
+  private analyticsSessionId: number | null = null;
+  private pageUnloadHandler = (event: BeforeUnloadEvent) => {
+    if (this.analyticsSessionId) {
+      // Mark as abandoned for any unexpected navigation away (close, back, forward, URL change, refresh)
+      this.analytics.markSessionAborted(this.analyticsSessionId).subscribe();
+    }
+  };
+
   constructor(
     private mediaService: MediaService,
     private http: HttpClient,
@@ -43,7 +53,9 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private stateService: AiSymbolStateService,
-    public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>
+    public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>,
+    private analytics: ScaiAnalyticsService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -53,6 +65,31 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
       // Skip mode selection and go directly to text mode
       this.goToPromptMode();
     }, 0);
+
+    // Start analytics session only after auth is ready so id_token is available
+    this.authService.canActivateProtectedRoutes$.pipe(
+      filter(Boolean),
+      take(1)
+    ).subscribe(() => {
+      this.analytics.createSession({ state: 'active' }).subscribe(({ id }) => {
+        this.analyticsSessionId = id;
+        this.analytics.setCurrentSession(id);
+      });
+    });
+
+    // Handle any navigation away from page (covers browser close, back/forward, URL change, refresh)
+    window.addEventListener('beforeunload', this.pageUnloadHandler);
+
+    // Mark closed if dialog closed without successful save
+    this.dialogRef.afterClosed().subscribe(() => {
+      if (this.analyticsSessionId) {
+        // If we reached here without calling mark completed in saveAndClose, mark closed
+        this.analytics.markSessionCompleted(this.analyticsSessionId).subscribe();
+        this.analyticsSessionId = null;
+        this.analytics.setCurrentSession(null);
+      }
+      window.removeEventListener('beforeunload', this.pageUnloadHandler);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -161,6 +198,11 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
         this.isSaving = false;
 
         if (media) {
+          // Mark session completed on successful save
+          if (this.analyticsSessionId) {
+            this.analytics.markSessionCompleted(this.analyticsSessionId).subscribe();
+            this.analyticsSessionId = null;
+          }
           // Clear the selected image state so the panel closes
           this.stateService.clearSelection();
           this.dialogRef.close(media);
@@ -178,6 +220,10 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit {
         // Don't close dialog on error - let user try again
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('beforeunload', this.pageUnloadHandler);
   }
 
   save(): Observable<Media> {

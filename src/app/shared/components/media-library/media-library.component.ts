@@ -55,7 +55,6 @@ export class MediaLibraryComponent implements OnInit {
     this.loadMedia();
     this.resetUploadStatus();
     this.subscription = this.mediaUpdateService.mediaUpdated$.subscribe(media => {
-      console.log('Media update received:', media);
       this.loadMedia(media); // Reload with new media
     });
   }
@@ -70,13 +69,11 @@ export class MediaLibraryComponent implements OnInit {
   // }
 
 loadMedia(selectMediaAfterLoad?: Media): void {
-    console.log('loadMedia called with selectMediaAfterLoad:', selectMediaAfterLoad);
     this.loadingMedia = true;
     this.service.list().subscribe(media => {
       this.loadingMedia = false;
       this.media = media; // Update the array directly
       if (selectMediaAfterLoad) { this.mediaSelect.emit(selectMediaAfterLoad); }
-      console.log('Media loaded:', this.media);
     }, error => {
       this.loadingMediaError = true;
       console.log('Media load error:', error);
