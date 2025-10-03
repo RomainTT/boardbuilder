@@ -95,6 +95,14 @@
     "loraAdapter": "jellow_v4",
     "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
   },
+  "Dyvogra_lora": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "dyvogra_v4",
+    "prompt": "<culture-placeholder></culture-placeholder>Image should be 400 pixels wide."
+  },
   "Simple": {
     "culture": {
       "enabled": true,
