@@ -29,7 +29,7 @@
       "defaultValue": ""
     },
     "loraAdapter": "jellow_v4",
-    "prompt": "<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
+    "prompt": "<culture-placeholder></culture-placeholder>. Non Realistic. White Background. Image should be 400 pixels wide."
   },
   "Dyvogra": {
     "culture": {
@@ -47,7 +47,7 @@
     "loraAdapter": "",
     "prompt": "<culture-placeholder></culture-placeholder>. Realistic image on a white background."
   },
-  "Base Icon": {
+  "Base Symbol": {
     "culture": {
       "enabled": true,
       "defaultValue": ""
