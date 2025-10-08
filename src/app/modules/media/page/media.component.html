@@ -10,16 +10,39 @@
 
     <div fxLayout="row wrap" fxLayoutGap="1rem grid">
 
-      <div fxFlex.xs="50" fxFlex.sm="33" fxFlex="20"
+      <!-- <div fxLayout="column" fxFlex.xs="50" fxFlex.sm="33" fxFlex="20"
            class="add-symbol-button text-center">
+           <mat-icon fxFlex="grow">construction</mat-icon>
         <button mat-flat-button color="primary" fxFlex (click)="openSymbolCreator()"
                 gaCategory="SymbolCreator" gaEvent="open"
         >
           <div fxLayout="column" fxLayoutAlign="space-between center">
-            <mat-icon fxFlex="grow">construction</mat-icon>
             <div class="mt-3" i18n="create symbol|Create Symbol">Create Symbol</div>
           </div>
         </button>
+
+        <button mat-flat-button color="primary" fxFlex (click)="openSymbolCreator()"
+                gaCategory="SymbolCreator" gaEvent="open">
+          <div fxLayout="column" fxLayoutAlign="space-between center">
+            
+            <div class="mt-3" i18n="create symbol|Create Symbol">Create Symbol</div>
+          </div>
+        </button>
+      </div> -->
+
+      <!-- Static card before looped cards -->
+      <div fxFlex.xs="50" fxFlex.sm="33" fxFlex="20">
+        <mat-card style="background-color: #f7f8f8; height: 188px;">
+          <mat-card-actions fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon fxFlex="grow" color="primary" style="font-size: 90px; margin-bottom: 10px; width:100%; text-align: center;">construction</mat-icon>
+            <button mat-flat-button (click)="openSymbolCreator()" color="primary" style="font-size: 16px; margin-bottom: 10px;">
+              Design by hand
+            </button>
+            <button mat-flat-button color="primary" style="font-size: 16px;" (click)="openSymbolCreatorAI()">
+              Create with AI
+            </button>
+          </mat-card-actions>
+        </mat-card>
       </div>
 
       <div fxFlex.xs="50" fxFlex.sm="33" fxFlex="20"

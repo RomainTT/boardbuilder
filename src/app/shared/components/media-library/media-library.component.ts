@@ -142,7 +142,7 @@ loadMedia(selectMediaAfterLoad?: Media): void {
   }
 
   openSymbolCreatorAi(media?: Media) {
-    const currentDialogRef = this.dialogService.openSymbolCreatorAI(media);
+    const currentDialogRef = this.dialogService.openSymbolCreatorAI(media, 'media');
 
     currentDialogRef.afterClosed().subscribe(mediaItem => {
       if (mediaItem) { this.loadMedia(mediaItem); } // Match SymbolCreator pattern

@@ -38,6 +38,7 @@ export class AiSelectedImageComponent {
   @Input() ratingState: RatingState | null = null;
   @Input() removeBackgroundButtonText: string = 'Remove Background';
   @Input() isLoading: boolean = false;
+  @Input() accessPoint?: 'media' | 'boardset';
 
   // Outputs for actions
   @Output() saveRequested = new EventEmitter<void>();
@@ -76,6 +77,11 @@ export class AiSelectedImageComponent {
   // Helper method to check if image URL is valid
   get hasValidImageUrl(): boolean {
     return !!this.selectedImageUrl && this.selectedImageUrl.trim().length > 0;
+  }
+
+  // Get save button text based on access point
+  get saveButtonText(): string {
+    return this.accessPoint === 'media' ? 'Save' : 'Save to cell';
   }
 
   // Internal action methods

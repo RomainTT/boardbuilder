@@ -196,7 +196,7 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   private async handleSendToAI(result: SymbolSearchResult): Promise<void> {
     try {
       // Open regular AI dialog in text mode (image mode functionality commented out)
-      const dialogRef = this.dialogService.openSymbolCreatorAI();
+      const dialogRef = this.dialogService.openSymbolCreatorAI(undefined, 'boardset');
 
       dialogRef.componentInstance.parentDialogRef = dialogRef; // Pass the dialog reference
       dialogRef.afterClosed().subscribe((mediaItem: Media) => {
@@ -224,8 +224,8 @@ openSymbolCreator() {
   }
 
   openSymbolCreatorAI() {
-    const currentDialogRef = this.dialogService.openSymbolCreatorAI();
-    
+    const currentDialogRef = this.dialogService.openSymbolCreatorAI(undefined, 'boardset');
+
     currentDialogRef.componentInstance.parentDialogRef = currentDialogRef; // Pass the dialog reference to PromptModeComponent
     currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
       if (mediaItem) {

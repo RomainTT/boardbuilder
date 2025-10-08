@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { ErrorMessageService } from '@shared/services/error-message.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -40,7 +41,8 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService,
     hotkeysService: HotkeysService,
-    analytics?: ScaiAnalyticsService
+    analytics?: ScaiAnalyticsService,
+    private errorMessageService?: ErrorMessageService
   ) {
     this.aiSymbolHttpService = aiSymbolHttpService;
     this.stateService = stateService;
@@ -67,7 +69,13 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
 
   // Shared gallery methods
   selectImage(index: number): void {
-    const currentUrl = this.stateService.currentGalleryState.generatedImages[index] || '';
+    // Prevent selection during loading or if image doesn't exist yet
+    const galleryState = this.stateService.currentGalleryState;
+    if (galleryState.isLoading || !galleryState.generatedImages[index]) {
+      return;
+    }
+
+    const currentUrl = galleryState.generatedImages[index];
     const mappedId = this.analytics?.getImageIdForUrl(currentUrl);
     const imageId = mappedId ?? (index + 1);
     if (imageId) {
@@ -245,17 +253,9 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
   handleApiError(error: any): void {
     console.error('API error:', error);
 
-    // Extract meaningful error message from different error types
-    let errorMessage = 'Failed to generate images. Please try again.';
-    if (error?.message) {
-      errorMessage = error.message;
-    } else if (error?.error?.message) {
-      errorMessage = error.error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else if (error?.status) {
-      errorMessage = `HTTP ${error.status}: ${error.statusText || 'Request failed'}`;
-    }
+    // Map to friendly message
+    const errorMessage = this.errorMessageService?.toUserMessage(error, 'Failed to generate images. Please try again.')
+      || 'Failed to generate images. Please try again.';
 
     this.stateService.setApiError(errorMessage);
 

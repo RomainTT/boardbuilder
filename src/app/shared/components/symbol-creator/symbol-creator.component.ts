@@ -13,6 +13,7 @@ import {DialogService} from '@app/services/dialog.service';
 import {palettes} from '@data/colour-picker-colours';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SymbolCreatorDialogComponent } from '../symbol-creator-dialog/symbol-creator-dialog.component'; // Adjust path if needed
+import { ErrorMessageService } from '@shared/services/error-message.service';
 
 export enum SymbolCreatorState {
   Loading = 'Loading',
@@ -61,7 +62,8 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     private hotkeysService: HotkeysService,
     private fontService: WebFontsService,
     private dialogService: DialogService,
-    public dialogRef: MatDialogRef<SymbolCreatorDialogComponent> // Inject the dialog ref here
+    public dialogRef: MatDialogRef<SymbolCreatorDialogComponent>, // Inject the dialog ref here
+    private errorMessageService: ErrorMessageService
   ) {
     this.hotkeys = [];
   }
@@ -658,7 +660,7 @@ addImageFromBlob(blob: Blob): void {
     return action.pipe(tap(
       () => this.status = SymbolCreatorState.SavingError,
       err => {
-        this.lastError = err.error.message;
+        this.lastError = this.errorMessageService.toUserMessage(err, 'We could not save your symbol. Please try again.');
         return this.status = SymbolCreatorState.SavingError;
       })
     );

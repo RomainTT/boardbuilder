@@ -68,12 +68,13 @@ export class DialogService {
    * dialogRef.componentInstance.parentDialogRef = dialogRef;
    *
    * @param media - Optional existing media to edit
+   * @param accessPoint - Optional access point flag ('media' | 'boardset') to customize UI
    * @returns MatDialogRef for the Symbol Creator AI dialog
    */
-  openSymbolCreatorAI(media?: Media): MatDialogRef<SymbolCreatorAIDialogComponent> {
+  openSymbolCreatorAI(media?: Media, accessPoint?: 'media' | 'boardset'): MatDialogRef<SymbolCreatorAIDialogComponent> {
     this.currentDialog = this.dialog.open(SymbolCreatorAIDialogComponent, {
       width: '800px',
-      data: {media}
+      data: {media, accessPoint}
     });
 
     return this.currentDialog;

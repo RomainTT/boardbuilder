@@ -7,6 +7,7 @@ import { ImageUploadResult } from '../image-upload-dialog/image-upload-dialog.co
 export interface SymbolCreatorAIDialogData {
   media?: Media;
   preloadedImageData?: ImageUploadResult;
+  accessPoint?: 'media' | 'boardset';
 }
 
 @Component({
@@ -17,6 +18,7 @@ export interface SymbolCreatorAIDialogData {
 export class SymbolCreatorAIDialogComponent {
   media: Media;
   preloadedImageData?: ImageUploadResult;
+  accessPoint?: 'media' | 'boardset';
   @Input() parentDialogRef?: MatDialogRef<any>; // Add this to receive the parent dialog reference
 
   @ViewChild(SymbolCreatorAiComponent) public symbolCreator: SymbolCreatorAiComponent;
@@ -27,6 +29,9 @@ export class SymbolCreatorAIDialogComponent {
     if (data.media) { this.media = data.media; }
     if (data.preloadedImageData) {
       this.preloadedImageData = data.preloadedImageData;
+    }
+    if (data.accessPoint) {
+      this.accessPoint = data.accessPoint;
     }
   }
 

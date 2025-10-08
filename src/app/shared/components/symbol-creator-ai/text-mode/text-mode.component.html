@@ -20,6 +20,7 @@
   [ratingState]="ratingState$ | async"
   [removeBackgroundButtonText]="removeBackgroundButtonText"
   [isLoading]="(galleryState$ | async)?.isLoading"
+  [accessPoint]="accessPoint"
   (saveRequested)="onSave()"
   (removeBackgroundRequested)="onRemoveBackground()"
   (downloadRequested)="downloadPng()"
@@ -29,7 +30,7 @@
 </app-ai-selected-image>
 
 <mat-form-field style="width:100%" appearance="fill">
-  <textarea matInput placeholder="Describe your symbol" [(ngModel)]="prompt"></textarea>
+  <textarea matInput placeholder="Describe your symbol" [(ngModel)]="prompt" style="height: 40px; resize: none;"></textarea>
 </mat-form-field>
 
 <!-- AI Controls -->

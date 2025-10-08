@@ -28,6 +28,7 @@ enum Mode {
 export class SymbolCreatorAiComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() parentDialogRef?: MatDialogRef<any>; // Add this to receive and pass the reference
   @Input() preloadedImageData?: ImageUploadResult; // For pre-loaded images from search results
+  @Input() accessPoint?: 'media' | 'boardset'; // Access point flag to distinguish usage context
 
   currentMode: Mode | null = null;
   Mode = Mode;
@@ -71,7 +72,10 @@ export class SymbolCreatorAiComponent implements OnInit, AfterViewInit, OnDestro
       filter(Boolean),
       take(1)
     ).subscribe(() => {
-      this.analytics.createSession({ state: 'active' }).subscribe(({ id }) => {
+      this.analytics.createSession({
+        state: 'active',
+        access_point: this.accessPoint || 'boardset'
+      }).subscribe(({ id }) => {
         this.analyticsSessionId = id;
         this.analytics.setCurrentSession(id);
       });

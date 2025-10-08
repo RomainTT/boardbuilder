@@ -11,6 +11,7 @@ import { BaseAiSymbolGeneratorComponent } from '../base-ai-symbol-generator.comp
 import { AiGenerationParams, PromptOptions } from '@data/models/ai-symbol.interfaces';
 import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
+import { ErrorMessageService } from '@shared/services/error-message.service';
 
 @Component({
   selector: 'app-text-mode',
@@ -20,6 +21,7 @@ import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements OnInit, OnDestroy {
   @Input() initialPrompt: string = '';
   @Input() parentDialogRef?: MatDialogRef<any>;
+  @Input() accessPoint?: 'media' | 'boardset';
 
   prompt: string = '';
   generationId: number = 0;
@@ -42,9 +44,10 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     aiSymbolHttpService: AiSymbolHttpService,
     stateService: AiSymbolStateService,
     private promptBuilder: PromptBuilderService,
-    analytics: ScaiAnalyticsService
+    analytics: ScaiAnalyticsService,
+    errorMessageService: ErrorMessageService
   ) {
-    super(aiSymbolHttpService, stateService, hotkeysService, analytics);
+    super(aiSymbolHttpService, stateService, hotkeysService, analytics, errorMessageService);
   }
 
   ngOnInit() {

@@ -93,7 +93,7 @@ export class ScaiAnalyticsService {
       state: payload.state ?? 'active',
       start_time: payload.start_time ?? new Date().toISOString(),
       end_time: payload.end_time,
-      access_point: payload.access_point ?? 'Board Builder',
+      access_point: payload.access_point ?? 'boardset',
       language: payload.language ?? this.locale,
       ip_country: payload.ip_country
     };

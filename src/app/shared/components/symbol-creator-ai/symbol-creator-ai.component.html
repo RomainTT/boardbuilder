@@ -3,7 +3,7 @@
 <!-- Mode navigation modules -->
 
 <div class="mt-2" *ngIf="currentMode === Mode.Prompt">
-  <app-text-mode [initialPrompt]="promptText" (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef"></app-text-mode>
+  <app-text-mode [initialPrompt]="promptText" (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef" [accessPoint]="accessPoint"></app-text-mode>
 </div>
 
 <!-- COMMENTED OUT: Image mode functionality preserved but hidden from UI -->

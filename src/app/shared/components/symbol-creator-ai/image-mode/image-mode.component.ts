@@ -12,6 +12,7 @@ import { DialogService } from '@app/services/dialog.service';
 import { SymbolCreatorDialogData } from '@shared/components/symbol-creator-dialog/symbol-creator-dialog.component';
 import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
+import { ErrorMessageService } from '@shared/services/error-message.service';
 
 @Component({
   selector: 'app-image-mode',
@@ -35,9 +36,10 @@ export class ImageModeComponent extends BaseAiSymbolGeneratorComponent implement
     private sanitizer: DomSanitizer,
     private dialogService: DialogService,
     private promptBuilder: PromptBuilderService,
-    analytics: ScaiAnalyticsService
+    analytics: ScaiAnalyticsService,
+    errorMessageService: ErrorMessageService
   ) {
-    super(aiSymbolHttpService, stateService, hotkeysService, analytics);
+    super(aiSymbolHttpService, stateService, hotkeysService, analytics, errorMessageService);
   }
 
   ngOnInit() {
