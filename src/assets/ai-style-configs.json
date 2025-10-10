@@ -36,7 +36,7 @@
       "enabled": true,
       "defaultValue": ""
     },
-    "loraAdapter": "dyvogra_v4",
+    "loraAdapter": "DYVOGRA_v4",
     "prompt": "<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
   },
   "Realistic": {
