@@ -216,6 +216,16 @@ export abstract class BaseAiSymbolGeneratorComponent implements OnDestroy {
           this.stateService.setLoading(false);
         },
         error: (error) => {
+          // Log error to analytics
+          const imageId = this.analytics?.getImageIdForUrl(currentUrl);
+          if (imageId) {
+            this.analytics?.createError({
+              generated_image_id: imageId,
+              http_code: error.status?.toString(),
+              description: error.error?.detail || error.message || 'Background removal failed'
+            }).subscribe();
+          }
+
           // removed custom log in favor of structured action event
           this.handleApiError(error);
         }

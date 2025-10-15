@@ -148,6 +148,16 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
           this.stateService.setRefreshing(false);
         }
       }, error => {
+        // Log error to analytics
+        const promptId = this.analytics.lastPromptId || undefined;
+        if (promptId) {
+          this.analytics.createError({
+            prompt_id: promptId,
+            http_code: error.status?.toString(),
+            description: error.error?.detail || error.message || 'Image generation failed'
+          }).subscribe();
+        }
+
         const elapsed = Date.now() - startTime;
         const remaining = minTime - elapsed;
         if (remaining > 0) {

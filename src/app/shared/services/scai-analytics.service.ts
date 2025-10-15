@@ -56,6 +56,13 @@ export interface UpdateImageRatingPayload {
   value?: number;
 }
 
+export interface CreateErrorPayload {
+  prompt_id?: number;
+  generated_image_id?: number;
+  http_code?: string;
+  description?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ScaiAnalyticsService {
   currentSessionId: number | null = null;
@@ -184,6 +191,13 @@ export class ScaiAnalyticsService {
     return this.http.patch<{ success: true; id: number } & UpdateImageRatingPayload>(
       this.getApiUrl(`image_ratings/${imageRatingId}`),
       body
+    );
+  }
+
+  createError(payload: CreateErrorPayload): Observable<{ id: number } & CreateErrorPayload> {
+    return this.http.post<{ id: number } & CreateErrorPayload>(
+      this.getApiUrl('errors'),
+      payload
     );
   }
 
