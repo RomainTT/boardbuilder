@@ -57,7 +57,7 @@ export interface UpdateImageRatingPayload {
 }
 
 export interface CreateErrorPayload {
-  prompt_id?: number;
+  session_id?: number;
   generated_image_id?: number;
   http_code?: string;
   description?: string;

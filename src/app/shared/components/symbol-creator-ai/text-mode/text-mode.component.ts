@@ -95,7 +95,15 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     };
 
     this.fullPrompt = this.promptBuilder.buildPrompt(promptOptions);
-    // Log prompt
+
+    const params: AiGenerationParams = {
+      prompt: this.fullPrompt,
+      num_images: 4,
+      steps: 4,
+      loraAdapter: styleConfig?.loraAdapter
+    };
+
+    // Start both prompt logging and image generation in parallel for minimal delay
     const sessionId = this.analytics.currentSessionId || 0;
     if (sessionId) {
       const styleState = this.stateService.currentStyleState;
@@ -107,13 +115,6 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
         culture: styleState.cultureText || undefined
       }).subscribe();
     }
-
-    const params: AiGenerationParams = {
-      prompt: this.fullPrompt,
-      num_images: 4,
-      steps: 4,
-      loraAdapter: styleConfig?.loraAdapter
-    };
 
     this.aiSymbolHttpService.generateImages(params)
       .subscribe(response => {
@@ -148,11 +149,12 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
           this.stateService.setRefreshing(false);
         }
       }, error => {
-        // Log error to analytics
-        const promptId = this.analytics.lastPromptId || undefined;
-        if (promptId) {
+        // Always log error to analytics with session_id for consistent reporting
+        const sessionId = this.analytics.currentSessionId || undefined;
+
+        if (sessionId) {
           this.analytics.createError({
-            prompt_id: promptId,
+            session_id: sessionId,
             http_code: error.status?.toString(),
             description: error.error?.detail || error.message || 'Image generation failed'
           }).subscribe();
@@ -171,7 +173,7 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
       });
   }
 
-  onExpandDone(event: AnimationEvent) {
+  public onExpandDone(event: AnimationEvent): void {
     if (event.phaseName === 'done' && event.fromState === 'void') {
       this.stateService.setShowImages(true);
     }
@@ -231,7 +233,6 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   onRemoveBackground(): void {
     super.onRemoveBackground();
   }
-
 
   ngOnDestroy() {
     super.ngOnDestroy();
