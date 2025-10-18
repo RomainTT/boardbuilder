@@ -42,6 +42,7 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   @ViewChild('queryInput') queryInput: ElementRef;
 
   @Input() initialQuery: string;
+  @Input() showCreationButtons: boolean = false;
   @Output() readonly selectionChange = new EventEmitter<SymbolSearchResult>();
   @Output() readonly mediaCreated = new EventEmitter<Media>(); // Add this to notify parent
   @Output() readonly cellDataSelected = new EventEmitter<Partial<Cell>>(); // For direct cell population

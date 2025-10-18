@@ -8,6 +8,7 @@ import {moveItemInArray} from '@angular/cdk/drag-drop';
 import {BoardService} from '@data/services/board.service';
 import {CellService} from '@data/services/cell.service';
 import {Media} from '@data/models/media.model';
+import {MediaUpdateService} from '@data/services/media-update.service';
 import {SearchPanelComponent} from '@shared/components/search-panel/search-panel.component';
 import {SymbolSearchResult} from '@data/models/symbol-search-result';
 import {palettes} from '@data/colour-picker-colours';
@@ -37,6 +38,7 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
 
   user: User;
   userSubscription: Subscription;
+  mediaUpdateSubscription: Subscription;
 
   colourPickerColours: Array<string>;
 
@@ -44,9 +46,13 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     public dialog: MatDialog,
     private cellService: CellService,
     private boardService: BoardService,
-    private userService: UserService
+    private userService: UserService,
+    private mediaUpdateService: MediaUpdateService
   ) {
     this.userSubscription = userService.user$.subscribe(user => this.user = user);
+    this.mediaUpdateSubscription = this.mediaUpdateService.mediaUpdated$.subscribe(media => {
+      this.selectMedia(media);
+    });
     this.colourPickerColours = palettes.regular;
   }
 
@@ -68,6 +74,7 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
   ngOnDestroy() {
     if (this.cell) { this.saveCell(); }
     this.userSubscription.unsubscribe();
+    this.mediaUpdateSubscription.unsubscribe();
   }
 
   loadLinkableBoards(): void {

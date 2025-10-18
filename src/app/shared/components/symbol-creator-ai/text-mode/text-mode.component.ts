@@ -12,6 +12,7 @@ import { AiGenerationParams, PromptOptions } from '@data/models/ai-symbol.interf
 import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 import { ErrorMessageService } from '@shared/services/error-message.service';
+import { MediaUpdateService } from '@data/services/media-update.service';
 
 @Component({
   selector: 'app-text-mode',
@@ -45,7 +46,8 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     stateService: AiSymbolStateService,
     private promptBuilder: PromptBuilderService,
     analytics: ScaiAnalyticsService,
-    errorMessageService: ErrorMessageService
+    errorMessageService: ErrorMessageService,
+    private mediaUpdateService: MediaUpdateService
   ) {
     super(aiSymbolHttpService, stateService, hotkeysService, analytics, errorMessageService);
   }
@@ -217,7 +219,8 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
             const dialogRef = this.dialogService.openSymbolCreator(dialogConfig);
             dialogRef.afterClosed().subscribe((mediaItem) => {
               if (mediaItem) {
-                // Symbol Creator dialog closed with media
+                // Symbol Creator dialog closed with media - trigger update for cell assignment
+                this.mediaUpdateService.triggerUpdate(mediaItem);
               }
             });
           });
