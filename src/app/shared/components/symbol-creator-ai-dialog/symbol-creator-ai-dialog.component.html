@@ -10,7 +10,12 @@
         </button>
     </div> -->
     <div id="header-title">
-        <h1 *ngIf="shouldShowHeader" mat-dialog-title class="mb-0">Symbol Creator AI</h1>
+        <h1 *ngIf="shouldShowHeader" mat-dialog-title class="mb-0">
+          Symbol Creator AI
+          <div class="beta-label">
+            <span class="beta-text">BETA</span>
+          </div>
+        </h1>
     </div>
     <div class="dialog-button-close">
         <button mat-icon-button (click)="dialogRef.close()" appStopPropagation

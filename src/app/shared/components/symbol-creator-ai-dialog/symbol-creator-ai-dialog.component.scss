@@ -2,3 +2,34 @@
   overflow: auto;
   max-height: 78vh;
 }
+
+.beta-label {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: top;
+  transform: translateY(-3px);
+}
+
+.beta-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  animation: beta-pulse 2s ease-in-out infinite;
+}
+
+@keyframes beta-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  }
+}
