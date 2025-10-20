@@ -237,6 +237,16 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
     super.onRemoveBackground();
   }
 
+  onExamplesClicked(): void {
+    if (this.parentDialogRef) {
+      // Access the dialog component and open the examples modal
+      const dialogComponent = this.parentDialogRef.componentInstance;
+      if (dialogComponent && typeof dialogComponent.openExamplesModal === 'function') {
+        dialogComponent.openExamplesModal();
+      }
+    }
+  }
+
   ngOnDestroy() {
     super.ngOnDestroy();
   }

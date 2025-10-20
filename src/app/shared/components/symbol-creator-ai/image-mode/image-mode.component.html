@@ -54,6 +54,7 @@
 <app-ai-controls
   [generateButtonText]="'Generate Variations'"
   [generateButtonDisabled]="!uploadedImageData || (galleryState$ | async)?.isLoading"
-  (generateClicked)="generateImages()">
+  (generateClicked)="generateImages()"
+  (examplesClicked)="onExamplesClicked()">
 </app-ai-controls>
 

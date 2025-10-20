@@ -1,5 +1,5 @@
 import {Component, Inject, ViewChild, Input, ChangeDetectionStrategy} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef, MatDialog} from '@angular/material/dialog';
 import {Media} from '@data/models/media.model';
 import {SymbolCreatorAiComponent } from '../symbol-creator-ai/symbol-creator-ai.component';
 import { ImageUploadResult } from '../image-upload-dialog/image-upload-dialog.component';
@@ -23,9 +23,12 @@ export class SymbolCreatorAIDialogComponent {
 
   @ViewChild(SymbolCreatorAiComponent) public symbolCreator: SymbolCreatorAiComponent;
 
+  showExamplesModal: boolean = false;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: SymbolCreatorAIDialogData,
-    public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>) {
+    public dialogRef: MatDialogRef<SymbolCreatorAIDialogComponent>,
+    private dialog: MatDialog) {
     if (data.media) { this.media = data.media; }
     if (data.preloadedImageData) {
       this.preloadedImageData = data.preloadedImageData;
@@ -41,6 +44,14 @@ export class SymbolCreatorAIDialogComponent {
 
   goBack() {
     this.symbolCreator.goBackToDefault();
+  }
+
+  openExamplesModal() {
+    this.showExamplesModal = true;
+  }
+
+  closeExamplesModal() {
+    this.showExamplesModal = false;
   }
 
   /**

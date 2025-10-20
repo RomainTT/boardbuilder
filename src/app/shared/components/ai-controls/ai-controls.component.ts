@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AiSymbolStateService, StyleUiState, GalleryState } from '@data/services/ai-symbol-state.service';
 
+
 @Component({
   selector: 'app-ai-controls',
   templateUrl: './ai-controls.component.html',
@@ -13,6 +14,7 @@ export class AiControlsComponent {
   @Input() generateButtonDisabled: boolean = false;
 
   @Output() generateClicked = new EventEmitter<void>();
+  @Output() examplesClicked = new EventEmitter<void>();
 
   // Access style state from service
   styleState$: Observable<StyleUiState> = this.stateService.styleState$;
@@ -28,6 +30,10 @@ export class AiControlsComponent {
   onCultureTextChanged(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.stateService.setCultureText(target.value);
+  }
+
+  openExamplesModal(): void {
+    this.examplesClicked.emit();
   }
 
 }

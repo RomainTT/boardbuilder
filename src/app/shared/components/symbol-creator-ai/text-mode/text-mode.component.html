@@ -37,5 +37,6 @@
 <app-ai-controls
   [generateButtonText]="'Generate Images'"
   [generateButtonDisabled]="prompt.length < 1 || (galleryState$ | async)?.isLoading"
-  (generateClicked)="generateImages()">
+  (generateClicked)="generateImages()"
+  (examplesClicked)="onExamplesClicked()">
 </app-ai-controls>
