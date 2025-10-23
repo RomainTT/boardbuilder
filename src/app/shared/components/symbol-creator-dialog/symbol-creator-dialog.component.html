@@ -3,24 +3,17 @@
      cdkDragBoundary="body"
 >
 
-  <header fxLayout="row" fxLayoutAlign="space-between center" class="mb-1">
-    <h1 mat-dialog-title class="mb-0">Symbol Creator</h1>
+  <header class="dialog">
+    <div id="header-button-title">
+      <h1 mat-dialog-title class="mb-0">Symbol Designer</h1>
+    </div>
 
-    <div>
+    <div class="dialog-button-close">
       <button mat-icon-button (click)="dialogRef.close()" appStopPropagation
               aria-label="Discard"  matTooltip="Discard"
               i18n-aria-label="discard|Discard (throw away, cancel)" i18n-matTooltip="Discard changes (same button used for editing and creating symbols)"
-              gaCategory="SymbolCreator" gaEvent="click" gaLabel="DiscardChanges"
-      >
+              gaCategory="SymbolCreator" gaEvent="click" gaLabel="DiscardChanges">
         <mat-icon>close</mat-icon>
-      </button>
-
-      <button mat-icon-button (click)="saveAndClose()" appStopPropagation
-              aria-label="Save and Close" matTooltip="Save and Close"
-              i18n-aria-label="save and close|Save and Close" i18n-matTooltip="save and close|Save and Close"
-              gaCategory="SymbolCreator" gaEvent="click" gaLabel="SaveAndClose"
-      >
-        <mat-icon>check</mat-icon>
       </button>
     </div>
   </header>
@@ -28,4 +21,5 @@
   <div mat-dialog-content class="pb-3">
     <app-symbol-creator appStopPropagation [media]="media"></app-symbol-creator>
   </div>
+
 </div>

@@ -1,0 +1,118 @@
+.mat-dialog-content {
+  overflow: auto;
+  max-height: 78vh;
+}
+
+.beta-label {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: top;
+  transform: translateY(-3px);
+}
+
+.beta-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  animation: beta-pulse 2s ease-in-out infinite;
+}
+
+.beta-help-link {
+  display: inline-block;
+  margin-left: 8px;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #333;
+  }
+
+  &:focus {
+    // outline: 2px solid #4c89b7;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.beta-help-icon {
+  font-size: 20px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+@keyframes beta-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  }
+}
+
+.examples-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.examples-modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.close-button {
+  color: #666;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.modal-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.style-examples-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

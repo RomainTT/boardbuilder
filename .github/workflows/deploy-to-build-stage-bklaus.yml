@@ -1,23 +1,44 @@
 name: Deploy Stage/bklaus to Build Branch
+
 on:
   push:
     branches:
       - bklaus
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
+
       - name: Install dependencies
         run: npm install
+
+      - name: Generate environment.stage.ts
+        if: github.repository == 'global-symbols/boardbuilder-internal'
+        run: |
+          cat << EOF > src/environments/environment.stage.ts
+          export const environment = {
+            production: false,
+            globalSymbolsBase: 'https://stage.globalsymbols.com',
+            globalSymbolsApiBase: 'https://stage.globalsymbols.com/api/v1',
+            boardBuilderApiBase: 'https://stage.globalsymbols.com/api/boardbuilder/v1',
+            globalSymbolsOauthClientId: 'RKBryis4wFurzoH14-J9gMiHbXHRll6YHTZXrYVJc_A',
+            scaAiApiBase: '${{ secrets.STAGE_SCA_AI_API_BASE }}',
+            scaAiApiKey: '${{ secrets.STAGE_SCA_AI_API_KEY }}'
+          };
+          EOF
+
       - name: Build for Stage/bklaus
         if: github.repository == 'global-symbols/boardbuilder-internal'
         run: npm run build -- --configuration=stage --output-path=dist/boardbuilder
+
       - name: Deploy Stage/bklaus to Build Branch
         if: github.repository == 'global-symbols/boardbuilder-internal'
         uses: peaceiris/actions-gh-pages@v3

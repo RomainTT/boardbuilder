@@ -8,12 +8,14 @@ export const environment = {
   globalSymbolsBase: 'http://localhost:3000',
 
   globalSymbolsApiBase: 'http://localhost:3000/api/v1',
-  // globalSymbolsApiBase: 'https://globalsymbols.com/api/v1',
+
   boardBuilderApiBase: 'http://localhost:3000/api/boardbuilder/v1',
 
   globalSymbolsOauthClientId: 'TmfOdD5gPManAv3UafHGLFDcfcrEkXTjLGT2OPmCFyI',
 
   astericsGridBase: 'http://localhost:9095'
+  globalSymbolsOauthClientId: 'Msd0ocExMmwsloYOox-CQrg-e767OR_akzUEYoNstgc',
+  
 };
 
 /*

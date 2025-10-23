@@ -1,0 +1,42 @@
+.rating-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.rating-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rating-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.rating {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.rating mat-icon.filled {
+  color: gold;
+}
+
+/* Responsive: Stack image and ratings vertically on small screens */
+@media (max-width: 600px) {
+  .rating-detailed {
+    position: static;
+    transform: none;
+    margin-top: 20px;
+  }
+}

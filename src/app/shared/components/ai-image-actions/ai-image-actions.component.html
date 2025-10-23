@@ -1,0 +1,13 @@
+<div class="mb-1">
+  <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+</div>
+<div class="options">
+  <button mat-icon-button color="primary" aria-label="Save Symbol to Device" matTooltip="Save to Device" (click)="onDownload()">
+    <mat-icon>save_alt</mat-icon>
+  </button>
+  <button mat-icon-button color="primary" aria-label="Send to Designer" matTooltip="Send to Designer" (click)="onImportToDesigner()">
+    <mat-icon>construction</mat-icon>
+  </button>
+</div>
+
+<button mat-icon-button class="mt-1" (click)="onClose()">Close</button>

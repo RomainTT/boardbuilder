@@ -1,0 +1,68 @@
+<div class="image-upload-dialog">
+
+  <div class="upload-content">
+    <div class="upload-container">
+      <!-- Drag and drop area -->
+      <div
+        class="drop-zone"
+        [class.drag-over]="isDragOver"
+        [class.has-file]="selectedFile"
+        [class.error]="errorMessage"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()">
+
+        <!-- Loading state -->
+        <div *ngIf="isLoading" class="loading-state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Processing image...</p>
+        </div>
+
+        <!-- Preview state -->
+        <div *ngIf="previewUrl && !isLoading" class="preview-state">
+          <img [src]="previewUrl" alt="Preview" class="image-preview">
+          <div class="file-info">
+            <p class="file-name">{{ selectedFile?.name }}</p>
+            <p class="file-size">{{ (selectedFile!.size / 1024 / 1024).toFixed(2) }}MB</p>
+            <button mat-icon-button (click)="clearSelection(); $event.stopPropagation()" class="clear-button">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!selectedFile && !isLoading" class="empty-state">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <h3>Drop your image here</h3>
+          <p>or click to browse</p>
+          <p class="file-requirements">
+            Supported formats: {{ acceptedExtensions.join(', ') }}<br>
+            Maximum size: {{ maxSizeInMB }}MB<br>
+            Maximum dimensions: {{ maxWidth }}x{{ maxHeight }}px
+          </p>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input
+        #fileInput
+        type="file"
+        [accept]="acceptString"
+        (change)="onFileSelected($event)"
+        style="display: none;">
+
+      <!-- Error message -->
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload status -->
+  <div *ngIf="uploadedImageData" class="upload-success">
+    <mat-icon color="primary">check_circle</mat-icon>
+    <span>Image uploaded successfully! Ready for AI generation.</span>
+  </div>
+</div>

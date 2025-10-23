@@ -1,0 +1,32 @@
+<div class="images-container" *ngIf="galleryState?.isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
+  <!-- Error state -->
+  <div class="error-state" *ngIf="errorState?.showApiError && errorState?.apiError">
+    <div class="error-content">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p class="error-message">{{ errorState?.apiError }}</p>
+      <button mat-raised-button color="primary" (click)="onRetry()" class="retry-button">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Images display -->
+  <div class="images-row" *ngIf="galleryState?.showImages && !errorState?.showApiError">
+    <div class="image-placeholder" [ngClass]="{ 'selected': i === galleryState?.selectedImageIndex, 'refreshing': galleryState?.isRefreshing }" *ngFor="let img of galleryState?.generatedImages; let i = index; trackBy: trackByIndex"
+      (click)="selectImage(i)" [@fadeIn]
+      [style.background-image]="img ? 'url(' + img + ')' : 'none'"
+      [style.background-size]="'cover'"
+      [style.background-position]="'center'">
+      <span class="placeholder-text" *ngIf="!img">Image {{ i + 1 }}</span>
+      <div
+        *ngIf="galleryState?.isLoading"
+        class="custom-progress-bar">
+        <div
+          class="custom-progress-fill"
+          [style.width.%]="progressBars[i]">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

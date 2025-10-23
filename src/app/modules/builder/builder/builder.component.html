@@ -70,7 +70,7 @@
                  position="end" id="cellEditor" #cellEditor
                  (opened)="disableCellEditorAnimations = false"
                  (closed)="disableCellEditorAnimations = true"
-                 (closedStart)="selectedCell = null"
+                 (closedStart)="closeCellEditor()"
                  *ngIf="!boardSet?.readonly">
 
       <app-cell-editor [boardSet]="boardSet"

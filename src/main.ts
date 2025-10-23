@@ -28,5 +28,7 @@ if (environment.production) {
   enableProdMode();
 }
 
+// console.log('Environment production value:', environment.production);
+
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));

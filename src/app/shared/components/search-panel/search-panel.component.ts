@@ -6,6 +6,13 @@ import {SymbolSearchResult} from '@data/models/symbol-search-result';
 import {SymbolService} from '@data/services/symbol.service';
 import {Symbolset} from '@data/models/symbolset';
 import {Language} from '@data/models/language';
+import {DialogService} from '@app/services/dialog.service';
+import { Media } from '@data/models/media.model'; // Add this
+import { MediaUpdateService } from '@data/services/media-update.service'; // Add this
+import { Cell } from '@data/models/cell.model';
+// Removed: ImageActionDialogComponent, ImageAction, ImageActionDialogData - no longer used since we skip the dialog
+import { SearchResultConverterService } from '@shared/services/search-result-converter.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-search-panel',
@@ -35,11 +42,19 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   @ViewChild('queryInput') queryInput: ElementRef;
 
   @Input() initialQuery: string;
+  @Input() showCreationButtons: boolean = false;
   @Output() readonly selectionChange = new EventEmitter<SymbolSearchResult>();
+  @Output() readonly mediaCreated = new EventEmitter<Media>(); // Add this to notify parent
+  @Output() readonly cellDataSelected = new EventEmitter<Partial<Cell>>(); // For direct cell population
+
 
   constructor(
     private globalSymbolsService: GlobalSymbolsService,
     private symbolService: SymbolService,
+    private dialogService: DialogService,
+    private mediaUpdateService: MediaUpdateService,
+    private dialog: MatDialog,
+    private searchResultConverter: SearchResultConverterService,
     @Inject(LOCALE_ID) public locale: string
   ) {
 
@@ -134,8 +149,92 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
   }
 
   selectImage(result: SymbolSearchResult) {
+    // Directly use the image without showing the action dialog
+    this.handleUseAsIs(result);
+  }
+
+  /**
+   * COMMENTED OUT: handleImageAction method - no longer needed since we skip the dialog and directly use images
+   * Previously handled USE_AS_IS and SEND_TO_AI actions from the ImageActionDialogComponent
+   * @param result - The selected search result
+   * @param action - The action chosen by the user (USE_AS_IS or SEND_TO_AI)
+   */
+  // private handleImageAction(result: SymbolSearchResult, action: ImageAction): void {
+  //   switch (action) {
+  //     case ImageAction.USE_AS_IS:
+  //       console.log('[SearchPanel] Handling USE_AS_IS action');
+  //       this.handleUseAsIs(result);
+  //       break;
+  //
+  //     case ImageAction.SEND_TO_AI:
+  //       console.log('[SearchPanel] Handling SEND_TO_AI action');
+  //       this.handleSendToAI(result);
+  //       break;
+  //
+  //     default:
+  //       console.warn('[SearchPanel] Unknown action:', action);
+  //   }
+  // }
+
+  /**
+   * Handles the "Use as-is" action - converts search result to cell data and emits it
+   * @param result - The search result to convert
+   */
+  private handleUseAsIs(result: SymbolSearchResult): void {
+    const cellData = this.searchResultConverter.convertToCellData(result);
+
+    this.cellDataSelected.emit(cellData);
+    
+    // Also emit the original selectionChange for backward compatibility
     this.selectionChange.emit(result);
   }
+
+  /**
+   * Handles the "Send to AI" action - opens the AI creator in text mode
+   * (Image mode functionality preserved but hidden from UI)
+   * @param result - The search result (image mode disabled, opens text mode instead)
+   */
+  private async handleSendToAI(result: SymbolSearchResult): Promise<void> {
+    try {
+      // Open regular AI dialog in text mode (image mode functionality commented out)
+      const dialogRef = this.dialogService.openSymbolCreatorAI(undefined, 'boardset');
+
+      dialogRef.componentInstance.parentDialogRef = dialogRef; // Pass the dialog reference
+      dialogRef.afterClosed().subscribe((mediaItem: Media) => {
+        if (mediaItem) {
+          this.mediaUpdateService.triggerUpdate(mediaItem);
+        } else {
+          // AI Dialog cancelled
+        }
+      });
+
+    } catch (error) {
+      console.error('[SearchPanel] Failed to open AI designer:', error);
+    }
+  }
+
+
+  
+openSymbolCreator() {
+    const currentDialogRef = this.dialogService.openSymbolCreator();
+    currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
+      if (mediaItem) {
+        this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
+      }
+    });
+  }
+
+  openSymbolCreatorAI() {
+    const currentDialogRef = this.dialogService.openSymbolCreatorAI(undefined, 'boardset');
+
+    currentDialogRef.componentInstance.parentDialogRef = currentDialogRef; // Pass the dialog reference to PromptModeComponent
+    currentDialogRef.afterClosed().subscribe((mediaItem: Media) => {
+      if (mediaItem) {
+        this.mediaUpdateService.triggerUpdate(mediaItem); // Use service instead of mediaCreated
+      }
+    });
+  }
+  
 }
 
 interface FlatGsParam<T> {

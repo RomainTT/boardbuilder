@@ -1,0 +1,32 @@
+<!-- AI landing page - Mode selection removed, now goes directly to text mode -->
+
+<!-- Mode navigation modules -->
+
+<div class="mt-2" *ngIf="currentMode === Mode.Prompt">
+  <app-text-mode [initialPrompt]="promptText" (saveRequested)="onSaveRequested($event)" [parentDialogRef]="parentDialogRef" [accessPoint]="accessPoint"></app-text-mode>
+</div>
+
+<!-- COMMENTED OUT: Image mode functionality preserved but hidden from UI -->
+<!-- Original mode selection screen (commented out):
+<div *ngIf="!currentMode" class="text-center">
+  <h1 class="mb-5" style="display: inline-block;">Getting Started with Symbol Creator AI</h1>
+
+  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px" class="my-3">
+    <button mat-raised-button color="primary" class="button-lg" (click)="goToImageModeFromIntro()">
+      <mat-icon>image</mat-icon> Image
+    </button>
+
+    <button mat-raised-button color="primary" (click)="goToPromptMode()">
+      <mat-icon>edit</mat-icon> Text
+    </button>
+  </div>
+</div>
+
+<div class="mt-2" *ngIf="currentMode === Mode.Image">
+  <app-image-mode
+    [uploadedImageData]="uploadedImageData"
+    (saveRequested)="onSaveRequested($event)"
+    [parentDialogRef]="parentDialogRef">
+  </app-image-mode>
+</div>
+-->

@@ -101,7 +101,7 @@ const appRoutes: Routes = [
     ContentLayoutComponent,
     NavComponent,
     AuthLayoutComponent,
-    NavButtonComponent
+    NavButtonComponent,
   ],
   imports: [
     BrowserModule,

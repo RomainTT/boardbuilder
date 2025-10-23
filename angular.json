@@ -1,5 +1,8 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false
+  },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
@@ -145,21 +148,22 @@
               ]
             },
             "development": {
-              "optimization": false,
-              "outputHashing": "all",
               "sourceMap": true,
+              "optimization": false,
+              "buildOptimizer": false,
+              "vendorChunk": true,
               "namedChunks": true,
               "extractLicenses": false,
-              "vendorChunk": true,
-              "buildOptimizer": false,
-              "budgets": []
+              "outputHashing": "none"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {},
+          "options": {
+            "browserTarget": "boardbuilder:build"
+          },
           "configurations": {
             "production": {
               "browserTarget": "boardbuilder:build:production"

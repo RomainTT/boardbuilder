@@ -1,3 +1,8 @@
+<mat-card fxLayout="row" fxLayoutAlign="left" fxLayoutGap="10px" class="mb-2 mat-elevation-z2" *ngIf="showCreationButtons">
+  <button mat-button style="border:solid grey;" (click)="openSymbolCreator()">Designer</button>
+  <button mat-flat-button class="" color="primary" (click)="openSymbolCreatorAI()">Create with AI</button>
+</mat-card>
+
 <mat-form-field class="w-100" appearance="outline">
   <mat-label i18n="Symbol Search query input label">Search For</mat-label>
   <input matInput [(ngModel)]="query" #queryInput>

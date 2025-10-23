@@ -1,0 +1,42 @@
+<!-- Style controls -->
+<div class="controls-row" *ngIf="styleState$ | async as styleState">
+  <div class="style-field-container">
+    <mat-form-field appearance="outline" class="control-item scai-style">
+      <mat-label>
+        Style
+      </mat-label>
+      <mat-select [value]="styleState.selectedStyle" (selectionChange)="onStyleChanged($event.value)" name="style">
+        <mat-option *ngFor="let style of styleState.availableStyles" [value]="style">
+          {{ style }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button type="button"
+            class="examples-button"
+            (click)="openExamplesModal()">
+      view examples
+    </button>
+
+
+  </div>
+
+  <mat-form-field appearance="outline" class="control-item">
+    <mat-label>Culture</mat-label>
+    <input matInput [value]="styleState.cultureText" (input)="onCultureTextChanged($event)" [disabled]="!styleState.cultureEnabled">
+  </mat-form-field>
+
+</div>
+
+
+
+
+ 
+
+<button *ngIf="showGenerateButton" 
+        mat-raised-button 
+        color="primary" 
+        (click)="generateClicked.emit()" 
+        class="mt-1" 
+        [disabled]="generateButtonDisabled || (galleryState$ | async)?.isLoading">
+  {{ (galleryState$ | async)?.isLoading ? 'Loading images...' : generateButtonText }}
+</button>

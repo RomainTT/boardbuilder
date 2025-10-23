@@ -133,7 +133,13 @@
 
   <mat-tab label="Symbol" i18n-label="symbol|Symbol">
     <div class="p-1">
-      <app-search-panel #searchPanel [initialQuery]="cell.caption" (selectionChange)="selectSearchResult($event)"></app-search-panel>
+      <!-- <app-search-panel #searchPanel [initialQuery]="cell.caption" (selectionChange)="selectSearchResult($event)"></app-search-panel> -->
+      <app-search-panel #searchPanel
+                        [initialQuery]="cell.caption"
+                        [showCreationButtons]="true"
+                        (selectionChange)="selectSearchResult($event)"
+                        (cellDataSelected)="handleCellDataSelected($event)">
+      </app-search-panel>
     </div>
   </mat-tab>
 

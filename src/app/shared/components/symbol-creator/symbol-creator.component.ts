@@ -11,6 +11,9 @@ import {Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {DialogService} from '@app/services/dialog.service';
 import {palettes} from '@data/colour-picker-colours';
+import { MatDialogRef } from '@angular/material/dialog';
+import { SymbolCreatorDialogComponent } from '../symbol-creator-dialog/symbol-creator-dialog.component'; // Adjust path if needed
+import { ErrorMessageService } from '@shared/services/error-message.service';
 
 export enum SymbolCreatorState {
   Loading = 'Loading',
@@ -58,9 +61,15 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     private mediaService: MediaService,
     private hotkeysService: HotkeysService,
     private fontService: WebFontsService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    public dialogRef: MatDialogRef<SymbolCreatorDialogComponent>, // Inject the dialog ref here
+    private errorMessageService: ErrorMessageService
   ) {
     this.hotkeys = [];
+  }
+
+  saveAndClose() {
+    this.save().subscribe(media => this.dialogRef.close(media), error => null);
   }
 
   ngOnInit(): void {
@@ -332,6 +341,72 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     }, error => this.errorLoadingImage('Failure detecting image type.'));
   }
 
+  // In symbol-creator.component.ts, add this method to the SymbolCreatorComponent class
+
+addImageFromBlob(blob: Blob): void {
+  const reader = new FileReader();
+
+  reader.onload = (event: ProgressEvent<FileReader>) => {
+    const result = event.target.result as string;
+
+    if (blob.type === 'image/svg+xml') {
+      // Handle SVG blobs
+      fabric.loadSVGFromString(result, (objects, options) => {
+        const shape = new fabric.Group(objects, { ...options });
+
+        // Set the shape size to fit the canvas (same logic as addImage)
+        let scaleFactor = 1;
+        if (shape.height >= shape.width) {
+          scaleFactor = (this.height / 2) / shape.height;
+        } else {
+          scaleFactor = (this.width / 2) / shape.width;
+        }
+
+        shape.set({
+          scaleX: scaleFactor,
+          scaleY: scaleFactor,
+          top: (this.height / 2) - ((shape.height * scaleFactor) / 2),
+          left: (this.width / 2) - ((shape.width * scaleFactor) / 2),
+        });
+
+        this.addShape(shape);
+      }, (element, object) => {
+        // Apply default black fill for SVG paths, as in addImage
+        if (object.get('type') === 'path' && object.fill === 'transparent' && object.stroke === 'transparent') {
+          object.fill = 'black';
+        }
+      });
+    } else {
+      // Handle raster images (PNG, JPEG, etc.)
+      const image = new Image();
+      image.onload = () => {
+        const options = {
+          scaleX: 1,
+          scaleY: 1,
+        };
+
+        // Same scaling logic as addImage
+        if (image.naturalHeight >= image.naturalWidth) {
+          options.scaleY = (this.height / 2) / image.naturalHeight;
+          options.scaleX = options.scaleY;
+        } else {
+          options.scaleX = (this.width / 2) / image.naturalWidth;
+          options.scaleY = options.scaleX;
+        }
+
+        this.addShape(new fabric.Image(image, options));
+      };
+      image.src = result;
+    }
+  };
+
+  reader.onerror = () => {
+    this.errorLoadingImage('Failed to read the blob.');
+  };
+
+  reader.readAsDataURL(blob); // Read the blob as a data URL
+}
+
   errorLoadingImage(reason: string): void {
     this.dialogService.error({
       content: 'We could not load the image.',
@@ -585,7 +660,7 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     return action.pipe(tap(
       () => this.status = SymbolCreatorState.SavingError,
       err => {
-        this.lastError = err.error.message;
+        this.lastError = this.errorMessageService.toUserMessage(err, 'We could not save your symbol. Please try again.');
         return this.status = SymbolCreatorState.SavingError;
       })
     );
@@ -645,8 +720,6 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     }
 
   }
-
-
 
   // Appends a random parameter to a URL, as a way to bust caches that cache the wrong CORS state for an image.
   bustCorsCache(inputUrl: string) {

@@ -8,6 +8,7 @@ import {moveItemInArray} from '@angular/cdk/drag-drop';
 import {BoardService} from '@data/services/board.service';
 import {CellService} from '@data/services/cell.service';
 import {Media} from '@data/models/media.model';
+import {MediaUpdateService} from '@data/services/media-update.service';
 import {SearchPanelComponent} from '@shared/components/search-panel/search-panel.component';
 import {SymbolSearchResult} from '@data/models/symbol-search-result';
 import {palettes} from '@data/colour-picker-colours';
@@ -37,6 +38,7 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
 
   user: User;
   userSubscription: Subscription;
+  mediaUpdateSubscription: Subscription;
 
   colourPickerColours: Array<string>;
 
@@ -44,9 +46,13 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     public dialog: MatDialog,
     private cellService: CellService,
     private boardService: BoardService,
-    private userService: UserService
+    private userService: UserService,
+    private mediaUpdateService: MediaUpdateService
   ) {
     this.userSubscription = userService.user$.subscribe(user => this.user = user);
+    this.mediaUpdateSubscription = this.mediaUpdateService.mediaUpdated$.subscribe(media => {
+      this.selectMedia(media);
+    });
     this.colourPickerColours = palettes.regular;
   }
 
@@ -68,6 +74,7 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
   ngOnDestroy() {
     if (this.cell) { this.saveCell(); }
     this.userSubscription.unsubscribe();
+    this.mediaUpdateSubscription.unsubscribe();
   }
 
   loadLinkableBoards(): void {
@@ -119,6 +126,39 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     this.saveCell();
   }
 
+  /**
+   * Handles cell data from the new "Use as-is" workflow
+   * Applies the converted cell data and closes the editor
+   * @param cellData - Partial cell data from search result conversion
+   */
+  handleCellDataSelected(cellData: Partial<Cell>) {
+    // Apply the converted data to the current cell
+    this.cell.media = null;
+    this.cell.media_id = null;
+    this.cell.image_url = cellData.image_url;
+    this.cell.picto_id = cellData.picto_id;
+    this.cell.picto = cellData.picto;
+    
+    // Only set caption from search result if cell is completely empty
+    // This preserves user-entered captions and avoids unwanted labels
+    if (!this.cell.caption && !this.cell.image_url) {
+      // Cell is empty, so we can optionally set a caption from search result
+      // For now, let's not auto-set captions to avoid confusion
+      // this.cell.caption = result.label;
+    }
+
+    // If the user is loaded, the picto is adaptable and preferences are set, load custom hair/skin colours
+    if (this.user && cellData.picto?.adaptable) {
+      if (this.user.default_hair_colour) { this.cell.hair_colour = this.user.default_hair_colour; }
+      if (this.user.default_skin_colour) { this.cell.skin_colour = this.user.default_skin_colour; }
+    }
+
+    // Save the cell and close the editor
+    this.saveCell(() => {
+      this.closed.emit(true);
+    });
+  }
+
   // Fires an automatic search when the Search tab is opened.
   // Only fires if the cell has a caption we can search for.
   triggerSearch($event: MatTabChangeEvent) {
@@ -167,10 +207,39 @@ export class CellEditorComponent implements OnChanges, OnDestroy {
     this.cell.media_id = media.id;
     this.cell.image_url = media.public_url;
 
-    this.saveCell();
+    this.saveCell(() => {
+      this.closed.emit(true);
+    });
   }
 
   saveCell(next?): void {
     this.cellService.update(this.cell).subscribe(next);
   }
+
+// onMediaCreated(media: any) {
+//     if (this.mediaLibrary) {
+//       this.mediaLibrary.loadMedia(media); // Update MediaLibrary
+//     }
+//     if (this.boardEditor) {
+//       this.boardEditor.loadMedia(media); // Update board cell
+//     }
+//   }
+
+
+// onMediaCreated(media: any) {
+//     console.log('onMediaCreated called with media:', media); // Debug log
+//     if (this.mediaLibrary) {
+//       console.log('Loading media in MediaLibrary');
+//       this.mediaLibrary.loadMedia(media);
+//     } else {
+//       console.log('mediaLibrary is null');
+//     }
+//     if (this.boardEditor) {
+//       console.log('Loading media in BoardEditor');
+//       this.boardEditor.loadMedia(media);
+//     } else {
+//       console.log('boardEditor is null');
+//     }
+//   }
+
 }

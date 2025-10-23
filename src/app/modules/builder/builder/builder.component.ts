@@ -253,6 +253,10 @@ export class BuilderComponent implements OnInit, OnDestroy {
     }
   }
 
+  closeCellEditor() {
+    this.selectedCell = null;
+  }
+
   deleteBoard(board: Board) {
     if (this.boardSet.readonly) { return; }
     if (this.currentDialogRef !== undefined) { return; }

@@ -1,0 +1,63 @@
+<!-- Dialog housing -->
+
+<div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary="body">
+
+  <header class="dialog" cdkDragHandle>
+    <!-- COMMENTED OUT: Back button no longer needed since mode selection is removed -->
+    <!-- <div id="header-button-back">
+        <button mat-icon-button *ngIf="shouldShowHeader" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+    </div> -->
+    <div id="header-title">
+        <h1 *ngIf="shouldShowHeader" mat-dialog-title class="mb-0">
+          Symbol Creator AI
+          <div class="beta-label">
+            <span class="beta-text">BETA</span>
+            <a href="https://globalsymbols.com/knowledge-base/2eMzkaOJjPUAwxc0EXBN7M?locale=en"
+               target="_blank"
+               class="beta-help-link"
+               matTooltip="View Symbol Creator AI Instructions"
+               aria-label="Help for Symbol Creator AI">
+              <mat-icon class="beta-help-icon">help_outline</mat-icon>
+            </a>
+          </div>
+        </h1>
+    </div>
+    <div class="dialog-button-close">
+        <button mat-icon-button (click)="dialogRef.close()" appStopPropagation
+                aria-label="Discard"  matTooltip="Discard"
+                i18n-aria-label="discard|Discard (throw away, cancel)" i18n-matTooltip="Discard changes (same button used for editing and creating symbols)"
+                gaCategory="SymbolCreator" gaEvent="click" gaLabel="DiscardChanges">
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+  </header>
+
+  <div mat-dialog-content class="pb-3">
+    <app-symbol-creator-ai
+      [parentDialogRef]="parentDialogRef"
+      [preloadedImageData]="preloadedImageData"
+      [accessPoint]="accessPoint">
+    </app-symbol-creator-ai>
+  </div>
+
+  <!-- Examples Modal -->
+  <div *ngIf="showExamplesModal"
+       class="examples-modal-overlay"
+       (click)="closeExamplesModal()">
+    <div class="examples-modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Style Examples</h3>
+        <button mat-icon-button (click)="closeExamplesModal()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img src="assets/images/styles.png" 
+        alt="Comparison chart of six symbol styles—Mulberry, ARASAAC, Tawasol, Jellow, Dyvogra, Realistic, and Base Symbol. Each row shows four illustrations of a person, bread, a police officer, and someone running, ranging from simple cartoons to realistic images." 
+        class="style-examples-image">
+         </div>
+    </div>
+  </div>
+</div>

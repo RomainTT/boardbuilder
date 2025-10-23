@@ -1,0 +1,56 @@
+@import "~app/shared/variables";
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.control-item {
+  flex: 1;
+  min-width: 120px;
+}
+
+.style-field-container {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  ::ng-deep mat-form-field {
+
+    .mat-form-field-wrapper {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+}
+
+.examples-button {
+  background: none;
+  margin-top: 6px;
+  margin-left: 2px;
+  border: none;
+  padding: 0;
+  width: fit-content;
+  align-self: flex-start;
+  font-size: 14px;
+  color: #4c89b7;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #2c5aa0;
+  }
+
+  &:focus {
+    outline: 2px solid #4c89b7;
+    outline-offset: 2px;
+  }
+}
+
+

@@ -1,0 +1,42 @@
+<div *ngIf="showPrompt" class="floating-prompt">
+  <h3 style="font-weight: 400;margin-bottom: 3px;">{{ fullPrompt || 'No prompt generated yet' }}</h3>
+  <button mat-icon-button style="width: 100%; text-align: right;" *ngIf="fullPrompt" (click)="copyPrompt()" aria-label="Copy prompt" matTooltip="Copy to clipboard">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+</div>
+
+<app-ai-image-gallery
+  [galleryState]="galleryState$ | async"
+  [errorState]="errorState$ | async"
+  (imageSelected)="selectImage($event)"
+  (expandDone)="onExpandDone($event)"
+  (retryRequested)="generateImages()">
+</app-ai-image-gallery>
+
+<!-- Selected generated image section -->
+<app-ai-selected-image
+  [selectedImageIndex]="(galleryState$ | async)?.selectedImageIndex ?? null"
+  [selectedImageUrl]="selectedImageUrl$ | async"
+  [ratingState]="ratingState$ | async"
+  [removeBackgroundButtonText]="removeBackgroundButtonText"
+  [isLoading]="(galleryState$ | async)?.isLoading"
+  [accessPoint]="accessPoint"
+  (saveRequested)="onSave()"
+  (removeBackgroundRequested)="onRemoveBackground()"
+  (downloadRequested)="downloadPng()"
+  (importToDesignerRequested)="importToDesigner()"
+  (closeRequested)="closeSelected()"
+  (ratingChanged)="onRatingChanged($event)">
+</app-ai-selected-image>
+
+<mat-form-field style="width:100%" appearance="fill">
+  <textarea matInput placeholder="Describe your symbol" [(ngModel)]="prompt" style="height: 40px; resize: none;"></textarea>
+</mat-form-field>
+
+<!-- AI Controls -->
+<app-ai-controls
+  [generateButtonText]="'Generate Images'"
+  [generateButtonDisabled]="prompt.length < 1 || (galleryState$ | async)?.isLoading"
+  (generateClicked)="generateImages()"
+  (examplesClicked)="onExamplesClicked()">
+</app-ai-controls>

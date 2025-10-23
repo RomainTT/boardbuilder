@@ -27,7 +27,17 @@ export class MediaService {
   add(file: File|Blob, canvas?: File|Blob): Observable<Media> {
     const formData: FormData = new FormData();
 
-    const fileName = file instanceof File ? file.name : 'file.svg';
+    // Use the file's own name if it's a File object, otherwise generate a proper name for blobs
+    let fileName: string;
+    if (file instanceof File) {
+      fileName = file.name;
+    } else {
+      // For legacy blob support, use proper extension based on MIME type
+      const mimeType = file.type || 'image/png';
+      const extension = this.getExtensionFromMimeType(mimeType);
+      fileName = `file.${extension}`;
+    }
+
     formData.append('file', file, fileName);
 
     if (canvas) { formData.append('canvas', canvas, 'canvas.json'); }
@@ -36,10 +46,47 @@ export class MediaService {
       .pipe(map(data => new Media().deserialise(data)));
   }
 
+  /**
+   * Get file extension from MIME type
+   * @private
+   */
+  private getExtensionFromMimeType(mimeType: string): string {
+    const mimeToExt: { [key: string]: string } = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg'
+    };
+    return mimeToExt[mimeType] || 'png';
+  }
+
   update(record: Media, file?: File|Blob, canvas?: File|Blob): Observable<Media> {
     const formData: FormData = new FormData();
 
-    if (file)   { formData.append('file', file, 'file.svg'); }
+    if (file) {
+      // Use the file's own name if it's a File object, otherwise generate a proper name for blobs
+      let fileName: string;
+      if (file instanceof File) {
+        fileName = file.name;
+      } else {
+        // For legacy blob support, use proper extension based on MIME type
+        const mimeType = file.type || 'image/png';
+        const extension = this.getExtensionFromMimeType(mimeType);
+        fileName = `file.${extension}`;
+      }
+
+      console.log('[MediaService] Update file info:', {
+        isFile: file instanceof File,
+        originalName: file instanceof File ? file.name : 'N/A',
+        usedName: fileName,
+        mimeType: file.type
+      });
+
+      formData.append('file', file, fileName);
+    }
+
     if (canvas) { formData.append('canvas', canvas, 'canvas.json'); }
 
     return this.http.patch<Media>(`${this.apiEndpoint}/${record.id}`, formData)
