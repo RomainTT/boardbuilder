@@ -5,15 +5,15 @@
       "defaultValue": ""
     },
     "loraAdapter": "mulberry_v4",
-    "prompt": "<culture-placeholder></culture-placeholder>  Image should be 400 pixels wide."
+    "prompt": "<culture-placeholder></culture-placeholder>.  Image should be 400 pixels wide."
   },
-  "Arasaac": {
+  "ARASAAC": {
     "culture": {
       "enabled": true,
       "defaultValue": ""
     },
     "loraAdapter": "arasaac_v4",
-    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
+    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>."
   },
   "Tawasol": {
     "culture": {
