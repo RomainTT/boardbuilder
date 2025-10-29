@@ -24,7 +24,11 @@
         {{filename}}
         <ng-container *ngIf="!filename" i18n="OBF Upload Dialog select OBF button">Select OBF&hellip;</ng-container>
       </button>
+
     </div>
+
+    <p style="font-weight: bold;font-size: 13px;color: #b42e2e;">Please note, your obf upload should match your current board layout.</p>
+
 
     <p *ngIf="previewBoard" role="alert" i18n="OBF Upload Dialog scan results">
       We found {{previewBoard.cells.length}} {previewBoard.cells.length, plural, =1 {cell} other {cells}} in your OBF file.
