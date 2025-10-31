@@ -72,7 +72,10 @@ loadMedia(selectMediaAfterLoad?: Media): void {
     this.loadingMedia = true;
     this.service.list().subscribe(media => {
       this.loadingMedia = false;
-      this.media = media; // Update the array directly
+      // Sort by creation date (newest first) and limit to 250 items
+      this.media = media
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 250);
       if (selectMediaAfterLoad) { this.mediaSelect.emit(selectMediaAfterLoad); }
     }, error => {
       this.loadingMediaError = true;
