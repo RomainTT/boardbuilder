@@ -5,7 +5,7 @@
       "defaultValue": ""
     },
     "loraAdapter": "mulberry_v4",
-    "prompt": "<culture-placeholder></culture-placeholder>.  Image should be 400 pixels wide."
+    "prompt": "<culture-placeholder></culture-placeholder>"
   },
   "ARASAAC": {
     "culture": {
@@ -13,7 +13,7 @@
       "defaultValue": ""
     },
     "loraAdapter": "arasaac_v4",
-    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>."
+    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>"
   },
   "Tawasol": {
     "culture": {
@@ -21,7 +21,7 @@
       "defaultValue": ""
     },
     "loraAdapter": "tawasol_v4",
-    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
+    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>"
   },
   "Jellow": {
     "culture": {
@@ -29,7 +29,7 @@
       "defaultValue": ""
     },
     "loraAdapter": "jellow_v4",
-    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
+    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>"
   },
   "Dyvogra": {
     "culture": {
@@ -37,7 +37,15 @@
       "defaultValue": ""
     },
     "loraAdapter": "DYVOGRA_v4",
-    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>. Image should be 400 pixels wide."
+    "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>"
+  },
+  "PiCom": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>. No shadow, no highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
   },
   "Realistic": {
     "culture": {
@@ -53,6 +61,6 @@
       "defaultValue": ""
     },
     "loraAdapter": "",
-    "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Image should be 400 pixels wide. Minimalist pictures. Do not show any text labels."
+    "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Minimalist pictures. Do not show any text labels."
   }
 }
