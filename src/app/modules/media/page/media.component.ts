@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {Media} from '@data/models/media.model';
 import {MediaService} from '@data/services/media.service';
@@ -15,18 +15,22 @@ export class MediaComponent implements OnInit, OnDestroy {
 
   media: Media[];
   loading: boolean;
+  pageIndex = 0; // zero-based for paginator
+  pageSize = 50;
+  length = 0;
   private subscription?: Subscription;
 
   constructor(
     private service: MediaService,
     private dialogService: DialogService,
     private mediaUpdateService: MediaUpdateService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadMedia();
+    this.loadPage(0, this.pageSize);
     this.subscription = this.mediaUpdateService.mediaUpdated$.subscribe(media => {
-      this.loadMedia(); // Reload media list when new media is created
+      this.loadPage(0, this.pageSize); // Reload first page when new media is created
     });
   }
 
@@ -34,12 +38,31 @@ export class MediaComponent implements OnInit, OnDestroy {
     this.subscription?.unsubscribe();
   }
 
-  loadMedia(): void {
+  onPageChange(event: any): void {
+    console.log('Page change event:', event);
+    this.loadPage(event.pageIndex, event.pageSize);
+  }
+
+  loadPage(index = this.pageIndex, size = this.pageSize): void {
     this.loading = true;
-    this.service.list().subscribe(
-      media => this.media = media,
-      error => null,
-      () => this.loading = false
+    this.service.listPaged({ page: index + 1, perPage: size }).subscribe(
+      ({ items, total }) => {
+        console.log('Pagination data:', { items: items.length, total, page: index + 1, perPage: size });
+        this.loading = false;
+
+        // Update component properties
+        this.pageIndex = index;
+        this.pageSize = size;
+        this.length = total;
+        this.media = items;
+
+        // Force change detection to update the paginator
+        this.cdr.detectChanges();
+      },
+      error => {
+        this.loading = false;
+        console.log('Media load error:', error);
+      }
     );
   }
 
@@ -68,7 +91,7 @@ export class MediaComponent implements OnInit, OnDestroy {
   openSymbolCreator(media?: Media) {
     this.dialogService.openSymbolCreator({ data: { media } }).afterClosed().subscribe(mediaItem => {
       // Reload the Media list
-      if (mediaItem) { this.loadMedia(); }
+      if (mediaItem) { this.loadPage(0, this.pageSize); }
     });
   }
 

@@ -43,7 +43,7 @@
 <div class="mt-2">
   <div fxLayoutGap="10px grid" fxLayout="row wrap" *ngIf="!(loadingMedia)">
 
-    <div fxFlex="25" *ngIf="showCreate">
+    <div fxFlex="25" *ngIf="showCreate && pageIndex === 0">
       <button fxFlex mat-flat-button color="primary" (click)="openSymbolCreator()" class="p-1 create-symbol-button"
               matTooltip="Create Symbol" i18n-matTooltip="create symbol|Create Symbol" matTooltipPosition="left"
               aria-label="Create Symbol" i18n-aria-label="create symbol|Create Symbol"
@@ -57,7 +57,7 @@
     <div fxFlex="25" *ngFor="let mediaItem of media">
       <button fxFlex mat-stroked-button color="primary" (click)="mediaSelect.emit(mediaItem)" class="image-button" appStopPropagation
       >
-        <img mat-card-image [src]="mediaItem.public_url"/>
+        <img mat-card-image [src]="mediaItem.public_url" [alt]="mediaItem.format || 'Media'"/>
       </button>
     </div>
   </div>
@@ -66,6 +66,11 @@
                       i18n-action="loading|Loading" i18n-subject="images|Images"
   ></app-loading-notice>
 </div>
+
+<mat-paginator [length]="length" [pageIndex]="pageIndex" [pageSize]="pageSize"
+               [pageSizeOptions]="[10, 50, 100]"
+               (page)="onPageChange($event)">
+</mat-paginator>
 
 <input type="file" #fileUpload name="fileUpload" accept=".svg,.png,.jpg,.jpeg,.gif" style="display:none;"
        (change)="selectFile()"/>

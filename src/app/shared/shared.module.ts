@@ -49,6 +49,7 @@ import { AiSelectedImageComponent } from './components/ai-selected-image/ai-sele
 import { AiControlsComponent } from './components/ai-controls/ai-controls.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ImageActionDialogComponent } from './components/image-action-dialog/image-action-dialog.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
@@ -118,7 +119,8 @@ import { ImageActionDialogComponent } from './components/image-action-dialog/ima
         MatSlideToggleModule,
         HotkeyModule,
         MatSnackBarModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatPaginatorModule
     ]
 })
 export class SharedModule { }

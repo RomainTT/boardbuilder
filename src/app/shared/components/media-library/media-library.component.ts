@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {Media} from '@data/models/media.model';
 import {MediaService} from '@data/services/media.service';
 import {DialogService} from '@app/services/dialog.service';
@@ -28,6 +28,9 @@ export class MediaLibraryComponent implements OnInit {
   loadingMedia = false;
   loadingMediaError = false;
   media: Media[];
+  pageIndex = 0; // zero-based for paginator
+  pageSize = 50;
+  length = 0;
 
   uploadStatus: UploadStatus;
   uploadError?: UploadErrorReason;
@@ -48,15 +51,38 @@ export class MediaLibraryComponent implements OnInit {
   constructor(
     private service: MediaService,
     private dialogService: DialogService,
-    private mediaUpdateService: MediaUpdateService
+    private mediaUpdateService: MediaUpdateService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
-    this.loadMedia();
+    this.loadPage(0, this.pageSize);
     this.resetUploadStatus();
     this.subscription = this.mediaUpdateService.mediaUpdated$.subscribe(media => {
-      this.loadMedia(media); // Reload with new media
+      this.loadPage(0, this.pageSize, media); // Reload first page to show newest
     });
+  }
+
+  onPageChange(event: any): void {
+    console.log('Page change event:', event);
+    console.log('Event details:', {
+      pageIndex: event.pageIndex,
+      pageSize: event.pageSize,
+      length: event.length,
+      previousPageIndex: event.previousPageIndex
+    });
+    this.loadPage(event.pageIndex, event.pageSize);
+  }
+
+  // Debug method to check current pagination state
+  get paginationState() {
+    return {
+      pageIndex: this.pageIndex,
+      pageSize: this.pageSize,
+      length: this.length,
+      mediaCount: this.media?.length || 0,
+      hasMultiplePages: (this.length || 0) > (this.pageSize || 10)
+    };
   }
 
   // loadMedia(selectMediaAfterLoad?: Media): void {
@@ -68,15 +94,24 @@ export class MediaLibraryComponent implements OnInit {
   //   }, error => this.loadingMediaError = true);
   // }
 
-loadMedia(selectMediaAfterLoad?: Media): void {
+  loadPage(index = this.pageIndex, size = this.pageSize, selectMediaAfterLoad?: Media): void {
     this.loadingMedia = true;
-    this.service.list().subscribe(media => {
+    this.service.listPaged({ page: index + 1, perPage: size }).subscribe(({ items, total }) => {
+      console.log('Pagination data:', { items: items.length, total, page: index + 1, perPage: size });
       this.loadingMedia = false;
-      // Sort by creation date (newest first) and limit to 250 items
-      this.media = media
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 250);
+
+      // Update component properties
+      this.pageIndex = index;
+      this.pageSize = size;
+      this.length = total;
+      this.media = items;
+
       if (selectMediaAfterLoad) { this.mediaSelect.emit(selectMediaAfterLoad); }
+
+      // Force change detection to update the paginator
+      this.cdr.detectChanges();
+
+      console.log('Change detection completed');
     }, error => {
       this.loadingMediaError = true;
       console.log('Media load error:', error);
@@ -140,7 +175,7 @@ loadMedia(selectMediaAfterLoad?: Media): void {
 
     currentDialogRef.afterClosed().subscribe(mediaItem => {
       // Reload the Media list
-      if (mediaItem) { this.loadMedia(mediaItem); }
+      if (mediaItem) { this.loadPage(0, this.pageSize, mediaItem); }
     });
   }
 
@@ -148,7 +183,7 @@ loadMedia(selectMediaAfterLoad?: Media): void {
     const currentDialogRef = this.dialogService.openSymbolCreatorAI(media, 'media');
 
     currentDialogRef.afterClosed().subscribe(mediaItem => {
-      if (mediaItem) { this.loadMedia(mediaItem); } // Match SymbolCreator pattern
+      if (mediaItem) { this.loadPage(0, this.pageSize, mediaItem); } // Match SymbolCreator pattern
     });
   }
 

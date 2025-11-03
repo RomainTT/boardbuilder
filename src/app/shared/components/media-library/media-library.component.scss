@@ -31,3 +31,32 @@
     font-size: 53px;
   }
 }
+
+// Enlarge paginator navigation arrows and push them up
+// ::ng-deep .mat-paginator .mat-button-base {
+//   margin-bottom: 20px !important;
+// }
+
+.mat-mdc-paginator-navigation-button {
+  .mat-icon {
+    font-size: 24px;
+  }
+}
+
+// // Target the actual SVG elements in paginator buttons with higher specificity
+// ::ng-deep .mat-paginator-icon {
+//   margin-top: -40px !important;
+//   transform: translateY(-14px) !important;
+// }
+
+// // Alternative: target through button hierarchy
+// ::ng-deep .mat-mdc-paginator-navigation-button .mat-paginator-icon {
+//   margin-top: -40px !important;
+//   transform: translateY(-14px) !important;
+// }
+
+// Most specific: target the SVG element directly
+::ng-deep .mat-paginator svg.mat-paginator-icon {
+  // margin-top: -40px !important;
+  height: auto;
+}

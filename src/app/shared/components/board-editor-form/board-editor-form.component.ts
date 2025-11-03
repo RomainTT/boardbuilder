@@ -50,10 +50,10 @@ export class BoardEditorFormComponent implements OnInit {
     setTimeout(() => this.titleField.nativeElement.select(), 500);
   }
 
-loadMedia(newMedia: Media) {
+  loadMedia(newMedia: Media) {
     console.log('loadMedia called in BoardEditor with newMedia:', newMedia);
-    this.mediaService.list().subscribe(updatedMedia => {
-      this.media = updatedMedia; // Refresh the media list
+    this.mediaService.listPaged({ page: 1, perPage: 1000 }).subscribe(({ items, total }) => {
+      this.media = items; // Refresh the media list
       console.log('BoardEditor media updated:', this.media);
       // Update UI to reflect new media in the board cell
     }, error => {

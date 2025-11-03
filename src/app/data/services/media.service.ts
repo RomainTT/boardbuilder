@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {environment} from '@env';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, catchError} from 'rxjs/operators';
 import {Media} from '@data/models/media.model';
 
 @Injectable({
@@ -17,6 +17,15 @@ export class MediaService {
   list(): Observable<Media[]> {
     return this.http.get<Media[]>(this.apiEndpoint)
       .pipe(map(arr => arr.map(item => new Media().deserialise(item))));
+  }
+
+  listPaged({ page, perPage, expand }: { page: number; perPage: number; expand?: string }): Observable<{ items: Media[]; total: number }> {
+    return this.http.get<{ items: any[]; total: number }>(this.apiEndpoint, {
+      params: { page: String(page), per_page: String(perPage), expand: expand || '' }
+    }).pipe(map(res => ({
+      items: (res.items || []).map(item => new Media().deserialise(item)),
+      total: res.total || 0
+    })));
   }
 
   get(id: number|string, expand = ''): Observable<Media> {

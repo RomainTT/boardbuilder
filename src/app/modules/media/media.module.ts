@@ -8,6 +8,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {FlexModule} from '@angular/flex-layout';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
+import {MatPaginatorModule} from '@angular/material/paginator';
 import {NgxFilesizeModule} from 'ngx-filesize';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {NgxGoogleAnalyticsModule} from 'ngx-google-analytics';
@@ -33,6 +34,7 @@ export const routes: Routes = [
         FlexModule,
         MatButtonModule,
         MatCardModule,
+        MatPaginatorModule,
         MatTooltipModule,
         NgxGoogleAnalyticsModule,
     ]
