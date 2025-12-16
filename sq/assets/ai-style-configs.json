@@ -39,13 +39,21 @@
     "loraAdapter": "DYVOGRA_v4",
     "prompt": "(avoid realistic images)<culture-placeholder></culture-placeholder>"
   },
-  "PiCom": {
+  "PiCom Cartoon": {
     "culture": {
       "enabled": true,
       "defaultValue": ""
     },
     "loraAdapter": "",
     "prompt": "Minimalist cartoon style with maximum 3 colors and thick black stroke outline<culture-placeholder></culture-placeholder>. No shadow, no highlight. on plain white background. simple details, simple color blocks, illustrations with simple strokes. Minimalist Picture. Image should be 400 pixels wide. Do not show any text labels."
+  },
+  "PiCom Cute": {
+    "culture": {
+      "enabled": true,
+      "defaultValue": ""
+    },
+    "loraAdapter": "",
+    "prompt": "<culture-placeholder></culture-placeholder>. Kawaii art style. On a white background."
   },
   "Realistic": {
     "culture": {
@@ -55,12 +63,12 @@
     "loraAdapter": "",
     "prompt": "<culture-placeholder></culture-placeholder>. Realistic image on a white background."
   },
-  "Base Symbol": {
+  "Vanilla": {
     "culture": {
       "enabled": true,
       "defaultValue": ""
     },
     "loraAdapter": "",
-    "prompt": "Minimalist vector style <culture-placeholder></culture-placeholder> with maximum 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Minimalist pictures. Do not show any text labels."
+    "prompt": "<culture-placeholder></culture-placeholder>. Minamilistic cartoon style, with thick stroke outlines on a white background."
   }
 }
