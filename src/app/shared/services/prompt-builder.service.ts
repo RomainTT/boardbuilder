@@ -63,7 +63,7 @@ export class PromptBuilderService {
   processedPrompt = processedPrompt.replace(/outline\.\s*\./g, 'outline.');
 
   // Combine userPrompt with processed prompt
-  const fullPrompt = `${userPrompt.trim()} ${processedPrompt.trim()}`.trim();
+  const fullPrompt = `${userPrompt.trim()}. ${processedPrompt.trim()}`.trim();
 
   return fullPrompt;
 
