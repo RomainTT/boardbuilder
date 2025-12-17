@@ -69,6 +69,6 @@
       "defaultValue": ""
     },
     "loraAdapter": "",
-    "prompt": "<culture-placeholder></culture-placeholder>. Minamilistic cartoon style, with thick stroke outlines on a white background."
+    "prompt": "<culture-placeholder></culture-placeholder>. Minimalist vector style with a maximum of 3 bold colors and a thick black stroke outline. Simple lines. Low detail. Simple color blocks. Do not show shadows. No highlight. No shadow. on plain white background. Minimalist pictures. Do not show any text labels."
   }
 }
