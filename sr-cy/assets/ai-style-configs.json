@@ -63,7 +63,7 @@
     "loraAdapter": "",
     "prompt": "<culture-placeholder></culture-placeholder>. Realistic image on a white background."
   },
-  "Vanilla": {
+  "Generic": {
     "culture": {
       "enabled": true,
       "defaultValue": ""
