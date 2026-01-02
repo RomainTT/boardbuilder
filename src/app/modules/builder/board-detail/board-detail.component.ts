@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
+import {animate, style, transition, trigger} from '@angular/animations';
 import {Board} from '@data/models/board.model';
 import {Cell} from '@data/models/cell.model';
 import {DialogService} from '@app/services/dialog.service';
@@ -8,7 +9,27 @@ import {BoardService} from '@data/services/board.service';
 @Component({
   selector: 'app-board-detail',
   templateUrl: './board-detail.component.html',
-  styleUrls: ['./board-detail.component.scss']
+  styleUrls: ['./board-detail.component.scss'],
+  animations: [
+    trigger('mediaCollapse', [
+      transition(':enter', [
+        style({height: 0, opacity: 0, transform: 'scale(0.98)'}),
+        animate('180ms ease-out', style({height: '*', opacity: 1, transform: 'scale(1)'}))
+      ]),
+      transition(':leave', [
+        style({height: '*', opacity: 1, transform: 'scale(1)'}),
+        animate('180ms ease-in', style({height: 0, opacity: 0, transform: 'scale(0.98)'}))
+      ])
+    ]),
+    trigger('captionTransition', [
+      transition('withImage => noImage', [
+        animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+      ]),
+      transition('noImage => withImage', [
+        animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+      ])
+    ])
+  ]
 })
 export class BoardDetailComponent implements OnChanges {
 

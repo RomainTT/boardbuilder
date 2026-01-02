@@ -30,16 +30,35 @@
                    gaCategory="CellEditor" gaEvent="open"
     >
 
-      <div *ngIf="board.cellLayout === 'column'" fxLayout="column" fxLayoutAlign="space-between stretch" fxFlex id="cellBox" class="tile-body">
+      <div *ngIf="board.cellLayout === 'column'"
+           fxLayout="column"
+           [fxLayoutAlign]="c.image_url ? 'space-between stretch' : 'center stretch'"
+           fxFlex
+           id="cellBox"
+           class="tile-body"
+           [class.has-image]="!!c.image_url"
+           [class.no-image]="!c.image_url"
+      >
 
-        <div fxFlexOrder="2">
-          <app-adaptable-image *ngIf="c.image_url" [adaptable]="c.picto?.adaptable" [cell]="c" [image]="c.image_url"></app-adaptable-image>
-<!--          <img      *ngIf="c.image_url" [src]="c.image_url"/>-->
+        <div fxFlexOrder="2"
+             class="cell-media"
+             *ngIf="c.image_url || (!c.image_url && !c.caption)"
+             [@mediaCollapse]
+        >
+          <app-adaptable-image *ngIf="c.image_url"
+                               [adaptable]="c.picto?.adaptable"
+                               [cell]="c"
+                               [image]="c.image_url"
+          ></app-adaptable-image>
           <mat-icon *ngIf="!c.image_url" class="placeholder">landscape</mat-icon>
         </div>
 
-        <div fxFlex fxLayout="row" fxLayoutAlign="space-between center"
+        <div fxFlex
+             fxLayout="row"
+             fxLayoutAlign="space-between center"
              [fxFlexOrder]="board.captions_position === 'above' ? 1 : 3"
+             class="cell-caption-row"
+             [@captionTransition]="c.image_url ? 'withImage' : 'noImage'"
 
         >
 
