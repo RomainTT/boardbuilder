@@ -38,7 +38,7 @@ export class CopyBoardSetDialogComponent {
   }
 
   openCopiedBoardSet() {
-    this.router.navigate(['/', 'boardsets', this.copiedBoardSet.id]);
+    this.router.navigate(['/', 'boardsets', this.copiedBoardSet.id], { queryParams: { copied: 'true' } });
     this.dialogRef.close();
   }
 }

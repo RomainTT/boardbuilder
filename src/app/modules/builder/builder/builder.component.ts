@@ -17,8 +17,8 @@ import {BoardService} from '@data/services/board.service';
 import {CellService} from '@data/services/cell.service';
 import {BoardSetEditorDialogComponent} from '../board-set-editor-dialog/board-set-editor-dialog.component';
 import {ToolbarService} from '@app/services/toolbar.service';
-import {Observable, throwError} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import {Observable, throwError, Subscription} from 'rxjs';
+import {catchError, map, switchMap} from 'rxjs/operators';
 import {CopyBoardSetDialogComponent} from '@shared/components/copy-board-set-dialog/copy-board-set-dialog.component';
 import {DialogService} from '@app/services/dialog.service';
 import {Cell} from '@data/models/cell.model';
@@ -50,6 +50,7 @@ export class BuilderComponent implements OnInit, OnDestroy {
 
   private currentDialogRef;
   private hotkeys: Array<Hotkey | Hotkey[]> = [];
+  private routeSubscription: Subscription;
 
   constructor(changeDetectorRef: ChangeDetectorRef,
               media: MediaMatcher,
@@ -75,9 +76,24 @@ export class BuilderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loading = true;
-    this.getBoardSet().subscribe(bs => {
-
+    // Subscribe to route parameter changes to handle navigation to copied boardsets
+    this.routeSubscription = this.route.paramMap.pipe(
+      switchMap(params => {
+        this.loading = true;
+        return this.boardSetService.get(params.get('id'), 'boards boards.cells boards.cells.picto boards.cells.picto.image boards.header_media')
+          .pipe(
+            catchError(e => {
+              this.loadingError = true;
+              this.loading = false;
+              return throwError(e);
+            }),
+            map(bs => {
+              this.loading = false;
+              return this.boardSet = bs;
+            })
+          );
+      })
+    ).subscribe(bs => {
       // Update the opened_at date, unless this is a readonly boardset
       if (!this.boardSet.readonly) {
         this.boardSetService.touch(this.boardSet).subscribe();
@@ -86,6 +102,19 @@ export class BuilderComponent implements OnInit, OnDestroy {
       // If there are any Boards, select the first one.
       if (this.boardSet.boards.length > 0) {
         this.selectBoard(this.boardSet.boards[0]);
+      }
+
+      // Check if this is a newly copied boardset and show notification
+      const copiedParam = this.route.snapshot.queryParamMap.get('copied');
+      if (copiedParam === 'true' && !this.boardSet.readonly) {
+        this.snackBar.open('This board is now editable', 'Dismiss', {
+          duration: 4000,
+        });
+        // Clear the query parameter to avoid showing the message again
+        this.router.navigate([], {
+          queryParams: { copied: null },
+          queryParamsHandling: 'merge'
+        });
       }
     },
       err => null,
@@ -166,6 +195,11 @@ export class BuilderComponent implements OnInit, OnDestroy {
 
     // Unassign all keyboard shortcuts
     [].concat(...this.hotkeys).map(hotkey => this.hotkeysService.remove(hotkey));
+
+    // Unsubscribe from route changes
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
   }
 
   // Gets the BoardSet and loads it into this.boardSet.
