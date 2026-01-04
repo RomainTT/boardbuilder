@@ -73,6 +73,9 @@
             <mat-checkbox [(ngModel)]="template.drawCellBorders" (change)="onSettingChanged()" i18n="cell draw outlines|PDF Cell Draw Borders">
               Cell Borders
             </mat-checkbox>
+            <mat-checkbox [(ngModel)]="template.showHeader" (change)="onSettingChanged()" i18n="show header|PDF Show Header" class="ml-3">
+              Show Header
+            </mat-checkbox>
           </div>
 
         </mat-expansion-panel>

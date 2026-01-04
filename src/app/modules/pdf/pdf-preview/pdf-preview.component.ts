@@ -96,6 +96,7 @@ export class PdfPreviewComponent implements OnInit {
         this.template.cellPadding = 10;
         this.template.cellSpacing = 10;
         this.template.drawCellBorders = true;
+        this.template.showHeader = false;
         this.template.imageTextSpacing = -1;
 
         this.loadPdf();
