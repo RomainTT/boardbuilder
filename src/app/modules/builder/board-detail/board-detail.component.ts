@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
+import {Component, EventEmitter, HostBinding, Input, OnChanges, Output} from '@angular/core';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {Board} from '@data/models/board.model';
 import {Cell} from '@data/models/cell.model';
@@ -41,6 +41,11 @@ export class BoardDetailComponent implements OnChanges {
   @Input() disableAnimations = true;
   @Output() cellChange = new EventEmitter<Cell>();
   @Output() boardChange = new EventEmitter<number>();
+
+  @HostBinding('class.disable-animations')
+  get disableAnimationsClass(): boolean {
+    return !!this.disableAnimations;
+  }
 
   constructor(
     private dialogService: DialogService,
