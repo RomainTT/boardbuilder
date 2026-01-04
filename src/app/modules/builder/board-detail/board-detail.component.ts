@@ -10,6 +10,9 @@ import {BoardService} from '@data/services/board.service';
   selector: 'app-board-detail',
   templateUrl: './board-detail.component.html',
   styleUrls: ['./board-detail.component.scss'],
+  host: {
+    '[@.disabled]': '!animationsEnabled'
+  },
   animations: [
     trigger('mediaCollapse', [
       transition(':enter', [
@@ -24,11 +27,11 @@ import {BoardService} from '@data/services/board.service';
     trigger('captionTransition', [
       transition('withImage => noImage', [
         style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('260ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('300ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ]),
       transition('noImage => withImage', [
         style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('260ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('300ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ])
     ])
   ]
