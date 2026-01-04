@@ -24,11 +24,11 @@ import {BoardService} from '@data/services/board.service';
     trigger('captionTransition', [
       transition('withImage => noImage', [
         style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('220ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('260ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ]),
       transition('noImage => withImage', [
         style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('220ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('260ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ])
     ])
   ]
@@ -41,6 +41,12 @@ export class BoardDetailComponent implements OnChanges {
   @Output() cellChange = new EventEmitter<Cell>();
   @Output() boardChange = new EventEmitter<number>();
 
+  /**
+   * Prevent entry/state-change animations on initial page load.
+   * Enabled only after user interaction with cells (e.g. selecting a cell).
+   */
+  animationsEnabled = false;
+
   constructor(
     private dialogService: DialogService,
     private boardService: BoardService
@@ -50,6 +56,7 @@ export class BoardDetailComponent implements OnChanges {
   }
 
   selectCell(cell: Cell) {
+    this.animationsEnabled = true;
     this.cellChange.emit(cell);
   }
 
