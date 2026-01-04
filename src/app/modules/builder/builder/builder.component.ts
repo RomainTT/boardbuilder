@@ -40,6 +40,7 @@ export class BuilderComponent implements OnInit, OnDestroy {
   loadingError = false;
 
   disableCellEditorAnimations = true;
+  disableBoardDetailAnimations = true;
 
   cellEditorMobileQuery: MediaQueryList;
   boardTreeMobileQuery: MediaQueryList;
@@ -234,6 +235,9 @@ export class BuilderComponent implements OnInit, OnDestroy {
   }
 
   selectBoard(board?: Board | number, cell?: Cell | number) {
+    // Prevent board detail animations when switching/loading boards.
+    // Animations are enabled only after the user interacts with a cell.
+    this.disableBoardDetailAnimations = true;
     if (typeof board === 'number') {
       this.board = this.boardSet.boards.find(b => b.id === board);
     } else {
@@ -245,6 +249,12 @@ export class BuilderComponent implements OnInit, OnDestroy {
     } else {
       this.selectedCell = undefined;
     }
+  }
+
+  onCellChange(cell: Cell) {
+    // User interaction: allow board-detail animations from now on.
+    this.disableBoardDetailAnimations = false;
+    this.selectedCell = cell;
   }
 
   selectLastBoard() {
