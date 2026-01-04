@@ -42,15 +42,14 @@
 
         <div fxFlexOrder="2"
              class="cell-media"
-             *ngIf="c.image_url || (!c.image_url && !c.caption)"
-             [@mediaCollapse]
+             [@mediaCollapse]="mediaAnimationState(c)"
         >
           <app-adaptable-image *ngIf="c.image_url"
                                [adaptable]="c.picto?.adaptable"
                                [cell]="c"
                                [image]="c.image_url"
           ></app-adaptable-image>
-          <mat-icon *ngIf="!c.image_url" class="placeholder">landscape</mat-icon>
+          <mat-icon *ngIf="!c.image_url && !c.caption" class="placeholder">landscape</mat-icon>
         </div>
 
         <div fxFlex
@@ -58,7 +57,7 @@
              fxLayoutAlign="space-between center"
              [fxFlexOrder]="board.captions_position === 'above' ? 1 : 3"
              class="cell-caption-row"
-             [@captionTransition]="c.image_url ? 'withImage' : 'noImage'"
+             [@captionTransition]="captionAnimationState(c)"
 
         >
 
