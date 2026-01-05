@@ -25,11 +25,9 @@ import {BoardService} from '@data/services/board.service';
     ]),
     trigger('captionTransition', [
       transition('withImage => noImage', [
-        style({opacity: 0, transform: 'translateY(6px)'}),
         animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ]),
       transition('noImage => withImage', [
-        style({opacity: 0, transform: 'translateY(6px)'}),
         animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ])
     ])
