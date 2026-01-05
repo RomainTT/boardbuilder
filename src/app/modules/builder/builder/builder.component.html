@@ -89,6 +89,7 @@
         [cell]="selectedCell"
         [readonly]="boardSet.readonly"
         (boardChange)="selectBoard($event)"
+        (cellChange)="selectCell($event)"
       ></app-board-detail>
     </mat-sidenav-content>
   </mat-sidenav-container>

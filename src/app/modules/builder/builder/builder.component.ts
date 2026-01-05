@@ -253,6 +253,10 @@ export class BuilderComponent implements OnInit, OnDestroy {
     }
   }
 
+  selectCell(cell: Cell) {
+    this.selectedCell = cell;
+  }
+
   closeCellEditor() {
     this.selectedCell = null;
   }
