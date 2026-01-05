@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {animate, state, style, transition, trigger} from '@angular/animations';
+import {animate, style, transition, trigger} from '@angular/animations';
 import {Board} from '@data/models/board.model';
 import {Cell} from '@data/models/cell.model';
 import {DialogService} from '@app/services/dialog.service';
@@ -12,29 +12,21 @@ import {BoardService} from '@data/services/board.service';
   styleUrls: ['./board-detail.component.scss'],
   animations: [
     trigger('mediaCollapse', [
-      state('shown', style({height: '*', opacity: 1, transform: 'scale(1)'})),
-      state('hidden', style({height: 0, opacity: 0, transform: 'scale(0.98)', overflow: 'hidden'})),
-
-      // Never animate on initial render (e.g. refresh/data hydration).
-      transition('void => *', []),
-      transition('* => void', []),
-
-      // Only animate when toggling visibility after initial render.
-      transition('hidden => shown', animate('180ms ease-out')),
-      transition('shown => hidden', animate('180ms ease-in'))
+      transition(':enter', [
+        style({height: 0, opacity: 0, transform: 'scale(0.98)'}),
+        animate('180ms ease-out', style({height: '*', opacity: 1, transform: 'scale(1)'}))
+      ]),
+      transition(':leave', [
+        style({height: '*', opacity: 1, transform: 'scale(1)'}),
+        animate('180ms ease-in', style({height: 0, opacity: 0, transform: 'scale(0.98)'}))
+      ])
     ]),
     trigger('captionTransition', [
-      // Never animate on initial render (e.g. refresh/data hydration).
-      transition('void => *', []),
-      transition('* => void', []),
-
       transition('withImage => noImage', [
-        style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('300ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ]),
       transition('noImage => withImage', [
-        style({opacity: 0, transform: 'translateY(6px)'}),
-        animate('300ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
+        animate('180ms ease-out', style({opacity: 1, transform: 'translateY(0)'}))
       ])
     ])
   ]
@@ -53,10 +45,6 @@ export class BoardDetailComponent implements OnChanges {
   ) { }
 
   ngOnChanges() {
-  }
-
-  showMedia(cell: Cell): boolean {
-    return !!cell?.image_url || (!cell?.image_url && !cell?.caption);
   }
 
   selectCell(cell: Cell) {
