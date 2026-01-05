@@ -1,21 +1,5 @@
 @import "~app/shared/variables";
 
-:host.disable-animations {
-  // Strongly suppress any motion during initial load/refresh.
-  // (Angular animations set inline styles; `!important` is needed to override them.)
-  .cell-media,
-  .cell-caption-row {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  .cell-media *,
-  .cell-caption-row * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
 mat-grid-tile {
   position: absolute;
   text-align: center;

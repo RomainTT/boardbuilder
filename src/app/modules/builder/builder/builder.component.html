@@ -87,11 +87,8 @@
       <app-board-detail
         [board]="board"
         [cell]="selectedCell"
-        (cellChange)="onCellChange($event)"
-        [disableAnimations]="disableBoardDetailAnimations"
         [readonly]="boardSet.readonly"
         (boardChange)="selectBoard($event)"
-        [@.disabled]="disableBoardDetailAnimations"
       ></app-board-detail>
     </mat-sidenav-content>
   </mat-sidenav-container>

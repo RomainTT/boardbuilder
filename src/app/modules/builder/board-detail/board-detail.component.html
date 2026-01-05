@@ -40,43 +40,25 @@
            [class.no-image]="!c.image_url"
       >
 
-        <ng-container *ngIf="c.image_url || (!c.image_url && !c.caption)">
-          <!-- No animations on initial load/refresh -->
-          <div *ngIf="disableAnimations; else animatedMedia"
-               fxFlexOrder="2"
-               class="cell-media"
-          >
-            <app-adaptable-image *ngIf="c.image_url"
-                                 [adaptable]="c.picto?.adaptable"
-                                 [cell]="c"
-                                 [image]="c.image_url"
-            ></app-adaptable-image>
-            <mat-icon *ngIf="!c.image_url" class="placeholder">landscape</mat-icon>
-          </div>
+        <div fxFlexOrder="2"
+             class="cell-media"
+             [@mediaCollapse]="showMedia(c) ? 'shown' : 'hidden'"
+        >
+          <app-adaptable-image *ngIf="c.image_url"
+                               [adaptable]="c.picto?.adaptable"
+                               [cell]="c"
+                               [image]="c.image_url"
+          ></app-adaptable-image>
+          <mat-icon *ngIf="!c.image_url && !c.caption" class="placeholder">landscape</mat-icon>
+        </div>
 
-          <!-- Animated version (only after user interaction) -->
-          <ng-template #animatedMedia>
-            <div fxFlexOrder="2"
-                 class="cell-media"
-                 [@mediaCollapse]
-            >
-              <app-adaptable-image *ngIf="c.image_url"
-                                   [adaptable]="c.picto?.adaptable"
-                                   [cell]="c"
-                                   [image]="c.image_url"
-              ></app-adaptable-image>
-              <mat-icon *ngIf="!c.image_url" class="placeholder">landscape</mat-icon>
-            </div>
-          </ng-template>
-        </ng-container>
-
-        <!-- No animations on initial load/refresh -->
-        <div *ngIf="disableAnimations; else animatedCaption"
-             fxFlex
+        <div fxFlex
              fxLayout="row"
              fxLayoutAlign="space-between center"
              [fxFlexOrder]="board.captions_position === 'above' ? 1 : 3"
              class="cell-caption-row"
+             [@captionTransition]="c.image_url ? 'withImage' : 'noImage'"
+
         >
 
           <button mat-icon-button *ngIf="c.linked_board_id"
@@ -93,32 +75,6 @@
             <mat-icon>link</mat-icon>
           </button>
         </div>
-
-        <!-- Animated version (only after user interaction) -->
-        <ng-template #animatedCaption>
-          <div fxFlex
-               fxLayout="row"
-               fxLayoutAlign="space-between center"
-               [fxFlexOrder]="board.captions_position === 'above' ? 1 : 3"
-               class="cell-caption-row"
-               [@captionTransition]="c.image_url ? 'withImage' : 'noImage'"
-          >
-
-            <button mat-icon-button *ngIf="c.linked_board_id"
-                    [style.visibility]="'hidden'">
-              <mat-icon>link</mat-icon>
-            </button>
-
-            <span fxFlex="grow" [style.color]="c.text_colour" *ngIf="board.captions_position != 'hidden'">{{c.caption}}</span>
-
-            <button mat-icon-button *ngIf="c.linked_board_id"
-                    [style.visibility]="c.linked_board_id ? 'visible' : 'hidden'"
-                    (click)="showBoard(c.linked_board_id)"
-                    matTooltip="Go to Linked Board" i18n-matTooltip="go to linked board|Board Cell Go to Linked Board button">
-              <mat-icon>link</mat-icon>
-            </button>
-          </div>
-        </ng-template>
       </div>
 
 
