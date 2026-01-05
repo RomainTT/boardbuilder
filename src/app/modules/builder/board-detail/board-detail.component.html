@@ -43,7 +43,7 @@
         <div fxFlexOrder="2"
              class="cell-media"
              *ngIf="c.image_url || (!c.image_url && !c.caption)"
-             [@mediaCollapse]
+             [@mediaCollapse]="isInitialLoad ? 'initial' : 'animate'"
         >
           <app-adaptable-image *ngIf="c.image_url"
                                [adaptable]="c.picto?.adaptable"
