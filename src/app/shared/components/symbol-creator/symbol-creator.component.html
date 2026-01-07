@@ -37,8 +37,8 @@
           <mat-icon>align_vertical_center</mat-icon>
         </button>
 
-        <button mat-icon-button
-                aria-label="Flip Horizontal" matTooltip="Flip Horizontal" color="primary"
+        <button mat-icon-button (click)="flip('horizontal')" color="primary" [disabled]="selectedElements.length != 1"
+                aria-label="Flip Horizontal" matTooltip="Flip Horizontal"
                 i18n-aria-label="flip horizontal|Flip Horizontal" i18n-matTooltip="flip horizontal|Flip Horizontal"
                 gaEvent="click" gaLabel="FlipHorizontal">
           <mat-icon>flip</mat-icon>
