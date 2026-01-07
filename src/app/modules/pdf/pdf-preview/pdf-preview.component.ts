@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {BoardService} from '@data/services/board.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
@@ -18,7 +18,7 @@ import {ApiError} from '@data/interfaces/api-error.interface';
   templateUrl: './pdf-preview.component.html',
   styleUrls: ['./pdf-preview.component.scss']
 })
-export class PdfPreviewComponent implements OnInit {
+export class PdfPreviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private boardService: BoardService,
@@ -52,7 +52,8 @@ export class PdfPreviewComponent implements OnInit {
   template: Template;
 
   board: Board;
-  compiledPdf = 'about:blank';
+  compiledPdfUrl = 'about:blank';
+  private compiledPdfBlob: Blob | null = null;
   apiError: ApiError;
 
   pdfEmbedWidth = 1000;
@@ -115,10 +116,13 @@ export class PdfPreviewComponent implements OnInit {
 
     this.setEmbedHeight();
 
-    this.boardService.pdf(this.route.snapshot.paramMap.get('board_id'), this.template)
-      .then(pdfData => {
+    // Revoke any previous object URL before generating a new one.
+    this.revokeCompiledPdfUrl();
 
-        this.compiledPdf = pdfData;
+    this.boardService.pdfBlob(this.route.snapshot.paramMap.get('board_id'), this.template)
+      .then(blob => {
+        this.compiledPdfBlob = blob;
+        this.compiledPdfUrl = URL.createObjectURL(blob);
 
         // const clone = this.pdfFrame.nativeElement.cloneNode(true);
         // clone.setAttribute('src', this.compiledPdf);
@@ -147,7 +151,12 @@ export class PdfPreviewComponent implements OnInit {
   }
 
   downloadPdf() {
-    saveAs(this.compiledPdf, `${this.board.name}.pdf`);
+    if (this.compiledPdfBlob) {
+      saveAs(this.compiledPdfBlob, `${this.board.name}.pdf`);
+    } else if (this.compiledPdfUrl) {
+      // Fallback: file-saver can also accept a URL string in some cases.
+      saveAs(this.compiledPdfUrl, `${this.board.name}.pdf`);
+    }
   }
 
   returnToBoard() {
@@ -158,6 +167,18 @@ export class PdfPreviewComponent implements OnInit {
     } else {
       this.location.back();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.revokeCompiledPdfUrl();
+  }
+
+  private revokeCompiledPdfUrl(): void {
+    if (this.compiledPdfUrl && this.compiledPdfUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(this.compiledPdfUrl);
+    }
+    this.compiledPdfUrl = 'about:blank';
+    this.compiledPdfBlob = null;
   }
 
 }

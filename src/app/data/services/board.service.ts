@@ -58,19 +58,29 @@ export class BoardService {
       .pipe(map(data => new Board().deserialise(data)));
   }
 
-  pdf(id: number|string, template?: Template): Promise<string> {
-    // return this.base64Service.getFromURL(`${this.apiEndpoint}/${id}/pdf`, template);
-
+  /**
+   * Fetch compiled PDF as a Blob.
+   * Prefer this for previewing via URL.createObjectURL(blob) instead of base64 data URLs.
+   */
+  pdfBlob(id: number|string, template?: Template): Promise<Blob> {
     return this.http.post(`${this.apiEndpoint}/${id}/pdf`, template, {
       responseType: 'blob'
-    }).toPromise().then(blob => {
+    }).toPromise();
+  }
+
+  /**
+   * Legacy: fetch compiled PDF and convert to a base64 data URL.
+   * Consider using pdfBlob() + URL.createObjectURL(blob) instead.
+   */
+  pdf(id: number|string, template?: Template): Promise<string> {
+    return this.pdfBlob(id, template).then(blob => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = reject;
         reader.onload = () => {
-          resolve(reader.result.toString());
+          resolve(reader.result?.toString() || '');
         };
-        return reader.readAsDataURL(blob);
+        reader.readAsDataURL(blob);
       });
     });
   }

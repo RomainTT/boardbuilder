@@ -115,7 +115,7 @@
     </div>
 
     <object [style.visibility]="status === 'success' ? 'visible' : 'hidden'"
-            [data]="compiledPdf | bypassSanitiser: 'resourceUrl'" style="max-width: 1000px; width: 100%" [height]="pdfEmbedHeight"></object>
+            [data]="compiledPdfUrl | bypassSanitiser: 'resourceUrl'" style="max-width: 1000px; width: 100%" [height]="pdfEmbedHeight"></object>
 <!--    <embed [style.visibility]="status === 'success' ? 'visible' : 'hidden'" [hidden]="status != 'success'" [src]="compiledPdf | bypassSanitiser: 'resourceUrl'" style="max-width: 1000px; width: 100%" [height]="pdfEmbedHeight"/>-->
   </div>
 </div>
