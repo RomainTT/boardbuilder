@@ -81,6 +81,21 @@
         </mat-expansion-panel>
       </mat-accordion>
 
+      <!-- Symbolset Information -->
+      <div *ngIf="boardHasPictos" class="symbolset-info mt-2 mb-3">
+        <p i18n="symbolset license notice|Legal notice about symbol licensing">Printing, copying and/or sharing of AAC
+          symbols is permitted only as allowed by their licence. Please respect the intellectual property
+          and rights of symbol creators.</p>
+        <h3 class="symbolset-title" i18n="symbolsets used|Symbolsets Used">Symbolsets Used</h3>
+        <div class="symbolset-list">
+          <div *ngFor="let info of symbolsetInfo" class="symbolset-item">
+            <a [href]="info.symbolset.publisher_url" target="_blank" rel="noopener noreferrer" class="symbolset-link">
+              {{info.symbolset.name}} symbol{{info.count > 1 ? 's' : ''}} {{info.symbolset.licence.name}}
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div fxLayoutAlign="space-between center" class="mt-2">
         <div class="mb-1">
           <button mat-raised-button [disabled]="status != 'success'" (click)="downloadPdf()" color="primary" class="mr-2" i18n="download|Download">

@@ -26,7 +26,11 @@ export class Board extends Record implements Deserialisable {
 
   deserialise(input: Partial<Board>): this {
     const object = Object.assign(this, input);
-    if (input.cells) { this.cells = input.cells.map(cell => new Cell().deserialise(cell)); }
+    if (input.cells) {
+      this.cells = input.cells.map(cell => new Cell().deserialise(cell));
+    }
+    // Always populate cells after deserialization to ensure we have the right number
+    this.populateCells();
     return this;
   }
 
