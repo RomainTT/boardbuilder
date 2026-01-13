@@ -257,7 +257,7 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
       if (media?.canvas_url) {
         this.addObjectsFromMedia(media);
       } else if (media?.public_url) {
-        this.addImage(this.bustCorsCache(media.public_url));
+        this.addImageFromMedia(media);
       }
     });
   }
@@ -272,8 +272,79 @@ export class SymbolCreatorComponent implements OnInit, OnDestroy {
     });
   }
 
-  addImage(imageUrl: string): void {
+  addImageFromMedia(media: Media): void {
+    const imageUrl = this.bustCorsCache(media.public_url);
+    const mimeType = media.format;
 
+    if (mimeType === 'image/svg+xml') {
+      // Load the SVG as a collection of objects in the canvas
+      fabric.loadSVGFromURL(imageUrl, (objects, options) => {
+        // const shape = fabric.util.groupSVGElements(objects, {...options});
+        const shape = new fabric.Group(objects, {...options});
+
+        // Set the shape size to fit the canvas.
+        let scaleFactor = 1;
+        if (shape.height >= shape.width) {
+          // Height is longest edge
+          scaleFactor = (this.height / 2) / shape.height;
+        } else {
+          // Width is longest edge
+          scaleFactor = (this.width / 2) / shape.width;
+        }
+
+        // Scale the shape and move it to the centre of the canvas.
+        shape.set({
+          scaleX: scaleFactor,
+          scaleY: scaleFactor,
+          top:  (this.height / 2) - ((shape.height * scaleFactor) / 2),
+          left: (this.width / 2) - ((shape.width * scaleFactor) / 2)
+        });
+
+        this.addShape(shape);
+
+      }, (element, object) => {
+        // The SVG standard states that <path>s should receive a default black fill if no fill is specified.
+        // FabricJS doesn't render this default fill, so we add it here when the element is revived.
+        if (object.get('type') === 'path' && object.fill === 'transparent' && object.stroke === 'transparent') {
+          object.fill = 'black';
+        }
+      });
+
+    } else {
+      // Load all other images as Image DOM elements
+      this.imageService.getFromURL(imageUrl).then(base64 => {
+
+        const image = new Image();
+        image.onload = () => {
+
+          const options = {
+            scaleX: 1,
+            scaleY: 1
+          };
+
+          // If the image is square or taller than it is wide...
+          if (image.naturalHeight >= image.naturalWidth) {
+            // Shrink it to fit 50% of the canvas height
+            options.scaleY = (this.height / 2) / image.naturalHeight;
+            options.scaleX = (options.scaleY);
+
+          } else {
+            // Otherwise, shrink it to fit 50% of the canvas width
+            options.scaleX = (this.width / 2) / image.naturalWidth;
+            options.scaleY = (options.scaleX);
+          }
+
+          this.addShape(new fabric.Image(image, options));
+        };
+        image.src = base64.toString();
+      }, error => this.errorLoadingImage('Failure loading image.'));
+    }
+  }
+
+  // Keep the old addImage method for backward compatibility
+  addImage(imageUrl: string): void {
+    // This method is now deprecated - use addImageFromMedia instead
+    // For now, we'll keep it to avoid breaking other parts of the code
     this.imageService.getMimeType(imageUrl).subscribe(mimeType => {
       if (mimeType === 'image/svg+xml') {
         // Load the SVG as a collection of objects in the canvas
