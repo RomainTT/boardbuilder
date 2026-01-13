@@ -75,20 +75,16 @@ export class PdfPreviewComponent implements OnInit, OnDestroy {
   // @ViewChild('pdfObject') pdfObject: ElementRef;
 
   ngOnInit() {
-
-    // this.compiledPdf = this.sanitiser.bypassSecurityTrustResourceUrl(null);
-
-    this.boardService.get(this.route.snapshot.paramMap.get('board_id'))
+    // Request board data with expansion to include picto/symbol information
+    this.boardService.get(this.route.snapshot.paramMap.get('board_id'), 'cells cells.picto')
       .subscribe({
         next: (board) => {
-          console.log('✅ [PDF Preview] Board loaded:', board.name, `(${board.cells?.length || 0} cells)`);
           this.board = board;
-
           this.loadSymbolsets();
           this.setTemplateDefaults();
         },
         error: (error) => {
-          console.error('❌ [PDF Preview] Failed to load board:', error);
+          console.error('Failed to load board:', error);
         }
       });
 
@@ -177,96 +173,56 @@ export class PdfPreviewComponent implements OnInit, OnDestroy {
   }
 
   loadSymbolsets() {
-    console.log('🔍 [PDF Preview] Loading symbolsets...');
     this.globalSymbolsService.getSymbolSets().subscribe({
       next: (symbolsets) => {
-        console.log('✅ [PDF Preview] Symbolsets loaded:', symbolsets?.length || 0);
         this.symbolsets = symbolsets;
-        console.log('🔄 [PDF Preview] Calling processSymbolsetInfo...');
         this.processSymbolsetInfo();
       },
       error: (error) => {
-        console.error('❌ [PDF Preview] Symbolsets API failed:', error);
+        console.error('Failed to load symbolsets:', error);
       }
     });
   }
 
   processSymbolsetInfo() {
-    console.log('🔄 [PDF Preview] processSymbolsetInfo called');
-
     if (!this.board || !this.symbolsets.length) {
-      console.log('⚠️ [PDF Preview] Missing prerequisites:', { board: !!this.board, symbolsets: this.symbolsets?.length || 0 });
       return;
     }
 
-    console.log('📊 [PDF Preview] Board has', this.board.cells?.length || 0, 'cells');
-
-    // Debug: Check what's actually in the cells
-    console.log('🔍 [PDF Preview] Inspecting first 3 cells:');
-    this.board.cells.slice(0, 3).forEach((cell, index) => {
-      console.log(`   Cell ${index}:`, {
-        hasPicto: !!cell.picto,
-        hasImageUrl: !!cell.image_url,
-        pictoData: cell.picto ? {
-          id: cell.picto.id,
-          symbolset_id: cell.picto.symbolset_id,
-          part_of_speech: cell.picto.part_of_speech
-        } : null,
-        cellKeys: Object.keys(cell)
-      });
-    });
-
-    // Get all pictos from cells that have pictos
+    // Filter cells with pictos
     const cellsWithPictos = this.board.cells.filter(cell => cell.picto);
-    console.log('🖼️ [PDF Preview] Found', cellsWithPictos.length, 'cells with pictos');
 
     if (cellsWithPictos.length === 0) {
-      console.log('⚠️ [PDF Preview] No pictos found - symbolset section will not show');
-      console.log('💡 [PDF Preview] Make sure you are adding SYMBOLS (not images) to cells in the board builder');
       this.symbolsetInfo = [];
       return;
     }
 
+    // Extract and validate pictos
     const pictos = cellsWithPictos.map(cell => cell.picto);
-    console.log('🖼️ [PDF Preview] Pictos:', pictos.map(p => ({ id: p.id, symbolset_id: p.symbolset_id })));
+    const validPictos = pictos.filter(picto => picto && picto.symbolset_id);
 
-    // Group pictos by symbolset_id and count them
+    if (validPictos.length === 0) {
+      this.symbolsetInfo = [];
+      return;
+    }
+
+    // Group by symbolset_id
     const symbolsetCounts = new Map<number, number>();
-    pictos.forEach(picto => {
-      if (!picto.symbolset_id) {
-        console.log('⚠️ [PDF Preview] Picto missing symbolset_id:', picto.id);
-        return;
-      }
+    validPictos.forEach(picto => {
       const count = symbolsetCounts.get(picto.symbolset_id) || 0;
       symbolsetCounts.set(picto.symbolset_id, count + 1);
     });
 
-    console.log('📈 [PDF Preview] Symbolset counts:', Array.from(symbolsetCounts.entries()));
-
-    // Create the symbolset info array with symbolset details
+    // Match with symbolset metadata
     const rawSymbolsetInfo = Array.from(symbolsetCounts.entries())
       .map(([symbolsetId, count]) => {
         const symbolset = this.symbolsets.find(s => s.id === symbolsetId);
-        if (!symbolset) {
-          console.log('⚠️ [PDF Preview] Symbolset not found for ID:', symbolsetId);
-          return null;
-        }
-        return { symbolset, count };
+        return symbolset ? { symbolset, count } : null;
       })
       .filter(info => info !== null);
 
+    // Sort and store
     this.symbolsetInfo = rawSymbolsetInfo.sort((a, b) => a.symbolset.name.localeCompare(b.symbolset.name));
-
-    console.log('✅ [PDF Preview] Symbolset info generated:', this.symbolsetInfo.length, 'symbolsets');
-    if (this.symbolsetInfo.length > 0) {
-      console.log('✅ [PDF Preview] Symbolsets used in this board:');
-      this.symbolsetInfo.forEach(info => {
-        console.log(`   📚 ${info.symbolset.name} (${info.count} symbol${info.count > 1 ? 's' : ''}) - License: ${info.symbolset.licence.name}`);
-        console.log(`      Publisher: ${info.symbolset.publisher} (${info.symbolset.publisher_url})`);
-      });
-    } else {
-      console.log('ℹ️ [PDF Preview] To test symbolset info, add symbols to this board in the board builder');
-    }
   }
 
   returnToBoard() {

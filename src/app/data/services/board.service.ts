@@ -30,7 +30,12 @@ export class BoardService {
   }
 
   get(id: number|string, expand = ''): Observable<Board> {
-    return this.http.get<Board>(`${this.apiEndpoint}/${id}`, { params: { expand } })
+    const params: any = {};
+    if (expand) {
+      params.expand = expand;
+    }
+
+    return this.http.get<Board>(`${this.apiEndpoint}/${id}`, { params })
       .pipe(map(data => new Board().deserialise(data)));
   }
 
