@@ -14,10 +14,16 @@
 
     <app-nav-button *ngFor="let button of rightButtons$ | async" [button]="button"></app-nav-button>
 
+    <a mat-button mat-icon-button href="assets/images/bb_instructions.pdf" target="_blank" rel="noopener noreferrer"
+       matTooltip="Help and Resources" i18n-matTooltip="Navbar help button" class="mr-1">
+      <mat-icon>help_outline</mat-icon>
+    </a>
+    <!-- Previous Help & Resources link (kept for easy restore):
     <a mat-button mat-icon-button href="https://globalsymbols.com/about/board-builder-and-symbol-creator-instructions" target="_blank"
        matTooltip="Help and Resources" i18n-matTooltip="Navbar help button" class="mr-1">
       <mat-icon>help_outline</mat-icon>
     </a>
+    -->
 
     <button mat-button mat-icon-button [matMenuTriggerFor]="languageMenu" class="mr-1"
             matTooltip="Language" i18n-matTooltip="Navbar language button"
