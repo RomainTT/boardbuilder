@@ -7,6 +7,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {HomePanelComponent} from './home-panel/home-panel.component';
 
@@ -28,6 +29,7 @@ export const routes: Routes = [
     FlexLayoutModule,
     MatGridListModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     MatToolbarModule
   ]
 })
