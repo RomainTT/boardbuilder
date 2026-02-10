@@ -6,6 +6,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {NewBoardSetDialogComponent} from '@modules/board-sets/new-board-set-dialog/new-board-set-dialog.component';
 import {DialogService} from '@app/services/dialog.service';
 import {ToolbarService} from '@app/services/toolbar.service';
+import {ObfObzService} from '@data/services/obf-obz.service';
 
 @Component({
   selector: 'app-board-sets',
@@ -25,7 +26,8 @@ export class BoardSetsComponent implements OnInit, OnDestroy {
     private router: Router,
     private dialog: MatDialog,
     private dialogService: DialogService,
-    private toolbarService: ToolbarService
+    private toolbarService: ToolbarService,
+    private obfObzService: ObfObzService
   ) { }
 
   ngOnInit(): void {
@@ -69,8 +71,10 @@ export class BoardSetsComponent implements OnInit, OnDestroy {
   uploadObz() {
     this.dialogService.uploadObz().afterClosed().subscribe(newBoardSet => {
       if (newBoardSet instanceof BoardSet) {
-        // Save the newBoardSet, then open it.
-        this.service.add(newBoardSet).subscribe(bs => this.openBoardSet(bs));
+        // Upload inline images (data URLs) to media API so backend receives short URLs, then save.
+        this.obfObzService.uploadInlineImagesToMedia(newBoardSet).subscribe(bs => {
+          this.service.add(bs).subscribe(boardSet => this.openBoardSet(boardSet));
+        });
       }
     });
   }

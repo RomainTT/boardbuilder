@@ -3,8 +3,8 @@ import {Board} from '@data/models/board.model';
 import * as JSZip from 'jszip';
 import {BoardSet} from '@data/models/boardset.model';
 import {MediaService} from '@data/services/media.service';
-import {Observable, from} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import {Observable, from, of, forkJoin} from 'rxjs';
+import {switchMap, map} from 'rxjs/operators';
 import {BoardSetService} from '@data/services/board-set.service';
 import {BoardService} from '@data/services/board.service';
 import {Obf} from '@data/models/obf.interface';
@@ -23,6 +23,25 @@ export class ObfObzService {
   constructor(private mediaService: MediaService,
               private boardSetService: BoardSetService,
               private boardService: BoardService) { }
+
+  // Resolves OBF images that use path (files inside OBZ) by reading from zip and setting url as data URL.
+  private resolveObzImages(zip: JSZip, obf: any): Promise<any> {
+    if (!obf.images || !Array.isArray(obf.images)) { return Promise.resolve(obf); }
+    const promises = obf.images
+      .filter((img: any) => img && img.path)
+      .map((img: any) => {
+        const path = img.path;
+        if (!zip.file(path)) {
+          return Promise.reject(new Error($localize`:obz upload error file missing:${path} is missing.`));
+        }
+        return zip.file(path).async('base64').then(base64 => {
+          const contentType = img.content_type || 'image/png';
+          img.url = `data:${contentType};base64,${base64}`;
+          delete img.path;
+        });
+      });
+    return Promise.all(promises).then(() => obf);
+  }
 
   // Parses an OBF object to a Board. Does not upload embedded images.
   public parseObf(obf: Obf, boardSet?: BoardSet): Board {
@@ -100,11 +119,11 @@ export class ObfObzService {
               throw new Error($localize`:obz upload error file missing:${obfFilename} is missing.`);
             }
 
-            // Access the OBF file, unpack it to a Board and save it into the BoardSet.
-            return zip.file(obfFilename).async('binarystring').then(obf => {
-              // Prepare a new Board, build it from the OBF and push it to the BoardSet.
-              return this.parseObf(JSON.parse(obf));
-            });
+            // Access the OBF file, resolve path-based images from zip, then unpack to a Board.
+            return zip.file(obfFilename).async('binarystring')
+              .then(obfStr => JSON.parse(obfStr))
+              .then(obf => this.resolveObzImages(zip, obf))
+              .then(obf => this.parseObf(obf));
           });
         } else if (manifest.root) {
           // Legacy format: single root board file
@@ -115,11 +134,12 @@ export class ObfObzService {
             throw new Error($localize`:obz upload error file missing:${rootFilename} is missing.`);
           }
 
-          // Access the root OBF file, unpack it to a Board
+          // Access the root OBF file, resolve path-based images from zip, then unpack to a Board.
           boardPromises = [
-            zip.file(rootFilename).async('binarystring').then(obf => {
-              return this.parseObf(JSON.parse(obf));
-            })
+            zip.file(rootFilename).async('binarystring')
+              .then(obfStr => JSON.parse(obfStr))
+              .then(obf => this.resolveObzImages(zip, obf))
+              .then(obf => this.parseObf(obf))
           ];
         } else {
           // Neither format found
@@ -156,9 +176,50 @@ export class ObfObzService {
     });
   }
 
+  /**
+   * Uploads cells' inline images (data URLs) to the media API and replaces image_url with public_url
+   * so the backend does not receive oversized data. Call before adding a board set that came from OBZ.
+   */
+  public uploadInlineImagesToMedia(boardSet: BoardSet): Observable<BoardSet> {
+    const cellsWithDataUrl: { cell: any; dataUrl: string }[] = [];
+    (boardSet.boards || []).forEach(board => {
+      (board.cells || []).forEach(cell => {
+        const url = cell.image_url || cell.imageData;
+        if (url && typeof url === 'string' && url.startsWith('data:')) {
+          cellsWithDataUrl.push({ cell, dataUrl: url });
+        }
+      });
+    });
+    if (cellsWithDataUrl.length === 0) {
+      return of(boardSet);
+    }
+    const dataURLtoBlob = (dataUrl: string): Blob => {
+      const arr = dataUrl.split(',');
+      const mimeMatch = arr[0].match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+      const bstr = atob(arr[1]);
+      const n = bstr.length;
+      const u8 = new Uint8Array(n);
+      for (let i = 0; i < n; i++) { u8[i] = bstr.charCodeAt(i); }
+      return new Blob([u8], { type: mime });
+    };
+    const uploads = cellsWithDataUrl.map(({ cell, dataUrl }) =>
+      this.mediaService.add(dataURLtoBlob(dataUrl), null).pipe(
+        map(media => {
+          cell.image_url = media.public_url;
+          cell.media_id = media.id;
+          cell.media = media;
+          return media;
+        })
+      )
+    );
+    return forkJoin(uploads).pipe(map(() => boardSet));
+  }
+
   // Uploads a BoardSet from an OBZ file, including embedded images.
   public uploadObz(file): Observable<BoardSet> {
     return from(this.parseObz(file)).pipe(
+      switchMap(boardSet => this.uploadInlineImagesToMedia(boardSet)),
       switchMap(boardSet => this.boardSetService.add(boardSet))
     );
   }
