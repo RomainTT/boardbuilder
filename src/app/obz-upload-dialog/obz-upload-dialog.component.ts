@@ -29,12 +29,16 @@ export class ObzUploadDialogComponent implements AfterViewInit {
     if (filesList.files.length !== 1) { return; }
     this.filename = filesList.files[0].name;
     this.fileInvalidReason = null;
+    this.boardSet = null;
 
-    try {
-      this.boardSet = this.obfObzService.parseObz(filesList.files[0]);
-    } catch (error) {
-      this.boardSet = null;
-      this.fileInvalidReason = 'a generic error occurred: ' + error;
-    }
+    this.obfObzService.parseObz(filesList.files[0])
+      .then(boardSet => {
+        this.boardSet = boardSet;
+      })
+      .catch(error => {
+        this.boardSet = null;
+        console.error('Error parsing OBZ file:', error);
+        this.fileInvalidReason = error.message || 'a generic error occurred: ' + error;
+      });
   }
 }

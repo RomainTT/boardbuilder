@@ -22,7 +22,7 @@
 
     <input type="file" accept=".obz" style="display: none" #uploadInput (change)="fileChanged($event.target)">
 
-    <p *ngIf="boardSet && !fileInvalidReason" role="alert" i18n="OBZ Upload Dialog scan results">
+    <p *ngIf="boardSet && boardSet.boards && !fileInvalidReason" role="alert" i18n="OBZ Upload Dialog scan results">
       We found {{boardSet.boards.length}} {boardSet.boards.length, plural, =1 {board} other {boards}} in your OBZ file.
     </p>
 
