@@ -1,0 +1,8 @@
+<h1 mat-dialog-title i18n="login required title">Login required</h1>
+<div mat-dialog-content>
+  <p i18n="login required message">You need to log in to access the {{ pageSlug }} page.</p>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="close()" i18n="close|Close">Close</button>
+  <button mat-flat-button color="primary" (click)="login()" i18n="login|Login">Login</button>
+</div>

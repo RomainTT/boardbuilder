@@ -7,9 +7,10 @@ import {MatButtonModule} from '@angular/material/button';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatDialogModule} from '@angular/material/dialog';
 import {HomePanelComponent} from './home-panel/home-panel.component';
+import {LoginRequiredDialogComponent} from './login-required-dialog/login-required-dialog.component';
 
 export const routes: Routes = [
   {
@@ -20,7 +21,7 @@ export const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [HomeComponent, HomePanelComponent],
+  declarations: [HomeComponent, HomePanelComponent, LoginRequiredDialogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -29,8 +30,8 @@ export const routes: Routes = [
     FlexLayoutModule,
     MatGridListModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatDialogModule
   ]
 })
 export class HomeModule { }
