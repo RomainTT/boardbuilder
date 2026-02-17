@@ -13,6 +13,8 @@ import { PromptBuilderService } from '@shared/services/prompt-builder.service';
 import { ScaiAnalyticsService } from '@shared/services/scai-analytics.service';
 import { ErrorMessageService } from '@shared/services/error-message.service';
 import { MediaUpdateService } from '@data/services/media-update.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-text-mode',
@@ -32,6 +34,9 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
 
   // Prompt-specific loading states
   isFirstGeneration: boolean = true;
+
+  // Queue polling subscription
+  private queuePollSubscription?: Subscription;
 
 
   trackByIndex(index: number, item: any): number {
@@ -120,35 +125,59 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
 
     this.aiSymbolHttpService.generateImages(params)
       .subscribe(response => {
-        this.stateService.setGeneratedImages(response.image_urls);
-        // Log generated images with prompt id
-        const promptId = this.analytics.lastPromptId || 0;
-        const sessionId = this.analytics.currentSessionId || 0;
-        if (promptId && sessionId) {
-          response.image_urls.forEach((url, idx) => {
-            this.analytics.createGeneratedImage({
-              prompt_id: promptId,
-              image_url: url,
-              position: idx + 1,
-              session_id: sessionId
-            }).subscribe();
-          });
+        // Handle queue response - only show queue info when GPU is busy (queue_position > 0)
+        if (response.status === 'queued' && response.job_id && response.queue_position !== undefined && response.queue_position > 0) {
+          // Set queue info in state
+          this.stateService.setQueueInfo(
+            response.queue_position,
+            response.estimated_wait_time || 0,
+            response.job_id
+          );
+          
+          // Start polling for job completion
+          this.startPollingJobStatus(response.job_id, startTime, minTime);
+          return;
         }
-        if (!this.isFirstGeneration) {
-          this.stateService.setShowImages(true);
+        
+        // If queued but queue_position is 0 (shouldn't happen, but handle gracefully)
+        if (response.status === 'queued' && response.job_id) {
+          // Start polling but don't show queue info
+          this.startPollingJobStatus(response.job_id, startTime, minTime);
+          return;
         }
-        this.isFirstGeneration = false;
+        
+        // Handle completed response or legacy response (direct image_urls)
+        if (response.image_urls && response.image_urls.length > 0) {
+          this.stateService.setGeneratedImages(response.image_urls);
+          // Log generated images with prompt id
+          const promptId = this.analytics.lastPromptId || 0;
+          const sessionId = this.analytics.currentSessionId || 0;
+          if (promptId && sessionId) {
+            response.image_urls.forEach((url, idx) => {
+              this.analytics.createGeneratedImage({
+                prompt_id: promptId,
+                image_url: url,
+                position: idx + 1,
+                session_id: sessionId
+              }).subscribe();
+            });
+          }
+          if (!this.isFirstGeneration) {
+            this.stateService.setShowImages(true);
+          }
+          this.isFirstGeneration = false;
 
-        const elapsed = Date.now() - startTime;
-        const remaining = minTime - elapsed;
-        if (remaining > 0) {
-          setTimeout(() => {
+          const elapsed = Date.now() - startTime;
+          const remaining = minTime - elapsed;
+          if (remaining > 0) {
+            setTimeout(() => {
+              this.stateService.setLoading(false);
+              this.stateService.setRefreshing(false);
+            }, remaining);
+          } else {
             this.stateService.setLoading(false);
             this.stateService.setRefreshing(false);
-          }, remaining);
-        } else {
-          this.stateService.setLoading(false);
-          this.stateService.setRefreshing(false);
+          }
         }
       }, error => {
         // Always log error to analytics with session_id for consistent reporting
@@ -172,6 +201,100 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
           this.handleApiError(error);
         }
         this.isFirstGeneration = false;
+      });
+  }
+
+  private startPollingJobStatus(jobId: string, startTime: number, minTime: number): void {
+    // Stop any existing polling
+    if (this.queuePollSubscription) {
+      this.queuePollSubscription.unsubscribe();
+    }
+
+    const maxPolls = 60; // ~3 minutes at 3s intervals
+    let pollCount = 0;
+
+    this.queuePollSubscription = interval(3000) // Poll every 3 seconds
+      .pipe(
+        switchMap(() => {
+          pollCount++;
+          return this.aiSymbolHttpService.pollJobStatus(jobId);
+        }),
+        takeWhile((response) => {
+          // Continue polling while status is 'queued' or 'processing'
+          return response.status === 'queued' || response.status === 'processing';
+        }, true) // inclusive: emit the last value that fails the condition
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.status === 'queued' && response.queue_position !== undefined && response.queue_position > 0) {
+            // Update queue info only when GPU is busy (queue_position > 0)
+            this.stateService.setQueueInfo(
+              response.queue_position,
+              response.estimated_wait_time || 0,
+              jobId
+            );
+          } else if (response.status === 'processing' || (response.status === 'queued' && response.queue_position === 0)) {
+            // Clear queue info when processing starts
+            this.stateService.clearQueueInfo();
+          } else if (response.status === 'completed' && response.image_urls && response.image_urls.length > 0) {
+            // Job completed, set images
+            this.stateService.setGeneratedImages(response.image_urls);
+            this.stateService.clearQueueInfo();
+
+            // Log generated images with prompt id
+            const promptId = this.analytics.lastPromptId || 0;
+            const sessionId = this.analytics.currentSessionId || 0;
+            if (promptId && sessionId) {
+              response.image_urls.forEach((url, idx) => {
+                this.analytics.createGeneratedImage({
+                  prompt_id: promptId,
+                  image_url: url,
+                  position: idx + 1,
+                  session_id: sessionId
+                }).subscribe();
+              });
+            }
+
+            if (!this.isFirstGeneration) {
+              this.stateService.setShowImages(true);
+            }
+            this.isFirstGeneration = false;
+
+            const elapsed = Date.now() - startTime;
+            const remaining = minTime - elapsed;
+            if (remaining > 0) {
+              setTimeout(() => {
+                this.stateService.setLoading(false);
+                this.stateService.setRefreshing(false);
+              }, remaining);
+            } else {
+              this.stateService.setLoading(false);
+              this.stateService.setRefreshing(false);
+            }
+
+            // Stop polling
+            if (this.queuePollSubscription) {
+              this.queuePollSubscription.unsubscribe();
+              this.queuePollSubscription = undefined;
+            }
+          }
+
+          // Check max polls
+          if (pollCount >= maxPolls) {
+            this.handleApiError({ status: 504, error: { detail: 'Request timed out waiting for result' } });
+            if (this.queuePollSubscription) {
+              this.queuePollSubscription.unsubscribe();
+              this.queuePollSubscription = undefined;
+            }
+          }
+        },
+        error: (error) => {
+          this.handleApiError(error);
+          if (this.queuePollSubscription) {
+            this.queuePollSubscription.unsubscribe();
+            this.queuePollSubscription = undefined;
+          }
+        }
       });
   }
 
@@ -248,6 +371,9 @@ export class TextModeComponent extends BaseAiSymbolGeneratorComponent implements
   }
 
   ngOnDestroy() {
+    if (this.queuePollSubscription) {
+      this.queuePollSubscription.unsubscribe();
+    }
     super.ngOnDestroy();
   }
 

@@ -1,4 +1,15 @@
 <div class="images-container" *ngIf="galleryState?.isGenerated" [@expand] (@expand.done)="onExpandDone($event)">
+  <!-- Queue position display - only show when GPU is busy (queuePosition > 0) -->
+  <div class="queue-info" *ngIf="galleryState?.queuePosition !== null && galleryState?.queuePosition !== undefined && galleryState?.queuePosition > 0">
+    <div class="queue-content">
+      <mat-icon class="queue-icon">hourglass_empty</mat-icon>
+      <p class="queue-message">
+        Position {{ galleryState?.queuePosition }} in queue
+        <span *ngIf="galleryState?.estimatedWaitTime"> (~{{ galleryState?.estimatedWaitTime }}s)</span>
+      </p>
+    </div>
+  </div>
+
   <!-- Error state -->
   <div class="error-state" *ngIf="errorState?.showApiError && errorState?.apiError">
     <div class="error-content">
@@ -20,7 +31,7 @@
       [style.background-position]="'center'">
       <span class="placeholder-text" *ngIf="!img">Image {{ i + 1 }}</span>
       <div
-        *ngIf="galleryState?.isLoading"
+        *ngIf="galleryState?.isLoading && (galleryState?.queuePosition === null || galleryState?.queuePosition === undefined || galleryState?.queuePosition === 0)"
         class="custom-progress-bar">
         <div
           class="custom-progress-fill"

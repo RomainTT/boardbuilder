@@ -79,6 +79,16 @@ export class AiSymbolHttpService {
   }
 
   /**
+   * Poll job status for image generation
+   */
+  pollJobStatus(jobId: string): Observable<AiGenerationResponse> {
+    return this.http.get<AiGenerationResponse>(
+      `${environment.boardBuilderApiBase}/ai/job_status`,
+      { params: { job_id: jobId } }
+    );
+  }
+
+  /**
    * Remove background from an image using the remove-background API
    */
   removeBackground(imageUrl: string): Observable<string> {

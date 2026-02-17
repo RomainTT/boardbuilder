@@ -23,6 +23,9 @@ export interface GalleryState {
   isLoading: boolean;
   isRefreshing: boolean;
   progressBars: number[]; // Progress values for each image (0-100)
+  queuePosition: number | null;
+  estimatedWaitTime: number | null; // seconds
+  jobId: string | null;
 }
 
 // Rating state interface
@@ -68,7 +71,10 @@ export class AiSymbolStateService {
     showImages: false,
     isLoading: false,
     isRefreshing: false,
-    progressBars: [0, 0, 0, 0]
+    progressBars: [0, 0, 0, 0],
+    queuePosition: null,
+    estimatedWaitTime: null,
+    jobId: null
   });
 
   // Rating state management
@@ -148,7 +154,10 @@ export class AiSymbolStateService {
       ...this._galleryState$.value,
       generatedImages: images,
       originalImages: images, // Store originals for undo functionality
-      isGenerated: true
+      isGenerated: true,
+      queuePosition: null, // Clear queue info when images are received
+      estimatedWaitTime: null,
+      jobId: null
     });
   }
 
@@ -182,9 +191,13 @@ export class AiSymbolStateService {
   }
 
   setLoading(loading: boolean): void {
+    const currentState = this._galleryState$.value;
     this._galleryState$.next({
-      ...this._galleryState$.value,
-      isLoading: loading
+      ...currentState,
+      isLoading: loading,
+      // Clear queue info when processing starts (status changes from queued to processing)
+      queuePosition: loading && currentState.queuePosition !== null ? null : currentState.queuePosition,
+      estimatedWaitTime: loading && currentState.estimatedWaitTime !== null ? null : currentState.estimatedWaitTime
     });
   }
 
@@ -237,7 +250,28 @@ export class AiSymbolStateService {
       showImages: false,
       isLoading: false,
       isRefreshing: false,
-      progressBars: [0, 0, 0, 0]
+      progressBars: [0, 0, 0, 0],
+      queuePosition: null,
+      estimatedWaitTime: null,
+      jobId: null
+    });
+  }
+
+  setQueueInfo(position: number, waitTime: number, jobId: string): void {
+    this._galleryState$.next({
+      ...this._galleryState$.value,
+      queuePosition: position,
+      estimatedWaitTime: waitTime,
+      jobId: jobId
+    });
+  }
+
+  clearQueueInfo(): void {
+    this._galleryState$.next({
+      ...this._galleryState$.value,
+      queuePosition: null,
+      estimatedWaitTime: null,
+      jobId: null
     });
   }
 

@@ -8,7 +8,11 @@ export interface AiGenerationParams {
 }
 
 export interface AiGenerationResponse {
-  image_urls: string[];
+  status?: 'queued' | 'processing' | 'completed';
+  job_id?: string;
+  queue_position?: number;
+  estimated_wait_time?: number;
+  image_urls: string[]; // present when status is 'completed' or legacy response
 }
 
 export interface AiImageToImageParams {

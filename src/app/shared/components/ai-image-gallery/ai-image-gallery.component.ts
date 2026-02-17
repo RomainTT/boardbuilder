@@ -34,6 +34,7 @@ export class AiImageGalleryComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private progressSubscriptions: Subscription[] = [];
   private wasLoading = false;
+  private wasInQueue = false; // Track if we were previously in queue
   private generationStarted = false;
   progressBars: number[] = [0, 0, 0, 0];
 
@@ -48,18 +49,39 @@ export class AiImageGalleryComponent implements OnInit, OnDestroy {
         if (galleryState.progressBars && galleryState.progressBars !== this.progressBars) {
           this.progressBars = [...galleryState.progressBars];
         }
+        
         const prevWasLoading = this.wasLoading;
+        const prevWasInQueue = this.wasInQueue;
+        const isInQueue = galleryState.queuePosition !== null && galleryState.queuePosition !== undefined && galleryState.queuePosition > 0;
+        
         this.wasLoading = galleryState.isLoading;
+        this.wasInQueue = isInQueue;
+        
         const loadingStarted = !prevWasLoading && galleryState.isLoading;
+        const exitedQueue = prevWasInQueue && !isInQueue; // Was in queue, now not in queue
+        const isNotInQueue = !isInQueue; // Currently not in queue
 
-        if (loadingStarted) {
-          // Reset progress bars to 0 and start them when loading starts
+        // Start progress bars only when:
+        // 1. Loading just started AND we're not in queue (normal case, GPU was free)
+        // 2. OR we just exited the queue while loading (transition from queued to processing)
+        // In both cases, ensure progress bars start from 0%
+        if ((loadingStarted && isNotInQueue) || (exitedQueue && galleryState.isLoading)) {
+          // Reset progress bars to 0 and start them fresh
           this.generationStarted = true;
           this.stateService.setProgressBars([0, 0, 0, 0]);
-          this.startProgressBars();
+          this.progressBars = [0, 0, 0, 0]; // Reset local state too
+          this.clearProgressSubscriptions(); // Stop any existing progress animations
+          this.startProgressBars(); // Start fresh from 0%
         } else if (!galleryState.isLoading && this.generationStarted && galleryState.progressBars.some(progress => progress < 100)) {
           // Complete progress bars when loading finishes, but only if generation started and they're not already completed
           this.completeProgressBars();
+        }
+        
+        // If we're in queue, make sure progress bars are stopped and reset
+        if (isInQueue && this.generationStarted) {
+          this.clearProgressSubscriptions();
+          this.stateService.setProgressBars([0, 0, 0, 0]);
+          this.progressBars = [0, 0, 0, 0];
         }
       });
   }
@@ -69,6 +91,7 @@ export class AiImageGalleryComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.clearProgressSubscriptions();
     this.generationStarted = false;
+    this.wasInQueue = false;
   }
 
   private startProgressBars() {
