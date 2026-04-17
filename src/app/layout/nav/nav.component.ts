@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {environment} from '@env';
 import {AuthService} from '@app/services/auth.service';
 import {Observable} from 'rxjs';
 import {ToolbarButton, ToolbarService} from '@app/services/toolbar.service';
@@ -10,6 +11,8 @@ import {Locale, LocaleService} from '../../data/services/locale.service';
   styleUrls: ['./nav.component.scss']
 })
 export class NavComponent implements OnInit {
+
+  readonly manageAccountUrl = `${environment.globalSymbolsBase}/users/edit`;
 
   canActivateProtectedRoutes: Observable<boolean>;
   leftButtons$: Observable<ToolbarButton[]>;

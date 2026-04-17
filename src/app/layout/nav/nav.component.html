@@ -58,7 +58,7 @@
           <ng-container i18n="Navbar dropdown Symbols button">Symbols</ng-container>
         </a>
         <mat-divider></mat-divider>
-        <a mat-menu-item href="https://globalsymbols.com/users/edit" target="_blank">
+        <a mat-menu-item [href]="manageAccountUrl" target="_blank" rel="noopener noreferrer">
           <mat-icon>person</mat-icon>
           <ng-container i18n="manage account|Navbar dropdown Manage Account button">Manage Account</ng-container>
         </a>

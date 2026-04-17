@@ -32,7 +32,7 @@
 
   <mat-form-field class="w-100">
     <mat-label i18n="Symbol Search language input label">Language</mat-label>
-    <mat-select [(value)]="gsParams.language.value" (selectionChange)="search()">
+    <mat-select [(value)]="gsParams.language.value" (selectionChange)="onGsLanguageChange()">
       <mat-option *ngFor="let language of gsParams.language.options" [value]="language.iso639_3">{{language.name}}</mat-option>
     </mat-select>
   </mat-form-field>

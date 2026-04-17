@@ -12,6 +12,7 @@ import { MediaUpdateService } from '@data/services/media-update.service'; // Add
 import { Cell } from '@data/models/cell.model';
 // Removed: ImageActionDialogComponent, ImageAction, ImageActionDialogData - no longer used since we skip the dialog
 import { SearchResultConverterService } from '@shared/services/search-result-converter.service';
+import { SymbolSearchPreferencesService } from '@shared/services/symbol-search-preferences.service';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -55,6 +56,7 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
     private mediaUpdateService: MediaUpdateService,
     private dialog: MatDialog,
     private searchResultConverter: SearchResultConverterService,
+    private symbolSearchPreferences: SymbolSearchPreferencesService,
     @Inject(LOCALE_ID) public locale: string
   ) {
 
@@ -77,7 +79,12 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
         // Default the language param to the current locale.
         // First, get the main locale (e.g. 'en' for 'en-gb', or 'fr' for 'fr').
         const currentLocaleBase = this.locale.match(/^(\w+)/)[1];
-        param.value = languages.find(l => l.iso639_1 === currentLocaleBase)?.iso639_3 || languages[0].iso639_3;
+        const localeDefault =
+          languages.find(l => l.iso639_1 === currentLocaleBase)?.iso639_3 || languages[0].iso639_3;
+
+        const stored = this.symbolSearchPreferences.getPreferredGsLanguage();
+        param.value =
+          stored && languages.some(l => l.iso639_3 === stored) ? stored : localeDefault;
       }
     );
     this.globalSymbolsService.getSymbolSets().subscribe(
@@ -119,6 +126,11 @@ export class SearchPanelComponent implements AfterViewInit, OnInit {
     this.searchCall().subscribe(results => {
       this.resultsSubject.next(results);
     });
+  }
+
+  onGsLanguageChange(): void {
+    this.symbolSearchPreferences.setPreferredGsLanguage(this.gsParams.language.value);
+    this.search();
   }
 
   searchCall(): Observable<SymbolSearchResult[]> {
